@@ -3,11 +3,11 @@ const mysql = require('mysql');
 module.exports = function(app){
 
     // Create Connection
-    const db = mysql.createConnections({
-        host : 'localhost',
-        user : 'me',
-        password : 'secret',
-        database : 'my_db'
+    const db = mysql.createConnection({
+        host        : 'localhost',
+        user        : 'root',
+        password    : 'password',
+        database    : 'nodemysql'
     });
 
     // Connect
@@ -15,16 +15,16 @@ module.exports = function(app){
         if(err){
             throw err;
         }
-        console.log('MySql Connected...');
+        console.log('MySql : Connection has been established succesfully');
     });
 
     // Create DB
-    app.get('/creatdb', (req, res) => {
+    app.get('/createdb', (req, res) => {
         let sql = 'CREATE DATABASE nodemysql';
         db.query(sql, (err, result) => {
             if(err) throw err;
             console.log(result);
-            res.send('Databse created...');
+            res.send('Database created...');
         });
     });
 }
