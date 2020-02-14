@@ -8,11 +8,7 @@ const User = db.define('user', {
         allowNull: false,
         primaryKey: true
     },
-    firstName: {
-        type: Sequelize.STRING,
-        allowNull: false
-    },
-    lastName: {
+    username: {
         type: Sequelize.STRING,
         allowNull: false
     },
@@ -24,7 +20,7 @@ const User = db.define('user', {
         type: Sequelize.STRING,
         allowNull: false
     },
-    admin: {
+    role: {
         type: Sequelize.INTEGER,
         allowNull: false
     },

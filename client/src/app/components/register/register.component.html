@@ -1,1 +1,75 @@
-<p>register.component works!</p>
+<div> </div>
+
+<div class="container" id="container" [ngClass]="rightPanelActive ? 'right-panel-active' : ''">
+	<div class="form-container sign-up-container">
+		<form action="#">
+			<h1>Create Account</h1>
+			<div class="social-container">
+				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+			</div>
+			<span>or use your email for registration</span>
+			<input type="text" placeholder="Name" />
+			<input type="email" placeholder="Email" />
+			<input type="password" placeholder="Password" />
+			<button>Sign Up</button>
+		</form>
+	</div>
+	<div class="form-container sign-in-container">
+		<form action="#">
+			<h1>Sign in</h1>
+			<div class="social-container">
+				<a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+				<a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+			</div>
+			<span>or use your account</span>
+			<input type="email" placeholder="Email" />
+			<input type="password" placeholder="Password" />
+			<a href="#">Forgot your password?</a>
+			<button>Sign In</button>
+		</form>
+	</div>
+	<div class="overlay-container">
+		<div class="overlay">
+			<div class="overlay-panel overlay-left">
+				<h1>Welcome Back!</h1>
+				<p>To keep connected with us please login with your personal info</p>
+				<button class="ghost" id="signIn" (click)="clickRightPanel()">Sign In</button>
+			</div>
+			<div class="overlay-panel overlay-right">
+				<h1>Hello, Friend!</h1>
+				<p>Enter your personal details and start journey with us</p>
+				<button class="ghost" id="signUp" (click)="clickRightPanel()">Sign Up</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div class="col-md-6 col-md-offset-3">
+    <h2>Register</h2>
+    <form name="form" (ngSubmit)="f.form.valid && register()" #f="ngForm" novalidate>
+      <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !firstname.valid }">
+        <label for="firstname">Username</label>
+        <input type="text" class="form-control" name="firstname" id="firstname"[(ngModel)]="userInfo.firstname" #firstname="ngModel" required />
+        <div *ngIf="f.submitted && !firstname.valid" class="help-block">First name is required</div>
+      </div>
+      <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !email.valid }">
+        <label for="email">E-mail</label>
+        <input type="email" class="form-control" name="email" id="email"[(ngModel)]="userInfo.email" #email="ngModel" required />
+        <div *ngIf="f.submitted && !email.valid" class="help-block">E-mail is required</div>
+      </div>
+      <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+        <label for="password">Password</label>
+        <input type="password" class="form-control" name="password" id="password"[(ngModel)]="userInfo.password" #password="ngModel" required />
+        <div *ngIf="f.submitted && !password.valid" class="help-block">Password is required</div>
+      </div>
+      <div class="form-group">
+        <button [disabled]="loading" class="btn btn-primary" id="btnSubmit">Register</button>
+        <a [routerLink]="['/login']" class="btn btn-link">Cancel</a>
+        <div *ngIf="f.submitted && otherInvalid()" class="help-block alert alert-warning">{{errorMessage}}</div>
+      </div>
+    </form>
+  </div>

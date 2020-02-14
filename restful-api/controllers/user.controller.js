@@ -8,14 +8,15 @@ const mysql = require('mysql');
 const db = require('../middleware/sequelize.mw');
 const User = require('../models/user.model.js');
 
-// Create new User : Register
-router.post('/signup', (req, res, next) => {
+router.post
+
+// Register a new user
+router.post('/register', (req, res, next) => {
   let newUser = new User({
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
     username: req.body.username,
+    email: req.body.email,
     password: req.body.password,
-    admin: 0
+    role: req.body.role
   });
  
   User.create(newUser, (err, user) => {
@@ -29,13 +30,15 @@ router.post('/signup', (req, res, next) => {
 
 // Get All Users
 router.get('/findAll', (req, res) => {
-  console.log("test");
   User.findAll()
     .then(users => {
-      console.log(users);
-      res.sendStatus(200);
+      res.json({success: true, msg: users});
     })
     .catch(err => console.log(err));
+});
+
+router.get('/user', (req, res) => {
+  res.json({success: true, msg:'User registered'});
 });
 
 module.exports = router;
