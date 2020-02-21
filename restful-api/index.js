@@ -14,6 +14,8 @@ const port = process.env.PORT || 3000;
 
 // Configurations
 app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 require("./configs/mysql.config.js")(app);
 require("./configs/sequelize.config.js")(app);
 //require("./configs/body-parser.config.js")(app);

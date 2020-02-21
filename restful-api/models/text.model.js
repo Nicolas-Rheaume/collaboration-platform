@@ -7,7 +7,11 @@ const Text = db.define('text', {
         type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true
-    }
+    },
+    text: {
+      type: Sequelize.STRING,
+      allowNull: false
+  },
     
   }, {
 }
