@@ -13,7 +13,7 @@ export class RegisterComponent implements OnInit {
 
   // VARIABLES
   userInfo: User = {
-    uid: 0,
+    id: 0,
     username: '',
     email: '',
     password: '',

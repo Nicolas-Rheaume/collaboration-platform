@@ -6,6 +6,7 @@ const User = db.define('user', {
     id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true
     },
     username: {
@@ -26,11 +27,9 @@ const User = db.define('user', {
     },
     createdAt: {
         type: Sequelize.DATE,
-        allowNull: false
     },
     updatedAt: {
         type: Sequelize.DATE,
-        allowNull: false
     }
     
   }, {

@@ -5,6 +5,7 @@ const express       = require('express');
 const http          = require('http').Server(app);
 const mysql         = require('mysql');
 const path          = require('path');
+const io            = require('socket.io')(http);
 
 // Port
 const port = process.env.PORT || 3000;
@@ -18,11 +19,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 require("./configs/mysql.config.js")(app);
 require("./configs/sequelize.config.js")(app);
-//require("./configs/body-parser.config.js")(app);
 //require("./configs/passport.config.js")(app);
 
 // Middlewares
-//require('./mw/socket.declaration.js')(app, io);
+require('./sockets/user.socket.js')(app, io);
 
 // Controllers
 app.use('/user', require("./controllers/user.controller.js"));

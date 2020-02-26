@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
 import {catchError, retry, map, tap} from 'rxjs/internal/operators';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, throwError, Subscriber } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Socket } from 'ngx-socket-io';
+import * as io from 'socket.io-client';
 
 import { User } from '../models/user.model';
 import { resolve } from 'url';
@@ -12,6 +14,9 @@ import { resolve } from 'url';
   providedIn: 'root'
 })
 export class UserService {
+
+  public users: Observable<User[]> = this.socket.fromEvent<User[]>('users');
+  public message: Observable<String> = this.socket.fromEvent<String>('message');
 
   apiUrl = 'http://localhost:3000/';
   httpOptions = {
@@ -22,8 +27,13 @@ export class UserService {
   };
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private socket: Socket
   ) { }
+
+  public getMessage() {
+    this.socket.emit('get message', " data");
+  }
 
   public register(user: User): Observable<any> {
     return this.http.post<User>(`http://192.168.21.239:3000/user/register`, user, this.httpOptions);
@@ -35,7 +45,8 @@ export class UserService {
   }
 
   public deleteUser(user: User): Observable<User> {
-    return this.http.delete<User>(`http://192.168.21.239:3000/user/delete/${user.uid}`, this.httpOptions);
+    console.log(user)
+    return this.http.post<User>(`http://192.168.21.239:3000/user/delete`, user, { headers: { 'Content-Type': 'application/json' }});
   }
 
   public getUsers(): Observable<User[]>  {
@@ -51,7 +62,16 @@ export class UserService {
     });
     */
 
-    return this.http.get<User[]>(`http://192.168.21.239:3000/user/getUsers`)
+    return this.http.get<User[]>(`http://192.168.21.239:3000/user/getUsers`);
+    /*
+    .pipe(
+      map((users: User) => {
+        const u: User = [
+
+        ];
+        return u;
+      })
+    );*/
   }
 
   public saveUsers(users: string[]): Observable<any> {

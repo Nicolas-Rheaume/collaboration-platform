@@ -30,22 +30,41 @@ router.post('/register', (req, res, next) => {
 router.get('/getUsers', (req, res) => {
   User.findAll()
     .then(users => {
-      res.json({success: true, msg: users});
+      res.json(users);
     })
     .catch(err => console.log(err));
 });
 
 // Create a new User
 router.post('/create', (req, res, next) => {
-  console.log(req.body);
-  /*
-  User.create({
 
-  }).then
-  */
-  
-  res.json({success: true, msg:'User registered'});
+  let newUser = {
+    username: '',
+    email: '',
+    password: '',
+    role: 0,
+  }
 
+  if(req.body.hasOwnProperty('username')) { newUser.username = req.body.username; }
+  else if(req.body.hasOwnProperty('email')) { newUser.username = req.body.email; }
+  else if(req.body.hasOwnProperty('password')) { newUser.username = req.body.password; }
+  else if(req.body.hasOwnProperty('role')) { newUser.username = req.body.role; }
+
+  User.create(newUser).then((user) => {
+    res.json(user);
+  });
+});
+
+router.post('/delete', (req, res) => {
+
+  User.destroy({
+    where: {
+      id: req.body.id,
+      username: req.body.username
+    }
+  }).then(() => {
+    res.json({success: true, msg:'User deleted'});
+  });
 });
 
 router.get('/user', (req, res) => {

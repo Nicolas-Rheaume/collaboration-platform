@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService } from "../../services/user.service";
-import { Observable, of, throwError  } from 'rxjs';
+import { Observable, of, throwError, Subscription  } from 'rxjs';
 
 import { User } from '../../models/user.model'
 
@@ -11,48 +11,66 @@ import { User } from '../../models/user.model'
 })
 export class UsersComponent implements OnInit, OnDestroy {
 
-  private sub: any;
+  private sub: Subscription;
 
-  //users: String[] = ["Alpha", "Bravo"];
   users: User[] = [] as User[];
-  newUser: User = User.newUser();
-  
+  newUser: User = new User();
+
+  message: String;
 
   constructor(
     private us: UserService
   ) { }
 
   ngOnInit() {
+    this.sub = this.us.message.subscribe(mes => {
+      this.message = mes;
+      console.log(mes);
+    });
+
+
+    this.us.getMessage();
+
+
    this.us.getUsers().subscribe(users => {
-     console.log(users);
-    this.users = users;
-   });
+    this.users = User.maps(users);
+    console.log(this.users);
+   }, err => console.log(err)
+   );
+
   } 
 
   ngOnDestroy() {
+    this.sub.unsubscribe();
+  }
+
+  getMessage() {
+    this.us.getMessage();
   }
 
   addUser(): void {
-    /*
-    this.users.push(User.newUser());
-    this.newUser = User.newUser();
-    */
-    this.us.createUser(this.newUser).subscribe(user => {
-      this.users.push(User.newUser());
-      this.newUser = User.newUser();
+    this.us.createUser(this.newUser).subscribe(data => {
+      this.users.push(User.map(data));
+      this.newUser = new User();
       console.log(this.users);
     });
   }
 
   removeUser(index: number): void {
+    this.us.deleteUser(this.users[index]).subscribe(user => {
+      this.users.splice(index, 1);
+      console.log(this.users);
+    });
+    /*
     this.users.splice(index, 1);
     this.us.deleteUser(this.users[index]).subscribe();
+    */
   }
 
 
   getUsers(): void {
     this.us.getUsers().subscribe(users => {
-      this.users = users;
+      this.users = users as User[];
     });
   }
 
