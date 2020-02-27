@@ -22,7 +22,9 @@ require("./configs/sequelize.config.js")(app);
 //require("./configs/passport.config.js")(app);
 
 // Middlewares
+require('./sockets/subject.socket.js')(app, io);
 require('./sockets/user.socket.js')(app, io);
+require('./sockets/app.socket.js')(app, io);
 
 // Controllers
 app.use('/user', require("./controllers/user.controller.js"));

@@ -1,3 +1,19 @@
+<div class="container">
+    <br>
+    <br>
+    <h2>{{subject.title}}</h2>
+
+    <br>
+    <br>
+    <textarea class="form-control text-area bg-primary border-secondary color-primary" 
+    id="exampleTextarea" rows="25" style="margin-top: 0px; margin-bottom: 0px;" 
+    [(ngModel)]="subject.description"
+    (ngModelChange)="update()"
+    ></textarea>
+</div>
+
+
+<!--
 <p (click)="display()"  >subject works!</p>
 <div class="container">
     <editor
@@ -19,4 +35,5 @@
 
     <quill-editor></quill-editor>
 </div>
+-->
 

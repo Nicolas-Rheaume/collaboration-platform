@@ -1,0 +1,26 @@
+<div class="container">
+
+    <br>
+    <h2>Create a new subject : </h2>
+    <div class="form-group">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Enter title" [(ngModel)]="newSubject.title">
+            <button type="button" class="btn btn-success" (click)="createSubject()">Create</button>
+        </div>
+    </div>
+
+    <br><br>
+    <h2>List of subjects : </h2>
+    <div class="container-fluid">
+        <div class="row" *ngFor="let subject of subjects; let num = index">
+            <div class="col-sm-8"><a href=""><h2>{{subject.title}}</h2></a></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-success" (click)="viewSubject(subject)">View</button></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger" (click)="removeSubject(num)">Remove</button></div>
+        </div>
+    </div>
+
+
+</div>
+
+
+

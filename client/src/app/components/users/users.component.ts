@@ -23,12 +23,20 @@ export class UsersComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit() {
-    this.sub = this.us.message.subscribe(mes => {
-      this.message = mes;
-      console.log(mes);
+    this.sub = this.us.get().subscribe(users => {
+      this.users = User.maps(users);
+      console.log(users);
     });
 
+    this.sub = this.us.update().subscribe(users => {
+      this.users = User.maps(users);
+      console.log(users);
+    });
 
+    this.us.getAll();
+
+
+    /*
     this.us.getMessage();
 
 
@@ -37,6 +45,7 @@ export class UsersComponent implements OnInit, OnDestroy {
     console.log(this.users);
    }, err => console.log(err)
    );
+   */
 
   } 
 
@@ -45,18 +54,23 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   getMessage() {
-    this.us.getMessage();
+    this.us.test();
   }
 
   addUser(): void {
+    this.us.create(this.newUser);
+    /*
     this.us.createUser(this.newUser).subscribe(data => {
       this.users.push(User.map(data));
       this.newUser = new User();
       console.log(this.users);
     });
+    */
   }
 
   removeUser(index: number): void {
+    this.us.delete(this.users[index]);
+    /*
     this.us.deleteUser(this.users[index]).subscribe(user => {
       this.users.splice(index, 1);
       console.log(this.users);

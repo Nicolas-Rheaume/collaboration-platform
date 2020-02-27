@@ -4,7 +4,7 @@ import {catchError, retry, map, tap} from 'rxjs/internal/operators';
 import { Observable, of, throwError, Subscriber } from 'rxjs';
 import { HttpHeaders } from '@angular/common/http';
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpParams } from '@angular/common/http';
-import { Socket } from 'ngx-socket-io';
+//import { Socket } from 'ngx-socket-io';
 import * as io from 'socket.io-client';
 
 import { User } from '../models/user.model';
@@ -15,8 +15,9 @@ import { resolve } from 'url';
 })
 export class UserService {
 
-  public users: Observable<User[]> = this.socket.fromEvent<User[]>('users');
-  public message: Observable<String> = this.socket.fromEvent<String>('message');
+  private socket: SocketIOClient.Socket = io('http://192.168.21.239:3000/users');
+  //public users: Observable<User[]> = this.socket.fromEvent<User[]>('users');
+  public message: Observable<String>;
 
   apiUrl = 'http://localhost:3000/';
   httpOptions = {
@@ -27,9 +28,40 @@ export class UserService {
   };
 
   constructor(
-    private http: HttpClient,
-    private socket: Socket
+    private http: HttpClient
   ) { }
+
+  public getAll() {
+    this.socket.emit('get', "all");
+  }
+
+  public create(user: User) {
+    this.socket.emit('create', user);
+  }
+
+  public delete(user: User) {
+    this.socket.emit('delete', user);
+  }
+
+  public get = () => {
+    return Observable.create((observer) => {
+        this.socket.on('get', (message) => {
+            observer.next(message);
+        });
+    });
+  }
+
+  public update = () => {
+    return Observable.create((observer) => {
+        this.socket.on('update', (message) => {
+            observer.next(message);
+        });
+    });
+  }
+
+  public test() {
+    this.socket.emit('test', "message");
+  }
 
   public getMessage() {
     this.socket.emit('get message', " data");
