@@ -14,6 +14,7 @@ import { SubjectComponent } from './components/subject/subject.component';
 import { UsersComponent } from './components/users/users.component';
 import { UserService } from './services/user.service';
 import { MenuComponent } from './components/menu/menu.component';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +24,8 @@ import { MenuComponent } from './components/menu/menu.component';
     FooterComponent,
     SubjectComponent,
     UsersComponent,
-    MenuComponent
+    MenuComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

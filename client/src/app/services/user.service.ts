@@ -63,6 +63,10 @@ export class UserService {
     this.socket.emit('test', "message");
   }
 
+  public authenticate() {
+    this.socket.emit('authenticate', "authenticate");
+  }
+
   public getMessage() {
     this.socket.emit('get message', " data");
   }

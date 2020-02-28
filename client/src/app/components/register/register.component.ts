@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 
 import { User, Role } from '../../models/user.model';
 import { UserService } from '../../services/user.service'
+import { Subscriber, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-register.component',
@@ -11,7 +12,8 @@ import { UserService } from '../../services/user.service'
 })
 export class RegisterComponent implements OnInit {
 
-  // VARIABLES
+  private sub: Subscription;
+
   userInfo: User = {
     id: 0,
     username: '',
@@ -24,17 +26,25 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private userService: UserService
+    private us: UserService
   ) { }
 
   ngOnInit() {
-    this.userService.getUser().subscribe((data) => {
+    this.sub = this.us.update().subscribe(data => {
       console.log(data);
     });
 
-    this.userService.getUsers().subscribe((data) => {
+    this.us.authenticate();
+
+    /*
+    this.us.getUser().subscribe((data) => {
       console.log(data);
     });
+
+    this.us.getUsers().subscribe((data) => {
+      console.log(data);
+    });
+    */
 
   }
 

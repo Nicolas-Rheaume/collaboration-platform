@@ -75,7 +75,38 @@ module.exports = function(app, io){
         }).catch(err => console.log(err));
       });
     });
+
+    // User authenticate
+    socket.on('authenticate', (user) => {
+
+      const username = user.username;
+      const password = user.password;
+
+      console.log("asd");
+
+      jwt.sign({user}, 'secretkey', {expiresIn: '30s'}, (err, token) => {
+        socket.emit("update", token);
+      });
+      /*
+      User.destroy({
+        where: {
+          id: user.id,
+          username: user.username
+        }
+      }).then(() => {
+        User.findAll().then(users => {
+          socket.emit("update", users);
+          socket.broadcast.emit("update", users);
+        }).catch(err => console.log(err));
+      });
+      */
+    });
+    
+
   });
+  
+
+
 /*
     io.on('connection', socket => {
 
