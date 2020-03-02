@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 require("./configs/mysql.config.js")(app);
 require("./configs/sequelize.config.js")(app);
-//require("./configs/passport.config.js")(app);
+require("./configs/passport.config.js")(app);
 
 // Middlewares
 require('./sockets/subject.socket.js')(app, io);

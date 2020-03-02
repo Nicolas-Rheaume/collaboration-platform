@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
+const bcrypt = require("bcryptjs");
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
@@ -10,19 +11,82 @@ const User = require('../models/user.model.js');
 
 // Register a new user
 router.post('/register', (req, res, next) => {
-  let newUser = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: req.body.password,
-    role: req.body.role
-  });
- 
-  User.create(newUser, (err, user) => {
-    if(err){
-      res.json({success: false, msg:'Failed to register user'});
-    } else {
-      res.json({success: true, msg:'User registered'});
+
+  if(req.body.hasOwnProperty('username')) {
+    User.findAll({
+      where: {
+        username: req.body.username
+      }
+    }).then(users => {
+      if(users.length > 0) {
+        res.json({success: false, msg: "Username already exists"});
+      } else if(req.body.hasOwnProperty('password1')) {
+        bcrypt.genSalt(10, (err, salt) => {
+          bcrypt.hash(req.body.password1, salt, (err, hash) => {
+            if(err) throw err;
+    
+            let newUser = {
+              username: '',
+              email: '',
+              password: hash,
+              role: 0,
+            }
+    
+            if(req.body.hasOwnProperty('username')) { newUser.username = req.body.username; }
+            if(req.body.hasOwnProperty('email')) { newUser.email = req.body.email; }
+    
+            User.create(newUser).then((user) => {
+              if(err){
+                res.json({success: false, msg: "failed at registration"});
+              } else {
+                res.json({success: true, user: user});
+              }
+            });
+      
+          });
+        });
+      }
+    })
+    .catch(err => console.log(err));
+  }
+});
+
+// Authenticate a user
+router.post('/authenticate', (req, res, next) => {
+
+  const username = req.body.username;
+  const password = req.body.password;
+
+  User.findOne({
+    where: {
+      username: username
     }
+  }).then(user => {
+
+    // compare password
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if(err) throw err;
+      if(isMatch){
+        const token = jwt.sign({data: user}, 'yoursecret', {
+          expiresIn: 604800 // 1 week
+        });
+
+        res.json({
+          success: true,
+          token: 'JWT '+token,
+          user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+          }
+        });
+      } else {
+        return res.json({success: false, msg: 'Wrong password'});
+      }
+    });
+  }).catch(err => {
+    return res.json({success: false, msg: 'User not found'});
   });
 });
 

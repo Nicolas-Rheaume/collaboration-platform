@@ -6,6 +6,7 @@ import { HttpHeaders } from '@angular/common/http';
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpParams } from '@angular/common/http';
 //import { Socket } from 'ngx-socket-io';
 import * as io from 'socket.io-client';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 import { User } from '../models/user.model';
 import { resolve } from 'url';
@@ -19,6 +20,9 @@ export class UserService {
   //public users: Observable<User[]> = this.socket.fromEvent<User[]>('users');
   public message: Observable<String>;
 
+  authToken: any;
+  user: any;
+
   apiUrl = 'http://localhost:3000/';
   httpOptions = {
     headers: new HttpHeaders({
@@ -28,7 +32,8 @@ export class UserService {
   };
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private jwtHelper: JwtHelperService
   ) { }
 
   public getAll() {
@@ -63,16 +68,16 @@ export class UserService {
     this.socket.emit('test', "message");
   }
 
-  public authenticate() {
-    this.socket.emit('authenticate', "authenticate");
-  }
-
   public getMessage() {
     this.socket.emit('get message', " data");
   }
 
-  public register(user: User): Observable<any> {
+  public register(user): Observable<any> {
     return this.http.post<User>(`http://192.168.21.239:3000/user/register`, user, this.httpOptions);
+  }
+
+  public authenticate(user): Observable<any> {
+    return this.http.post<User>(`http://192.168.21.239:3000/user/authenticate`, user, this.httpOptions);
   }
 
   public createUser(user: User): Observable<User> {
@@ -83,6 +88,29 @@ export class UserService {
   public deleteUser(user: User): Observable<User> {
     console.log(user)
     return this.http.post<User>(`http://192.168.21.239:3000/user/delete`, user, { headers: { 'Content-Type': 'application/json' }});
+  }
+
+  public storeUserData(token, user) {
+    localStorage.setItem('id_token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    this.authToken = token;
+    this.user = user;
+  }
+
+  loadToken() {
+    const token = localStorage.getItem('id_token');
+    this.authToken = token;
+  }
+
+  loggedIn() {
+    return this.jwtHelper.isTokenExpired('id_token');
+    //return tokenNotExpired('id_token');
+  }
+
+  logout() {
+    this.authToken = null;
+    this.user = null;
+    localStorage.clear();
   }
 
   public getUsers(): Observable<User[]>  {

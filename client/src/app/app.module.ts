@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule  } from '@angular/forms';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { QuillModule } from 'ngx-quill';
 
@@ -15,6 +15,7 @@ import { UsersComponent } from './components/users/users.component';
 import { UserService } from './services/user.service';
 import { MenuComponent } from './components/menu/menu.component';
 import { HomeComponent } from './components/home/home.component';
+import { AuthGuard } from './guards/auth.guard';
 
 @NgModule({
   declarations: [
@@ -32,11 +33,13 @@ import { HomeComponent } from './components/home/home.component';
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
+    ReactiveFormsModule,
     EditorModule,
     QuillModule
   ],
   providers: [
-    UserService
+    UserService,
+    AuthGuard
   ],
   bootstrap: [AppComponent]
 })

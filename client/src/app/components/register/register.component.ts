@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { first } from 'rxjs/operators';
+import { Subscriber, Subscription } from 'rxjs';
 
 import { User, Role } from '../../models/user.model';
-import { UserService } from '../../services/user.service'
-import { Subscriber, Subscription } from 'rxjs';
+import { UserService } from '../../services/user.service';
+import { AuthenticationService } from '../../services/authentication.service';
 
 @Component({
   selector: 'app-register.component',
@@ -14,22 +17,48 @@ export class RegisterComponent implements OnInit {
 
   private sub: Subscription;
 
-  userInfo: User = {
-    id: 0,
+  public userLogin = {
     username: '',
-    email: '',
     password: '',
-    role: Role.visitor
   }
 
-  errorMessage = '';
+  public userRegistration = {
+    username: '',
+    email: '',
+    password1: '',
+    password2: '',
+  }
+
+  public registrationWarning: string = 'registration Warning';
+  public loginWarning: string = 'Login Warning';
+
 
   constructor(
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
-    private us: UserService
-  ) { }
+    private us: UserService,
+) {
+    // redirect to home if already logged in
+    /*
+    if (this.us.currentUserValue) { 
+        this.router.navigate(['/']);
+    }
+    */
+}
 
   ngOnInit() {
+
+    /*
+    this.loginForm = this.formBuilder.group({
+        username: ['', Validators.required],
+        password: ['', Validators.required]
+    });
+
+    // get return url from route parameters or default to '/'
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+
+
     this.sub = this.us.update().subscribe(data => {
       console.log(data);
     });
@@ -48,10 +77,108 @@ export class RegisterComponent implements OnInit {
 
   }
 
-  rightPanelActive: boolean = false;
+  onLogin() {
+    console.log(this.userLogin);
 
-  clickRightPanel() {
-    this.rightPanelActive = !this.rightPanelActive;
+    this.us.authenticate(this.userLogin).subscribe(data => {
+      console.log(data);
+        if(data.success) {
+          this.us.storeUserData(data.token, data.user);
+          this.loginWarning = 'You are now logged in';
+          this.router.navigate(['/']);
+        } else {
+          this.loginWarning = data.msg;
+        }
+    });
+  }
+
+  onRegister() {
+
+    // All fields required
+    if(this.userRegistration.username === '' || this.userRegistration.email === '' || this.userRegistration.password1 === '' || this.userRegistration.password2 === '') {
+        this.registrationWarning = "Please fill in all fields";
+        return;
+    } 
+    
+    // Require a valid email
+    else if(!(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(this.userRegistration.email))) {
+      this.registrationWarning = "Invalid email address";
+      return;
+    }
+
+    // Password confirmation
+    else if(this.userRegistration.password1 != this.userRegistration.password2) {
+      this.registrationWarning = "Invalid password confirmation";
+      return;
+    }
+
+
+    // Register user
+    else {
+      this.registrationWarning = '';
+      this.us.register(this.userRegistration).subscribe(data => {
+        if(data.success) {
+          this.registrationWarning = 'You are now registered and can now login';
+          this.router.navigate(['/']);
+        } else {
+          this.registrationWarning = data.msg;
+        }
+      });
+      return;
+    }
+  }
+
+  /*
+  // convenience getter for easy access to form fields
+  get f() { return this.loginForm.controls; }
+
+  onSubmit() {
+      this.submitted = true;
+
+      // stop here if form is invalid
+      if (this.loginForm.invalid) {
+          return;
+      }
+
+      this.loading = true;
+      this.as.login(this.f.username.value, this.f.password.value)
+          .pipe(first())
+          .subscribe(
+              data => {
+                  this.router.navigate([this.returnUrl]);
+              },
+              error => {
+                  this.error = error;
+                  this.loading = false;
+              });
+  }
+
+
+
+  onRegisterSubmit() {
+
+    // Required Fields
+    if(!this.us.validateRegister(this.userRegistration)) {
+      this.flashMessage.show('Please fill in all fields', {cssClass: 'alert-danger', timeout: 3000});
+      return false;
+    }
+
+    // Validate Email
+    if(!this.us.validateEmail(user.email)) {
+    this.flashMessage.show('Please use a valid email', {cssClass: 'alert-danger', timeout: 3000});
+      return false;
+    }
+
+    // Register user
+    this.us.registerUser(user).subscribe(data => {
+    if(data.success) {
+      this.flashMessage.show('You are now registered and can now login', {cssClass: 'alert-success', timeout: 3000});
+      this.router.navigate(['/login']);
+    } else {
+      this.flashMessage.show('Something went wrong', {cssClass: 'alert-danger', timeout: 3000});
+      this.router.navigate(['/register']);
+    }
+  });
   }
 
   /*
