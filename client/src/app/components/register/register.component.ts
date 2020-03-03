@@ -41,7 +41,7 @@ export class RegisterComponent implements OnInit {
 ) {
     // redirect to home if already logged in
     /*
-    if (this.us.currentUserValue) { 
+    if (this.us.currentUser != null) { 
         this.router.navigate(['/']);
     }
     */
@@ -75,21 +75,6 @@ export class RegisterComponent implements OnInit {
     });
     */
 
-  }
-
-  onLogin() {
-    console.log(this.userLogin);
-
-    this.us.authenticate(this.userLogin).subscribe(data => {
-      console.log(data);
-        if(data.success) {
-          this.us.storeUserData(data.token, data.user);
-          this.loginWarning = 'You are now logged in';
-          this.router.navigate(['/']);
-        } else {
-          this.loginWarning = data.msg;
-        }
-    });
   }
 
   onRegister() {
@@ -126,6 +111,21 @@ export class RegisterComponent implements OnInit {
       });
       return;
     }
+  }
+
+  onLogin() {
+    console.log(this.userLogin);
+
+    this.us.authenticate(this.userLogin).subscribe(data => {
+      console.log(data);
+        if(data.success) {
+          this.us.storeUserData(data.token, data.user);
+          this.loginWarning = 'You are now logged in';
+          this.router.navigate(['/']);
+        } else {
+          this.loginWarning = data.msg;
+        }
+    });
   }
 
   /*
