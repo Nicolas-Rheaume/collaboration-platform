@@ -1,9 +1,10 @@
 const Sequelize = require('sequelize');
+const config = require('../configuration.js');
 
 module.exports = function(app){
 
-    const sequelize = new Sequelize('nodemysql', 'root', 'password', {
-        host: 'localhost',
+    const sequelize = new Sequelize(config.database_name, config.database_user, config.database_password, {
+        host: config.database_host,
         dialect: 'mysql',
         pool: {
             max: 5,

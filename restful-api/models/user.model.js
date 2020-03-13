@@ -2,10 +2,12 @@ const Sequelize = require('sequelize');
 const db = require('../middleware/sequelize.mw.js');
 const bcrypt = require('bcryptjs');
 
+const model_name = "user";
+
 // Model
-const User = db.define('user', {
+const User = db.define(model_name, {
     id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(10),
         allowNull: false,
         autoIncrement: true,
         primaryKey: true
@@ -23,7 +25,7 @@ const User = db.define('user', {
         allowNull: false
     },
     role: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER(1),
         allowNull: false
     },
     createdAt: {
@@ -36,6 +38,17 @@ const User = db.define('user', {
   }, {
 }
 );
+
+const Create = function() {
+    db.query(`SHOW TABLES like "` + model_name + 's"').then(([results, metadata]) => {
+        if(results == 0) {
+            User.sync();
+        }
+        else {
+            console.log("Sequelize : The following table exists : " + model_name + "s");
+        }
+    })
+}
 
 /*
 module.exports.getUserById = function(id) {
@@ -83,4 +96,7 @@ module.exports.addUser = function(newUser, callback) {
   */
 
 
-module.exports = User;
+module.exports = {
+    User,
+    Create
+};

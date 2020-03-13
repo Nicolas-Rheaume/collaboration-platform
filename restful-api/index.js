@@ -18,38 +18,25 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 require("./configs/mysql.config.js")(app);
-require("./configs/sequelize.config.js")(app);
+require("./configs/sequelize.config.js")(app)
 require("./configs/passport.config.js")(app);
 
+// Models
+setTimeout(() => {
+  require("./models/user.model.js").Create();
+  require("./models/subject.model.js").Create();
+  require("./models/text.model.js").Create();
+  require("./models/relation.model.js").Create();
+}, 2000);
+
 // Middlewares
+require('./sockets/relation.socket.js')(app, io);
 require('./sockets/subject.socket.js')(app, io);
 require('./sockets/user.socket.js')(app, io);
 require('./sockets/app.socket.js')(app, io);
 
 // Controllers
 app.use('/user', require("./controllers/user.controller.js"));
-//app.use('/', require("./controllers/api/project.controller.js"));
-
-// Views
-//app.use('/', require("./views/angular.view.js"));
-
-/*
-const connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'timeline',
-  password : 'password',
-  database : 'timeline'
-});
-
-connection.connect();
-
-
-
-const app = express()
-  .use(cors())
-  .use(bodyParser.json())
-  .use(events(connection));
-*/
 
 app.get('/', (req, res) => res.send("INDEX"));
 

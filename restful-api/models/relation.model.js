@@ -1,23 +1,31 @@
 const Sequelize = require('sequelize');
 const db = require('../middleware/sequelize.mw.js');
 
-const model_name = "subject";
+const model_name = "relation";
 
 // Model
-const Subject = db.define(model_name, {
+const Relation = db.define(model_name, {
     id: {
         type: Sequelize.INTEGER(10),
         primaryKey: true,
         allowNull: false,
         autoIncrement: true,
     },
-    title: {
-        type: Sequelize.STRING(45),
+    subjectID: {
+        type: Sequelize.INTEGER(10),
         allowNull: false
     },
-    description: {
-        type: Sequelize.TEXT,
-        allowNull: true
+    userID: {
+        type: Sequelize.INTEGER(10),
+        allowNull: false
+    },
+    textID: {
+        type: Sequelize.INTEGER(10),
+        allowNull: false
+    },
+    order: {
+        type: Sequelize.INTEGER(10),
+        allowNull: false
     },
     createdAt: {
         type: Sequelize.DATE,
@@ -34,7 +42,7 @@ const Subject = db.define(model_name, {
 const Create = function() {
     db.query(`SHOW TABLES like "` + model_name + 's"').then(([results, metadata]) => {
         if(results == 0) {
-            Subject.sync();
+            Relation.sync();
         }
         else {
             console.log("Sequelize : The following table exists : " + model_name + "s");
@@ -43,6 +51,6 @@ const Create = function() {
 }
 
 module.exports = {
-    Subject,
+    Relation,
     Create
 };
