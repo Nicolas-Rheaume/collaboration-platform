@@ -3,13 +3,15 @@ import { Observable } from 'rxjs';
 import * as io from 'socket.io-client';
 
 import { Subject } from '../models/subject.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SubjectService {
 
-  private socket: SocketIOClient.Socket = io('http://192.168.21.239:3000/subject');
+  private apiURL = environment.api + '/subject';
+  private socket: SocketIOClient.Socket = io(this.apiURL);
 
   constructor() { }
 

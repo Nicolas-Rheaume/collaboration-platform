@@ -1,4 +1,4 @@
-const Subject = require('../models/text.model.js');
+const Subject = require('../models/text.model.js').Text;
 
 const content = "text";
 

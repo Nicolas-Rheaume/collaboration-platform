@@ -17,19 +17,20 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-require("./configs/mysql.config.js")(app);
-require("./configs/sequelize.config.js")(app)
-require("./configs/passport.config.js")(app);
+require("./configs/mysql.config.js")(app).then(() => {
+  require("./configs/sequelize.config.js")(app).then(() => {
+    require("./configs/passport.config.js")(app);
+  
+    // Models
+    require("./models/user.model.js").CreateTableIfNonExistant();
+    require("./models/subject.model.js").CreateTableIfNonExistant();
+    require("./models/text.model.js").Create();
+    require("./models/relation.model.js").Create();
+  
+  })
+});
 
-// Models
-setTimeout(() => {
-  require("./models/user.model.js").Create();
-  require("./models/subject.model.js").Create();
-  require("./models/text.model.js").Create();
-  require("./models/relation.model.js").Create();
-}, 2000);
-
-// Middlewares
+// Sockets
 require('./sockets/relation.socket.js')(app, io);
 require('./sockets/subject.socket.js')(app, io);
 require('./sockets/user.socket.js')(app, io);

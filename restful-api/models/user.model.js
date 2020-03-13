@@ -1,11 +1,10 @@
 const Sequelize = require('sequelize');
 const db = require('../middleware/sequelize.mw.js');
 const bcrypt = require('bcryptjs');
+const NAME = "user";
 
-const model_name = "user";
-
-// Model
-const User = db.define(model_name, {
+// User Definition
+const User = db.define(NAME, {
     id: {
         type: Sequelize.INTEGER(10),
         allowNull: false,
@@ -39,16 +38,45 @@ const User = db.define(model_name, {
 }
 );
 
-const Create = function() {
-    db.query(`SHOW TABLES like "` + model_name + 's"').then(([results, metadata]) => {
+// Create Subject Table if it is non-existant
+const CreateTableIfNonExistant = () => {
+    db.query(`SHOW TABLES like "` + NAME + 's"').then(([results, metadata]) => {
         if(results == 0) {
             User.sync();
         }
         else {
-            console.log("Sequelize : The following table exists : " + model_name + "s");
+            console.log("Sequelize : The following table exists : " + NAME + "s");
         }
     })
 }
+
+// Create User
+const CreateUser = (user) => {
+    return new Promise(resolve => {
+
+        let newUser = {
+            username: '',
+            email: '',
+            password: '',
+            role: 0,
+        }
+        
+        if(user.hasOwnProperty('username')) { newUser.username = user.username; }
+        if(user.hasOwnProperty('email')) { newUser.username = user.email; }
+        if(user.hasOwnProperty('password')) { newUser.username = user.password; }
+        if(user.hasOwnProperty('role')) { newUser.username = user.role; }
+
+        console.log(newUser);
+
+        User.create(newUser).then((user) => {
+            resolve(user);
+        }).catch(err => {
+            console.log(err); 
+            resolve();
+        });
+    });
+}
+
 
 /*
 module.exports.getUserById = function(id) {
@@ -98,5 +126,6 @@ module.exports.addUser = function(newUser, callback) {
 
 module.exports = {
     User,
-    Create
+    CreateTableIfNonExistant,
+    CreateUser
 };

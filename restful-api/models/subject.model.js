@@ -1,10 +1,9 @@
 const Sequelize = require('sequelize');
 const db = require('../middleware/sequelize.mw.js');
+const NAME = "subject";
 
-const model_name = "subject";
-
-// Model
-const Subject = db.define(model_name, {
+// Subject Definition
+const Subject = db.define(NAME, {
     id: {
         type: Sequelize.INTEGER(10),
         primaryKey: true,
@@ -31,18 +30,110 @@ const Subject = db.define(model_name, {
 }
 );
 
-const Create = function() {
-    db.query(`SHOW TABLES like "` + model_name + 's"').then(([results, metadata]) => {
-        if(results == 0) {
-            Subject.sync();
-        }
-        else {
-            console.log("Sequelize : The following table exists : " + model_name + "s");
-        }
-    })
+// Create Subject Table if it is non-existant
+const CreateTableIfNonExistant = () => {
+    return new Promise(resolve => {
+        db.query(`SHOW TABLES like "` + NAME + 's"').then(([results, metadata]) => {
+            if(results == 0) {
+                Subject.sync();
+            }
+            else {
+                console.log("Sequelize : The following table exists : " + NAME + "s");
+            }
+            resolve();
+        })
+    });
 }
+
+// Create Subject
+const CreateSubject = (subject) => {
+    return new Promise(resolve => {
+
+        let newSubject = {
+            title: '',
+            description: '',
+        }
+
+        if(subject.hasOwnProperty('title')) { newSubject.title = subject.title; }
+        if(subject.hasOwnProperty('description')) { newSubject.description = subject.description; }
+
+        Subject.create(newSubject).then(subject => {
+            resolve(subject);
+        }).catch(err => {
+            console.log(err); 
+            resolve();
+        });
+    });
+}
+
+// Get Subject by ID
+const GetSubjectByID = (id) => {
+    return new Promise(resolve => {
+        Subject.findByPk(id).then(subject => {
+            resolve(subject);
+        }).catch(err => {
+            console.log(err);
+            resolve();
+        });
+    });
+}
+
+// Update Subject
+const UpdateSubject = (subject) => {
+    return new Promise(resolve => {
+        Subject.update(
+            {   title: subject.title,
+                description: subject.description
+            },
+            { where: { id: subject.id }}
+        ).then(() => {
+            Subject.findByPk(subject.id).then(subject => {
+                resolve(subject);
+            }).catch(err => {
+                console.log(err);
+                resolve();
+            });
+        }).catch(err => {
+            console.log(err);
+            resolve();
+        });
+    });
+}
+
+// Delete Subject
+const DeleteSubjectByID = (id) => {
+    return new Promise(resolve => {
+        Subject.destroy({
+            where: {
+              id: id,
+            }
+        }).then( subject => {
+            resolve(subject);
+        }).catch(err => {
+            console.log(err);
+            resolve();
+        });
+    });
+}
+
+// Get All Subjects
+const GetAllSubjects = () => {
+    return new Promise(resolve => {
+        Subject.findAll().then(subjects => {
+            resolve(subjects);
+          }).catch(err => {console.log(err); resolve()});
+    });
+}
+
+
+
 
 module.exports = {
     Subject,
-    Create
+    CreateTableIfNonExistant,
+    CreateSubject,
+    GetSubjectByID,
+    UpdateSubject,
+    DeleteSubjectByID,
+    GetAllSubjects
 };

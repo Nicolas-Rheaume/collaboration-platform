@@ -1,4 +1,4 @@
-const Subject = require('../models/relation.model.js');
+const Subject = require('../models/relation.model.js').Relation;
 
 const content = "relation";
 

@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import * as io from 'socket.io-client';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,10 +13,8 @@ export class AuthenticationService {
     authToken: any;
     user: any;
 
-
-
-  private currentUserSubject: BehaviorSubject<any>;
-  public currentUser: Observable<any>;
+    private currentUserSubject: BehaviorSubject<any>;
+    public currentUser: Observable<any>;
 
     constructor(private http: HttpClient) {
         this.currentUserSubject = new BehaviorSubject<any>(JSON.parse(localStorage.getItem('currentUser')));
@@ -27,7 +26,7 @@ export class AuthenticationService {
     }
 
     login(username, password) {
-        return this.http.post<any>(`http://192.168.21.239:3000/users/authenticate`, { username, password })
+        return this.http.post<any>(environment.api + `/users/authenticate`, { username, password })
             .pipe(map(user => {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('currentUser', JSON.stringify(user));

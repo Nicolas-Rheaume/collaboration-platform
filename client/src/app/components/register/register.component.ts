@@ -101,6 +101,7 @@ export class RegisterComponent implements OnInit {
     // Register user
     else {
       this.registrationWarning = '';
+      /*
       this.us.register(this.userRegistration).subscribe(data => {
         if(data.success) {
           this.registrationWarning = 'You are now registered and can now login';
@@ -109,13 +110,14 @@ export class RegisterComponent implements OnInit {
           this.registrationWarning = data.msg;
         }
       });
+      */
       return;
     }
   }
 
   onLogin() {
     console.log(this.userLogin);
-
+    /*
     this.us.authenticate(this.userLogin).subscribe(data => {
       console.log(data);
         if(data.success) {
@@ -126,6 +128,7 @@ export class RegisterComponent implements OnInit {
           this.loginWarning = data.msg;
         }
     });
+    */
   }
 
   /*
