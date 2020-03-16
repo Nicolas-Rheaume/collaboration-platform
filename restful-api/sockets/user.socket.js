@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 
 const mysql = require('mysql');
 const db = require('../middleware/sequelize.mw');
-const User = require('../models/user.model.js').User;
+const User = require('../models/user.model.js');
 
 const NAME = "Users : ";
 
@@ -23,32 +23,29 @@ module.exports = function(app, io){
     });
 
     // Register new User
-    socket.on('create', (data) => {
-      User.CreateUser(data).then((user) => {
-        console.log(user);
+    socket.on('register', (user) => {
+      User.RegisterUser(user).then((data) => {
+        if(data.success === false) socket.emit("register_message", data.message);
+        else {
+          let newUser = {
+            username: user.dataValues.username,
+            email: user.dataValues.email,
+            password: user.dataValues.password,
+          }
+          User.AuthenticateUser(newUser).then((data) => {
+            if(data.success === false) socket.emit("register_message", data.message);
+            else socket.emit("authenticate", data);
+          });
+        }
       });
+    });
 
-      /*
-      let newUser = {
-        username: '',
-        email: '',
-        password: '',
-        role: 0,
-      }
-    
-      if(data.hasOwnProperty('username')) { newUser.username = data.username; }
-      else if(data.hasOwnProperty('email')) { newUser.username = data.email; }
-      else if(data.hasOwnProperty('password')) { newUser.username = data.password; }
-      else if(data.hasOwnProperty('role')) { newUser.username = data.role; }
-    
-      User.create(newUser).then((user) => {
-        console.log(user);
-        User.findAll().then(users => {
-          socket.emit("update", users);
-          socket.broadcast.emit("update", users);
-        }).catch(err => console.log(err));
+    // Login user
+    socket.on('login', (user) => {
+      User.AuthenticateUser(user).then((data) => {
+        if(data.success === false) socket.emit("login_message", data.message);
+        else socket.emit("authenticate", data);
       });
-      */
     });
 
 

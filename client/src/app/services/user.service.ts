@@ -6,7 +6,8 @@ import { HttpHeaders } from '@angular/common/http';
 import { HttpClient, HttpResponse, HttpErrorResponse, HttpParams } from '@angular/common/http';
 //import { Socket } from 'ngx-socket-io';
 import * as io from 'socket.io-client';
-import { JwtHelperService } from '@auth0/angular-jwt';
+import { Router } from '@angular/router';
+import * as jwt_decode from 'jwt-decode';
 
 import { User } from '../models/user.model';
 import { environment } from '../../environments/environment';
@@ -23,9 +24,11 @@ export class UserService {
 
   private sub: Subscription;
   private apiURL = environment.api + '/users';
-  private socket: SocketIOClient.Socket = io(environment.api + '/users');
-  public currentUser: User = new User();
-
+  private socket: SocketIOClient.Socket = io(this.apiURL);
+  private userSubject: BehaviorSubject<any>;
+  public user: User = null;
+  public token: string = null;
+ 
   // TO DELETE
 
   //public users: Observable<User[]> = this.socket.fromEvent<User[]>('users');
@@ -34,10 +37,8 @@ export class UserService {
   private readonly JWT_TOKEN = 'JWT_TOKEN';
   private readonly refresh_token = 'refresh_token';
 
-  public currentUserSubject: BehaviorSubject<User>;
   
   authToken: any;
-  user: any;
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -51,29 +52,50 @@ export class UserService {
    *  MAIN
    ****************************************************************************/
   constructor(
-    private http: HttpClient /*,
+    private http: HttpClient,
+    private router: Router /*,
     private jwtHelper: JwtHelperService*/
   ) { 
 
-    this.sub = this.getCurrentUser().subscribe(user => {
-      if(user != null)
-        this.currentUser = User.map(user);
+    this.sub = this.authenticateSocket().subscribe(auth => {
+      if(auth.success === true) {
+        this.storeUserData(auth.token, auth.user);
+        this.router.navigate(['/']);
+      }
     });
 
-
+    if(this.isLoggedIn()) {
+      this.getUserFromLocalStorage();
+    }
   }
 
   public get currentUserValue(): User {
-    return this.currentUserSubject.value;
+    return this.userSubject.value;
   }
 
   /*****************************************************************************
    *  WEB SOCKETS REQUESTS
    ****************************************************************************/
 
-  public getCurrentUser = () => {
+  public authenticateSocket = () => {
     return Observable.create((observer) => {
-        this.socket.on('current user', (message) => {
+        this.socket.on('authenticate', (message) => {
+            observer.next(message);
+        });
+    });
+  }
+
+  public registerMessage = () => {
+    return Observable.create((observer) => {
+        this.socket.on('register_message', (message) => {
+            observer.next(message);
+        });
+    });
+  }
+
+  public loginMessage = () => {
+    return Observable.create((observer) => {
+        this.socket.on('login_message', (message) => {
             observer.next(message);
         });
     });
@@ -82,6 +104,61 @@ export class UserService {
   public registerSocket(user: User) {
     this.socket.emit('register', user);
   }
+
+  public loginSocket(user: User) {
+    this.socket.emit('login', user);
+  }
+
+  /*****************************************************************************
+   *  LOCAL STORAGE
+   ****************************************************************************/
+
+  public storeUserData(token, user) {
+    localStorage.setItem('id_token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    this.authToken = token;
+    this.user = User.map(user);
+  }
+
+  public logout() {
+    this.authToken = null;
+    this.user = null;
+    localStorage.clear();
+  }
+
+  public getLoggedUser(): Observable<any> {
+    return Observable.create((observer) => {
+      observer.next(this.user);
+    });
+  }
+
+  public getCurrentUsername() {
+    this.user = JSON.parse(localStorage.getItem('user')) as User;
+    return this.user;
+  }
+
+  isLoggedIn(): boolean {
+    if(!this.token) this.token = localStorage.getItem('id_token');
+    if(!this.token) return false;
+
+    const decoded = jwt_decode(this.token);
+    if (decoded.exp === undefined) return null;
+
+    let date = new Date(0); 
+    date.setUTCSeconds(decoded.exp);
+    if(date === undefined) return false;
+    return (date.valueOf() > new Date().valueOf());
+  }
+
+  getUserFromLocalStorage(): void {
+    this.user = User.map(JSON.parse(localStorage.getItem('user')));
+  }
+
+  public isConnected(): boolean {
+    if(this.user != null) return true;
+    else return false;
+  }
+
 
   /*****************************************************************************
    *  HTTP REQUESTS
@@ -113,35 +190,11 @@ export class UserService {
   }
   */
 
-  public getCurrentUsername() {
-    this.user = JSON.parse(localStorage.getItem('user')) as User;
-    return this.user;
-  }
-
-  public storeUserData(token, user) {
-    localStorage.setItem('id_token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-    this.authToken = token;
-    this.user = user;
-  }
-
   loadToken() {
     const token = localStorage.getItem('id_token');
     this.authToken = token;
   }
 
-  loggedIn() {
-    console.log("asd");
-    console.log(localStorage.getItem('id_token'));
-    //return this.jwtHelper.isTokenExpired('id_token');
-    //return tokenNotExpired('id_token');
-  }
-
-  logout() {
-    this.authToken = null;
-    this.user = null;
-    localStorage.clear();
-  }
 
   public createUser(user: User): Observable<User> {
     console.log(user);

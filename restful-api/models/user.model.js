@@ -1,6 +1,10 @@
 const Sequelize = require('sequelize');
 const db = require('../middleware/sequelize.mw.js');
 const bcrypt = require('bcryptjs');
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+
+const config = require("../configuration.js");
 const NAME = "user";
 
 // User Definition
@@ -63,17 +67,94 @@ const CreateUser = (user) => {
         
         if(user.hasOwnProperty('username')) { newUser.username = user.username; }
         if(user.hasOwnProperty('email')) { newUser.username = user.email; }
-        if(user.hasOwnProperty('password')) { newUser.username = user.password; }
-        if(user.hasOwnProperty('role')) { newUser.username = user.role; }
-
-        console.log(newUser);
+        if(user.hasOwnProperty('password1')) { newUser.username = user.password1; }
+        if(user.hasOwnProperty('role')) { newUser.username = 0; }
 
         User.create(newUser).then((user) => {
             resolve(user);
         }).catch(err => {
-            console.log(err); 
-            resolve();
+            resolve({success: false, message: err});
         });
+    });
+}
+
+// Register a new User
+const RegisterUser = (user) => {
+    return new Promise(resolve => {
+        if(user.hasOwnProperty("username")) {
+            User.findAll({
+                where: Sequelize.or(
+                        {username: user.username}, 
+                        {email: user.email}
+                )
+            }).then(users => {
+                if(users.length > 0) resolve({success: false, message: "Username already exists"});
+                else if(user.hasOwnProperty("password1")) {
+                    bcrypt.genSalt(10, (err, salt) => {
+                        bcrypt.hash(user.password1, salt, (err, hash) => {
+                            if(err) resolve({err: err});
+
+                            let newUser = {
+                                username: '',
+                                email: '',
+                                password: hash,
+                                role: 0
+                            }
+
+                            if(user.hasOwnProperty('username')) { newUser.username = user.username; }
+                            if(user.hasOwnProperty('email')) { newUser.email = user.email; }
+    
+                            User.create(newUser).then((user) => {
+                                if(err) resolve({success: false, message: "failed at registration"});
+                                else resolve({success: true, user: user});
+                            });
+                        });
+                    });
+                }
+            }).catch(err => {
+                resolve({success: false, message: err});
+            });
+        }
+    });
+}
+
+// Authenticate a user
+const AuthenticateUser = (user) => {
+    return new Promise(resolve => {
+
+        const username = user.username;
+        const password = user.password;
+
+        User.findOne({
+            where: {
+                username: username
+            }
+        }).then(user => {
+            bcrypt.compare(password, user.password, (err, isMatch) => {
+                if(err) resolve({err: err});
+                else if(isMatch) {
+                    const token = jwt.sign({data: user}, config.jwt_secret, {
+                        expiresIn: 604800 // 1 week
+                    });
+
+                    resolve({
+                        success: true,
+                        token: 'JWT ' + token,
+                        user: {
+                          id: user.id,
+                          username: user.username,
+                          email: user.email,
+                          role: user.role
+                        }
+                      });
+                } else {
+                    resolve({success: false, message: "Wrong password"});
+                }
+            });
+        }).catch(err => {
+            resolve({success: false, message: "User not found"});
+        });
+
     });
 }
 
@@ -127,5 +208,7 @@ module.exports.addUser = function(newUser, callback) {
 module.exports = {
     User,
     CreateTableIfNonExistant,
-    CreateUser
+    CreateUser,
+    RegisterUser,
+    AuthenticateUser
 };

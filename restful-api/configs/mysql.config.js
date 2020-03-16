@@ -53,16 +53,5 @@ module.exports = (app) => {
                 });
             });
         });
-
-        // Create DB
-        app.get('/createdb', (req, res) => {
-            let sql = 'CREATE DATABASE collaboration-database';
-            db.query(sql, (err, result) => {
-                if(err) throw err;
-                console.log(result);
-                res.send('Database created...');
-            });
-        });
-        
     });
 }

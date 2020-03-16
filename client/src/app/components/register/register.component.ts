@@ -29,8 +29,8 @@ export class RegisterComponent implements OnInit {
     password2: '',
   }
 
-  public registrationWarning: string = 'registration Warning';
-  public loginWarning: string = 'Login Warning';
+  public registrationWarning: string = '';
+  public loginWarning: string = '';
 
 
   constructor(
@@ -39,6 +39,16 @@ export class RegisterComponent implements OnInit {
     private router: Router,
     private us: UserService,
 ) {
+
+  this.us.registerMessage().subscribe(message => {
+    this.registrationWarning = message;
+  });
+
+  this.us.loginMessage().subscribe(message => {
+    this.loginWarning = message;
+  });
+
+
     // redirect to home if already logged in
     /*
     if (this.us.currentUser != null) { 
@@ -101,6 +111,8 @@ export class RegisterComponent implements OnInit {
     // Register user
     else {
       this.registrationWarning = '';
+      this.us.registerSocket(this.userRegistration);
+
       /*
       this.us.register(this.userRegistration).subscribe(data => {
         if(data.success) {
@@ -116,7 +128,13 @@ export class RegisterComponent implements OnInit {
   }
 
   onLogin() {
-    console.log(this.userLogin);
+    // All fields required
+    if(this.userLogin.username === '' || this.userLogin.password === '') {
+      this.loginWarning = "Please fill in all fields";
+      return;
+    } else {
+      this.us.loginSocket(this.userLogin);
+    } 
     /*
     this.us.authenticate(this.userLogin).subscribe(data => {
       console.log(data);

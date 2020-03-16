@@ -17,7 +17,12 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
 
-    this.username = this.us.getCurrentUsername().username;
+    this.us.getLoggedUser().subscribe(user => {
+      console.log(user);
+      if(user != null)
+        this.username = user.username;
+    });
+
 
     /*
 
@@ -37,7 +42,7 @@ export class HeaderComponent implements OnInit {
   }
 
   isLoggedIn() {
-    if(this.us.currentUser) {
+    if(this.us.user != null) {
       return true;
     } else {
       return false;
