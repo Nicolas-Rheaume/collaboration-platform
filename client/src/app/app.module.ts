@@ -16,6 +16,10 @@ import { UserService } from './services/user.service';
 import { MenuComponent } from './components/menu/menu.component';
 import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './guards/auth.guard';
+import { ContentComponent } from './components/content/content.component';
+import { ContributorsComponent } from './components/content/contributors/contributors.component';
+import { EditorComponent } from './components/content/editor/editor.component';
+import { ExplorerComponent } from './components/content/explorer/explorer.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +30,11 @@ import { AuthGuard } from './guards/auth.guard';
     SubjectComponent,
     UsersComponent,
     MenuComponent,
-    HomeComponent
+    HomeComponent,
+    ContentComponent,
+    ContributorsComponent,
+    EditorComponent,
+    ExplorerComponent
   ],
   imports: [
     BrowserModule,

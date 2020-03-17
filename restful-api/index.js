@@ -24,13 +24,14 @@ require("./configs/mysql.config.js")(app).then(() => {
     // Models
     require("./models/user.model.js").CreateTableIfNonExistant();
     require("./models/subject.model.js").CreateTableIfNonExistant();
-    require("./models/text.model.js").Create();
-    require("./models/relation.model.js").Create();
+    require("./models/text.model.js").CreateTableIfNonExistant();
+    require("./models/relation.model.js").CreateTableIfNonExistant();
   
   })
 });
 
 // Sockets
+require('./sockets/content.socket.js')(app, io);
 require('./sockets/relation.socket.js')(app, io);
 require('./sockets/subject.socket.js')(app, io);
 require('./sockets/user.socket.js')(app, io);

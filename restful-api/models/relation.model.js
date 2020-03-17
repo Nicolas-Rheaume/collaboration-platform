@@ -39,7 +39,8 @@ const Relation = db.define(model_name, {
 }
 );
 
-const Create = function() {
+// Create Relation table if non existant
+const CreateTableIfNonExistant = function() {
     db.query(`SHOW TABLES like "` + model_name + 's"').then(([results, metadata]) => {
         if(results == 0) {
             Relation.sync();
@@ -50,7 +51,66 @@ const Create = function() {
     })
 }
 
+// Create Relation
+const CreateRelation = (userID, subjectID, textID, order) => {
+    return new Promise(resolve => {
+  
+        let newRelation = {
+            subjectID: subjectID,
+            userID: userID,
+            textID: textID,
+            order: order
+        }
+  
+        Relation.create(newRelation).then(relation => {
+            resolve({success: true, relation: relation});
+        }).catch(err => {
+            resolve({success: false, message: "Error creating relation"});
+        });
+    });
+}
+
+// Get Relation by user id and subject id
+const GetRelationByUserAndSubject = async(userID, subjectID) => {
+    return new Promise((resolve, reject) => {
+        Relation.findAll({
+            where: {
+                userID: userID,
+                subjectID: subjectID
+            },
+            order: [['order', 'ASC']]
+        }).then((relations) => {
+            resolve(relations);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+// Get Relation with subject id but without user id
+const GetRelationBySubjectWithoutUser = async(userID, subjectID) => {
+    return new Promise((resolve, reject) => {
+        Relation.findAll({
+            where: {
+                subjectID: subjectID,
+                [Sequelize.Op.not]: [
+                    {userID: userID}
+                ]
+            }
+        }).then((relations) => {
+            resolve(relations);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+
+
 module.exports = {
     Relation,
-    Create
+    CreateTableIfNonExistant,
+    CreateRelation,
+    GetRelationByUserAndSubject,
+    GetRelationBySubjectWithoutUser
 };

@@ -9,9 +9,17 @@ export const environment = {
   production: false
 };*/
 
+// Localhost
+/*
 export const environment = {
   url: 'http://localhost:3000',
   api: 'http://localhost:3000',
+  production: false
+};*/
+
+export const environment = {
+  url: 'http://192.168.0.183:3000',
+  api: 'http://192.168.0.183:3000',
   production: false
 };
 

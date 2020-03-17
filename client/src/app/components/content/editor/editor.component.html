@@ -1,0 +1,13 @@
+
+<div class="container-fluid">
+    <h2>Editor :</h2>
+
+    <textarea class="form-control text-area bg-primary border-secondary color-primary" 
+    id="exampleTextarea" rows="25" style="margin-top: 0px; margin-bottom: 0px;" 
+    [(ngModel)]="cs.editorText.text"
+    (ngModelChange)="update()"
+    ></textarea>
+
+    <button type="button" class="btn btn-success" (click)="save()">Save</button>
+    <button type="button" class="btn btn-danger" (click)="viewSubject(subject)">Cancel</button>
+</div>

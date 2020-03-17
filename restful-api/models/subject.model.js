@@ -17,7 +17,11 @@ const Subject = db.define(NAME, {
     description: {
         type: Sequelize.TEXT,
         allowNull: true
-    },
+    },/*
+    creator: {
+        type: Sequelize.TEXT,
+        allowNull: true
+    },*/
     createdAt: {
         type: Sequelize.DATE,
         allowNull: false
@@ -78,6 +82,21 @@ const GetSubjectByID = (id) => {
     });
 }
 
+// Get Subject by ID
+const GetSubjectByTitle = (title) => {
+    return new Promise((resolve, reject) => {
+        Subject.findOne({
+            where: {
+                title: title
+            }
+        }).then(subject => {
+            resolve(subject);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 // Update Subject
 const UpdateSubject = (subject) => {
     return new Promise(resolve => {
@@ -133,6 +152,7 @@ module.exports = {
     CreateTableIfNonExistant,
     CreateSubject,
     GetSubjectByID,
+    GetSubjectByTitle,
     UpdateSubject,
     DeleteSubjectByID,
     GetAllSubjects

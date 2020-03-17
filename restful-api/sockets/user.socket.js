@@ -28,9 +28,9 @@ module.exports = function(app, io){
         if(data.success === false) socket.emit("register_message", data.message);
         else {
           let newUser = {
-            username: user.dataValues.username,
-            email: user.dataValues.email,
-            password: user.dataValues.password,
+            username: data.user.dataValues.username,
+            email: data.user.dataValues.email,
+            password: user.password1
           }
           User.AuthenticateUser(newUser).then((data) => {
             if(data.success === false) socket.emit("register_message", data.message);

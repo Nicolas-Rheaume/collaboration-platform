@@ -1,18 +1,23 @@
-const Subject = require('../models/text.model.js').Text;
+const User = require('../models/user.model.js');
+const Subject = require('../models/subject.model.js');
+const Text = require('../models/text.model.js');
+const Relation = require('../models/relation.model.js');
 
-const content = "text";
+const NAME = "Text: ";
 
 module.exports = function(app, io){
 
-  io.of(content).on('connection', socket => {
+  io.of("text").on('connection', socket => {
 
     // Client connected
-    console.log('user connected to :' + content);
+    console.log(NAME + 'user connected');
 
     // Client disconnected
     socket.on('disconnect', () => {
-      console.log('user disconnected from : ' + content);
+      console.log(NAME + 'user disconnected');
     });
+
+    // Create Text and link
 
     /*
     // Get All Users 

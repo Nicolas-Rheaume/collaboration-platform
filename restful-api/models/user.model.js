@@ -158,6 +158,20 @@ const AuthenticateUser = (user) => {
     });
 }
 
+const GetUserByUsername = async (username) => {
+    return new Promise((resolve, reject) => {
+        User.findOne({
+            where: {
+                username: username
+            }
+        }).then(user => {
+            resolve(user);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 
 /*
 module.exports.getUserById = function(id) {
@@ -210,5 +224,6 @@ module.exports = {
     CreateTableIfNonExistant,
     CreateUser,
     RegisterUser,
-    AuthenticateUser
+    AuthenticateUser,
+    GetUserByUsername
 };
