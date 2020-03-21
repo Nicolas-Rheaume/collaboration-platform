@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router"
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { SplitComponent, AngularSplitModule, SplitAreaDirective } from 'angular-split';
 
 import { SubjectService } from '../../services/subject.service';
 import { ContentService } from 'src/app/services/content.service';
@@ -12,14 +13,21 @@ import { Text } from '../../models/text.model';
 @Component({
   selector: 'app-content',
   templateUrl: './content.component.html',
-  styleUrls: ['./content.component.scss']
+  styleUrls: ['./content.component.scss'],
+  providers: [ContentService]
 })
 export class ContentComponent implements OnInit, OnDestroy {
 
+  /*****************************************************************************
+   *  VARIABLES
+   ****************************************************************************/
   private sub: Subscription;
-
   public subject: Subject = new Subject();
   public texts: Text = new Text();
+
+  /*****************************************************************************
+   *  MAIN
+   ****************************************************************************/
 
   constructor(
     private activeRouter: ActivatedRoute,
@@ -27,27 +35,32 @@ export class ContentComponent implements OnInit, OnDestroy {
     private ss: SubjectService,
     private cs: ContentService,
     private us: UserService
-  ) { }
+  ) { 
+  }
 
   ngOnInit() {
 
     // Get the Active Route parameter
     this.sub = this.activeRouter.params.subscribe(params => {
+      this.cs.subjectTitle = params.title;
 
       // Get the current User
+      /*
       if(this.us.isConnected){
         this.sub = this.us.getLoggedUser().subscribe(user => {
 
           // Subscribe content
           this.sub = this.cs.contentResponse().subscribe(content => {
             this.subject = Subject.map(content.subject);
-            console.log(content.subject);
+            console.log(this.subject);
+
           });
 
           // Get content
           this.cs.getContent(user.username, params.title);
         });
       }
+      */
     });
   }
 
@@ -55,6 +68,15 @@ export class ContentComponent implements OnInit, OnDestroy {
     this.sub.unsubscribe();
   }
 
+  /*****************************************************************************
+   *  EDITOR
+   ****************************************************************************/
+  addNewText() {
+    //this.cs.createText(this.route);
+  }
 
-
+  test() {
+    this.cs.test();
+  }
+ 
 }

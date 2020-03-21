@@ -57,10 +57,34 @@ const CreateTableIfNonExistant = function() {
 }
 
 // Create Text
-const CreateText = (text) => {
-  return new Promise(resolve => {
+const CreateText = async (text) => {
+  return new Promise((resolve,reject) => {
 
     console.log(text);
+      let newText = {
+          text: '',
+          previous: 0,
+          views: 0,
+          likes: 0,
+          dislikes: 0,
+      };
+
+      if(text.hasOwnProperty('text') === true) { newText.text = text.text; }
+      if(text.hasOwnProperty('previous')=== true) { newText.previous = text.previous; }
+      if(text.hasOwnProperty('views')=== true) { newText.views = text.views; }
+      if(text.hasOwnProperty('likes')=== true) { newText.likes = text.likes; }
+      if(text.hasOwnProperty('dislikes')=== true) { newText.dislikes = text.dislikes; }
+
+      Text.create(newText).then(text => {
+          resolve(text);
+      }).catch(err => {
+          reject(err);
+      });
+  });
+}
+
+const CreateEmptyText = async () => {
+  return new Promise((resolve,reject) => {
 
       let newText = {
           text: '',
@@ -70,18 +94,10 @@ const CreateText = (text) => {
           dislikes: 0,
       };
 
-      if(text.hasOwnProperty('text')) { newText.text = text.text; }
-      if(text.hasOwnProperty('previous')) { newText.previous = text.previous; }
-      if(text.hasOwnProperty('views')) { newText.views = text.views; }
-      if(text.hasOwnProperty('likes')) { newText.likes = text.likes; }
-      if(text.hasOwnProperty('dislikes')) { newText.dislikes = text.dislikes; }
-
-      console.log(newText);
-
       Text.create(newText).then(text => {
-          resolve({success: true, text: text});
+          resolve(text.dataValues);
       }).catch(err => {
-          resolve({success: false, message: err});
+          reject(err);
       });
   });
 }
@@ -97,10 +113,40 @@ const getTextByID = (id) => {
   });
 }
 
+// Update Text by ID
+const UpdateTextByID = async(textID, text) => {
+  return new Promise((resolve, reject) => {
+      Text.update(
+          {   text: text, },
+          {   where: { id: textID }}
+      ).then(() => {
+          resolve();
+      }).catch(err => {
+          reject(err);
+      });
+  });
+}
+
+// Delete Text by ID
+const DeleteTextByID = async(textID) => {
+  return new Promise((resolve, reject) => {
+      Text.destroy(
+          {   where: { id: textID }}
+      ).then(() => {
+          resolve();
+      }).catch(err => {
+          reject(err);
+      });
+  });
+}
+
 
 module.exports = {
   Text,
   CreateTableIfNonExistant,
   CreateText,
-  getTextByID
+  CreateEmptyText,
+  getTextByID,
+  UpdateTextByID,
+  DeleteTextByID
 };

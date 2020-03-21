@@ -1,3 +1,85 @@
+.btn-border-primary {
+  border-color: #3A3F44 !important;
+}
+
+.btn-border-secondary {
+  border-color: #7A8288 !important;
+}
+
+.btn-border-success {
+  border-color: #62c462 !important;
+}
+
+.btn-border-info {
+  border-color: #5bc0de !important;
+}
+
+.btn-border-warning {
+  border-color: #f89406 !important;
+}
+
+.btn-border-danger {
+  border-color: #ee5f5b !important;
+}
+
+.btn-border-light {
+  border-color: #e9ecef !important;
+
+}
+.btn-border-prlightmary {
+  border-color: #272B30 !important;
+}
+
+.modal-holder{
+  z-index: 999;
+  background-color: #32383e;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+
+  animation-name: model-fade-in;
+  -webkit-animation: fadein 0.3s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 0.5s; /* Firefox < 16 */
+        -ms-animation: fadein 0.5s; /* Internet Explorer */
+         -o-animation: fadein 0.5s; /* Opera < 12.1 */
+            animation: fadein 0.5s;
+}
+/*
+.modal-background {
+  position: fixed;
+  width: 2000px;
+  height: 2000px;
+  filter: blur(1px);
+  -webkit-filter: blur(1px);
+  background-color: rgba(0,0,0,0.3);
+}
+*/
+
+@keyframes fadein {
+  from { 
+    transform: translateY(-200px);
+    opacity: 0; 
+  }
+  to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+  from { opacity: 0; transform: translateY(-200px);}
+  to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+  from { opacity: 0; transform: translateY(-200px);}
+  to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+  from { opacity: 0; transform: translateY(-200px);}
+  to   { opacity: 1; }
+}
+
 /*!
  * Bootswatch v4.4.1
  * Homepage: https://bootswatch.com
@@ -11255,3 +11337,5 @@
     background-color: #1c1e22;
   }
   
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

@@ -1,15 +1,19 @@
-<hr class="my-4">
 
+<br>
 <div class="container">
     <div class="jumbotron">
-        <h3 class="display-4">Collaboration Platform</h3>
-        <p class="lead">This collaboration platform is based on the decentralized model to produce textual documents.</p>
+        <h3 class="display-4 text-center">Collaboration Platform</h3>
+        <p class="lead text-center">This collaboration platform is based on the decentralized model to produce textual documents.</p>
         <hr class="my-4">
-        <p>The main objective of this platform is to offer the users an opportunity to describe their perspective on a subject while seeking inspiration from the community of active writers. The goal is to provide an open-source platform to share ideas while keeping your own documents.</p>
+        <p class="text-center">The main objective of this platform is to offer the users an opportunity to describe their perspective on a subject while seeking inspiration from the community of active writers. The goal is to provide an open-source platform to share ideas while keeping your own documents.</p>
         
         <div class="row text-center">
-            <div class="col-md-6"><a class="btn btn-secondary btn-lg" href="/menu" role="button">Subjects</a></div>
-            <div class="col-md-6"><a class="btn btn-secondary btn-lg" href="/register" role="button">Register</a></div>
+            <div class="col-md-6" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                <a class="btn btn-outline-info btn-border-info" [routerLink]="['/dashboard']">Dashboard</a>
+            </div>
+            <div class="col-md-6" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
+                <a class="btn btn-outline-warning btn-border-warning" [routerLink]="['/register']">Register</a>
+            </div>
         </div>
     </div>
 </div>

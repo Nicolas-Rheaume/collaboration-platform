@@ -9,7 +9,7 @@ import * as io from 'socket.io-client';
 import { Router } from '@angular/router';
 import * as jwt_decode from 'jwt-decode';
 
-import { User } from '../models/user.model';
+import { User, Role } from '../models/user.model';
 import { environment } from '../../environments/environment';
 import { resolve } from 'url';
 
@@ -53,9 +53,10 @@ export class UserService {
    ****************************************************************************/
   constructor(
     private http: HttpClient,
-    private router: Router /*,
-    private jwtHelper: JwtHelperService*/
+    private router: Router
   ) { 
+
+    console.log("User Service");
 
     this.sub = this.authenticateSocket().subscribe(auth => {
       if(auth.success === true) {
@@ -137,7 +138,7 @@ export class UserService {
     return this.user;
   }
 
-  isLoggedIn(): boolean {
+  public isLoggedIn(): boolean {
     if(!this.token) this.token = localStorage.getItem('id_token');
     if(!this.token) return false;
 
@@ -150,7 +151,7 @@ export class UserService {
     return (date.valueOf() > new Date().valueOf());
   }
 
-  getUserFromLocalStorage(): void {
+  public getUserFromLocalStorage(): void {
     this.user = User.map(JSON.parse(localStorage.getItem('user')));
   }
 
@@ -158,6 +159,14 @@ export class UserService {
     if(this.user != null) return true;
     else return false;
   }
+
+  public isAdmin(): boolean {
+    if(this.isConnected()) {
+      if(this.user.role === 1 || this.user.role === Role.admin) return true;
+      else return false;
+    }
+  }
+
 
 
   /*****************************************************************************
@@ -244,7 +253,11 @@ export class UserService {
    ****************************************************************************/
 
   public getAll() {
-    this.socket.emit('get', "all");
+    this.socket.emit('get-all');
+  }
+
+  public getTop5Users(username: string) {
+    this.socket.emit('get-top5', username);
   }
 
   public create(user: User) {

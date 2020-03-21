@@ -4,7 +4,7 @@ export class Subject {
     title?: string;
     description?: string;
     createdAt?: Date;
-    updateAt?: Date;
+    updatedAt?: Date;
   
     constructor(
       id: number = 0, 
@@ -27,7 +27,7 @@ export class Subject {
         subject.title = data[index].title;
         subject.description = data[index].description;
         subject.createdAt = data[index].createdAt;
-        subject.updateAt = data[index].updateAt;
+        subject.updatedAt = data[index].updatedAt;
 
         subjects.push(subject);
       }
@@ -43,7 +43,7 @@ export class Subject {
       subject.title = data.title;
       subject.description = data.description;
       subject.createdAt = data.createdAt;
-      subject.updateAt = data.updateAt;
+      subject.updatedAt = data.updatedAt;
 
       return subject;
     }

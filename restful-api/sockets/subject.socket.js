@@ -23,10 +23,28 @@ module.exports = function(app, io){
       });
     });
 
-    // Get All Users 
-    socket.on('get', (data) => {
+    // Create New Subject
+    socket.on('create-new-subject', (title) => {
+      if(title === '' || title === null) socket.emit("new-subject-response", {success: false, message: "Invalid subject title"});
+      Subject.GetSubjectByTitle(title).then((subject) => {
+        if(subject != null) socket.emit("new-subject-response", {success: false, message: "Subject title already exists. Try another one?"});
+        else {
+          Subject.CreateSubjectByTitle(title).then(() => {
+            Subject.GetAllSubjects().then(subjects => {
+              socket.emit("new-subject-response", {success: true, message: "successfully created a new subject"});
+              socket.emit("update", subjects);
+              socket.broadcast.emit("update", subjects);
+            });
+          });
+        }
+      })
+    });
+
+
+    // Get All Subjects 
+    socket.on('get-all', () => {
       Subject.GetAllSubjects().then(subjects => {
-        socket.emit("get", subjects);
+        socket.emit("subjects-response", subjects);
       });
     });
 

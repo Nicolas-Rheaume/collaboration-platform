@@ -23,26 +23,27 @@ export class ContentService {
   private sub: Subscription;
 
   private user: User = new User();
+  public subjectTitle: string = "";
+
   public subject: Subject = new Subject();
-  public editorText: Text[] = [];
-  public explorerText: Text[] = [];
+  public editorTexts: Text[] = [];
+  public explorerTexts: Text[] = [];
+
+  public useMockData: boolean = false;
 
   /*****************************************************************************
    *  MAIN
    ****************************************************************************/
   constructor(
     private us: UserService,
-    private activeRouter: ActivatedRoute,
+    private activeRouter: ActivatedRoute
   ) { 
 
-    // Error message
-    // Subscribe content
-    this.sub = this.errorMessage().subscribe(message => {
-      console.log(message);
-    });
+    console.log("Content Service");
 
-    // Get the Active Route parameter
-    this.sub = this.activeRouter.params.subscribe(params => {
+    if(this.useMockData){
+      this.setMockData();
+    } else {
 
       // Get the current User
       if(this.us.isConnected){
@@ -51,18 +52,46 @@ export class ContentService {
           // Set User
           this.user = user;
 
-          // Subscribe content
+          // Get route params
+          this.sub = this.activeRouter.params.subscribe(params => {
+            this.subjectTitle = params.title;
+
+            // Error Message
+            this.sub = this.errorMessage().subscribe(message => {
+              console.log(message);
+            });
+
+            // Editor Texts
+            this.sub = this.editorResponse().subscribe(editorTexts => {
+              this.editorTexts = Text.maps(editorTexts);
+            });
+
+            // Explorer Texts
+            this.sub = this.explorerResponse().subscribe(explorerTexts => {
+              this.explorerTexts = Text.maps(explorerTexts);
+            });
+
+            // Update Explorer
+            this.sub = this.explorerUpdate().subscribe(() => {
+              this.getExplorerText();
+            });
+
+            this.getEditorText();
+            this.getExplorerText();
+          });
+        });
+
+                  // Subscribe content
+          /*
           this.sub = this.contentResponse().subscribe(content => {
             this.subject = Subject.map(content.subject);
-            this.editorText = Text.maps(content.editorText);
-            this.explorerText = Text.maps(content.explorerText);
+            this.editorTexts = Text.maps(content.editorText);
+            this.explorerTexts = Text.maps(content.explorerText);
             console.log(content);
-          })
+          });*/
 
-        });
       }
-    });
-
+    }
   }
 
 
@@ -78,9 +107,26 @@ export class ContentService {
     });
   }
 
+  public explorerResponse = () => {
+    return Observable.create((observer) => {
+        this.socket.on('explorer-response', (message) => {
+            observer.next(message);
+        });
+    });
+  }
+
+  public explorerUpdate = () => {
+    return Observable.create((observer) => {
+        this.socket.on('explorer-update', () => {
+            observer.next();
+        });
+    });
+  }
+
+  // to delete
   public contentResponse = () => {
     return Observable.create((observer) => {
-        this.socket.on('contentResponse', (message) => {
+        this.socket.on('content-response', (message) => {
           console.log(message);
             observer.next(message);
         });
@@ -89,7 +135,7 @@ export class ContentService {
 
   public errorMessage = () => {
     return Observable.create((observer) => {
-        this.socket.on('errorMessage', (message) => {
+        this.socket.on('error-message', (message) => {
             observer.next(message);
         });
     });
@@ -101,11 +147,61 @@ export class ContentService {
    *  WEB SOCKETS REQUEST
    ****************************************************************************/
 
+  public createTextAtIndex(index: number) {
+    this.socket.emit('create-text-at-index', {
+      username: this.user.username, 
+      title: this.subjectTitle,
+      index: index
+    });
+  }
+
+  public updateTextAtIndex(index: number) {
+    this.socket.emit('update-text-at-index', {
+      username: this.user.username, 
+      title: this.subjectTitle,
+      text: this.editorTexts[index].text,
+      index: index
+    });
+  }
+
+  public deleteTextAtIndex(index: number) {
+    this.socket.emit('delete-text-at-index', {
+      username: this.user.username, 
+      title: this.subjectTitle,
+      index: index
+    });
+  }
+
+
+
+
+   public test() {
+    this.socket.emit('create-text-at-index', {
+      username: this.user.username, 
+      title: this.subjectTitle,
+      index: 0
+    });
+   }
+
+   public getEditorText() {
+    this.socket.emit('get-editor-text', {
+      username: this.user.username, 
+      title: this.subjectTitle
+    });
+   } 
+
+   public getExplorerText() {
+    this.socket.emit('get-explorer-text', {
+      username: this.user.username, 
+      title: this.subjectTitle
+    });
+   } 
+
    public saveEditorText() {
     this.socket.emit('createContent', {
       username: this.user.username, 
-      title: this.subject.title,
-      texts: [this.editorText],
+      title: this.subjectTitle,
+      texts: [this.editorTexts],
     });
    }
 
@@ -113,8 +209,35 @@ export class ContentService {
   public getContent(username: string, title: string) {
     this.socket.emit('getContent', {username: username, title: title});
   }
+
+  public createText(route: string) {
+    console.log({username: this.us.user.username, title: route});
+    this.socket.emit('create-empty-text-by-username-and-title', {username: this.us.user.username, title: route});
+  }
+
+  /*****************************************************************************
+   *  MOCK DATA
+   ****************************************************************************/
+
+   private setMockData() {
+    this.subject = new Subject(1,"subject title", "this is the description");
+    this.editorTexts = [
+      new Text(1, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pretium sagittis tortor, a mattis ipsum varius quis. Nam at sem sit amet mauris cursus eleifend. Proin non felis a lorem venenatis facilisis. Phasellus a tellus sit amet lorem finibus aliquet. Vivamus sed mollis mauris. Integer ac nisl tincidunt, venenatis nisl at, malesuada urna. Sed non tempor purus. Curabitur sagittis diam magna, et varius risus finibus ut. Donec imperdiet sapien non diam vehicula, id placerat felis interdum. Sed scelerisque vel augue quis luctus. Nullam neque nibh, vulputate ut erat et, posuere rutrum massa. Praesent sit amet sollicitudin ante, vitae tristique quam. Maecenas nec diam libero. Suspendisse vitae est eleifend, congue sem non, auctor augue. Donec mollis finibus felis id placerat. Suspendisse potenti.", 0, 0, 0, 0, false),
+      new Text(2, "Quisque vehicula tempus risus, a lobortis dui condimentum sit amet. Nam laoreet elementum nunc ut efficitur. Nunc gravida vestibulum rhoncus. Praesent vitae malesuada dui. Fusce a viverra diam, id fermentum velit. Proin consectetur odio arcu, non pretium turpis interdum et. Etiam ut suscipit dolor. Maecenas tristique sit amet sem in malesuada. Maecenas volutpat sem justo, eu interdum diam lacinia sed. Curabitur lobortis ac dui vitae ultricies. Duis varius justo augue, ac rhoncus ligula euismod in. Phasellus vitae malesuada lectus. Quisque nisl tellus, elementum ac turpis quis, tincidunt sodales nibh. Vivamus id lacus non nibh tristique fringilla ac non est. Praesent non metus nec velit vulputate sagittis.", 0, 0, 0, 0, false),
+      new Text(3, "Sed libero sem, efficitur at dignissim eget, feugiat in leo. Integer vestibulum, odio imperdiet luctus tristique, augue velit consectetur justo, a mattis ex arcu ut ligula. Etiam porttitor sapien in augue gravida iaculis. Integer rutrum turpis tellus. Fusce magna nunc, vulputate sit amet ex nec, laoreet lacinia ante. In laoreet odio id nibh facilisis sodales. Integer purus leo, dapibus eu imperdiet nec, efficitur sed mauris. Nam lobortis scelerisque urna id sagittis. Quisque sagittis dolor sit amet risus vehicula tempor. Aenean vel condimentum massa. Sed purus diam, bibendum eu sem at, fringilla tristique sapien. Suspendisse nulla felis, ultrices sit amet magna at, porta convallis sapien. Cras non lorem suscipit, pretium velit nec, venenatis felis. Cras venenatis nisl id eros efficitur, et molestie augue ullamcorper. Suspendisse ornare, risus id interdum porta, tellus ipsum semper diam, quis mattis augue turpis in neque. Proin augue turpis, pulvinar a lorem eu, egestas faucibus turpis.", 0, 0, 0, 0, false),
+      new Text(4, "fourth paragraph", 0, 0, 0, 0, false),
+    ]
+    this.explorerTexts = [
+      new Text(1, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas mollis diam vitae massa pellentesque, a accumsan elit iaculis. Integer tincidunt in purus ac euismod. Sed ultrices suscipit nisi id consectetur. Vestibulum sit amet ipsum neque. Aenean blandit cursus lorem non gravida. Mauris nec convallis felis. Mauris ac tellus luctus odio venenatis aliquam quis a metus. Nullam tortor augue, tempor ut aliquet ac, blandit congue turpis. Nulla tincidunt viverra tempor.", 0, 0, 0, 0, false),
+      new Text(2, "Nullam elementum tellus in laoreet placerat. Duis sed tortor quis mi molestie facilisis id et lorem. Duis a feugiat nulla, vel elementum nisl. Etiam sed turpis lacinia, mollis sapien dapibus, commodo odio. Morbi odio neque, mattis at justo eu, tincidunt pulvinar metus. Cras vitae justo eu urna tempor tincidunt vestibulum sit amet tortor. Pellentesque at congue massa. Quisque luctus eros in purus lacinia tincidunt. Ut faucibus vehicula risus at aliquet. Curabitur massa turpis, ullamcorper ac nisl ut, finibus blandit elit. In semper sagittis dolor, nec tincidunt ligula maximus quis. Donec faucibus posuere malesuada. Nam a porta urna, nec lacinia libero. Aliquam vitae tincidunt tortor.", 0, 0, 0, 0, false),
+      new Text(3, "Duis leo lectus, vestibulum vel turpis eget, porta pharetra erat. Suspendisse potenti. Donec eros lectus, tempus ut efficitur vitae, mollis eget nisi. Sed sodales nunc vel nunc pharetra, ut sollicitudin lorem porta. Phasellus rutrum aliquam massa, vel hendrerit sapien sollicitudin feugiat. Ut mollis varius tincidunt. Quisque dignissim viverra justo vitae tristique. Sed auctor magna et enim efficitur mollis. Praesent sodales elit in est accumsan, at auctor est luctus. Quisque mollis vulputate nulla ut dapibus. Vivamus efficitur ultrices vestibulum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin id sapien nec sem ultrices malesuada. Curabitur consectetur, tortor non fringilla efficitur, felis lectus venenatis elit, eget feugiat libero justo eu massa. Fusce at lacinia quam.", 0, 0, 0, 0, false),
+      new Text(4, "Proin tempus in diam id aliquet. Curabitur scelerisque fermentum nulla eu tempor. Nullam rhoncus a metus ut efficitur. Phasellus lectus diam, pellentesque eu tempus non, molestie eleifend mi. Nullam bibendum iaculis leo, nec varius lectus ultricies sed. Nulla bibendum at ante pharetra pellentesque. Ut pulvinar, nunc mattis placerat sodales, elit odio cursus augue, quis maximus felis urna at urna. Ut dictum leo leo, et pellentesque arcu imperdiet sed. Donec eleifend metus id tortor ornare viverra. Suspendisse potenti. Sed et rhoncus turpis. In maximus nibh risus, eget dictum orci tempus sed. Phasellus sed arcu massa.", 0, 0, 0, 0, false),
+    ]
+   }
   
-  /*
+  /*{
+      this.setMockData();
+    }
    public saveContent() {
     this.socket.emit('createContent', {username: username, title: title});
    }

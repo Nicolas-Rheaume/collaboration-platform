@@ -11,7 +11,6 @@ const User = require('../models/user.model.js');
 module.exports = function(app, io){
 
     io.on('connection', socket => {
-
       console.log('user connected');
 
       socket.on('disconnect', () => {

@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const op = Sequelize.Op;
 const db = require('../middleware/sequelize.mw.js');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
@@ -172,6 +173,23 @@ const GetUserByUsername = async (username) => {
     });
 }
 
+const GetTop5Users = async (username) => {
+    return new Promise((resolve, reject) => {
+        User.findAll({
+            limit: 5,
+            where: {
+                username: {
+                    [op.like]: '%' + username + '%'
+                }
+            }
+        }).then(users => {
+            resolve(users);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 
 /*
 module.exports.getUserById = function(id) {
@@ -225,5 +243,6 @@ module.exports = {
     CreateUser,
     RegisterUser,
     AuthenticateUser,
-    GetUserByUsername
+    GetUserByUsername,
+    GetTop5Users
 };

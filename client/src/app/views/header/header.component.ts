@@ -13,32 +13,10 @@ export class HeaderComponent implements OnInit {
 
   constructor(
     private us: UserService
-  ) { }
+  ) { 
+  }
 
   ngOnInit() {
-
-    this.us.getLoggedUser().subscribe(user => {
-      console.log(user);
-      if(user != null)
-        this.username = user.username;
-    });
-
-
-    /*
-
-    console.log("header stuff : ");
-    this.username = this.us;
-    
-    localStorage.getItem('user');
-
-    console.log(localStorage.getItem('user'));
-
-    /*
-    if(this.us.loggedIn()){
-      console.log(localStorage.getItem('user'));
-      this.username = localStorage.getItem('user');
-    }
-    */
   }
 
   isLoggedIn() {

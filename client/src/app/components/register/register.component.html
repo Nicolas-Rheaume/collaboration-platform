@@ -8,14 +8,14 @@
 			<fieldset>
 				<div class="form-group">
 					<label class="slate-label" for="register-username">Username:</label>
-					<input type="text" class="form-control slate-input" id="register-username" placeholder="Enter username" [(ngModel)]="userLogin.username">
+					<input type="text" class="form-control slate-input" id="login-username" placeholder="Enter username" [(ngModel)]="userLogin.username">
 				</div>
 				<div class="form-group">
 					<label class="slate-label" for="register-password">Password:</label>
-					<input type="password" class="form-control slate-input" id="register-password" placeholder="Password" [(ngModel)]="userLogin.password">
+					<input type="password" class="form-control slate-input" id="login-password" placeholder="Password" [(ngModel)]="userLogin.password">
 				</div>
 				<div class="form-group text-center">
-					<button type="button" class="btn btn-primary" (click)="onLogin()">Login</button>
+					<button type="button" class="btn btn-outline-success btn-border-success" (click)="onLogin()">Login</button>
 				</div>
 				<div class="invalid">{{loginWarning}}</div>
 			</fieldset>
@@ -41,7 +41,7 @@
 					<input type="password" class="form-control slate-input" id="register-password2" placeholder="Password" [(ngModel)]="userRegistration.password2">
 				</div>
 				<div class="form-group text-center">
-					<button type="button" class="btn btn-primary" (click)="onRegister()">Register</button>
+					<button type="button" class="btn btn-outline-info btn-border-info" (click)="onRegister()">Register</button>
 				</div>
 				<div class="invalid" >{{registrationWarning}}</div>
 			</fieldset>

@@ -70,6 +70,23 @@ const CreateSubject = (subject) => {
     });
 }
 
+// Create Subject
+const CreateSubjectByTitle = (title) => {
+    return new Promise((resolve, reject) => {
+
+        let newSubject = {
+            title: title,
+            description: '',
+        }
+
+        Subject.create(newSubject).then(subject => {
+            resolve(subject);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 // Get Subject by ID
 const GetSubjectByID = (id) => {
     return new Promise(resolve => {
@@ -137,10 +154,20 @@ const DeleteSubjectByID = (id) => {
 
 // Get All Subjects
 const GetAllSubjects = () => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         Subject.findAll().then(subjects => {
-            resolve(subjects);
-          }).catch(err => {console.log(err); resolve()});
+            let list = [];
+            subjects.forEach(subject => {
+                list.push({
+                    id: subject.dataValues.id,
+                    title: subject.dataValues.title,
+                    description: subject.dataValues.description,
+                    createdAt: subject.dataValues.createdAt,
+                    updatedAt: subject.dataValues.updatedAt
+                });
+            });
+            resolve(list);
+          }).catch(err => {reject(err)});
     });
 }
 
@@ -151,6 +178,7 @@ module.exports = {
     Subject,
     CreateTableIfNonExistant,
     CreateSubject,
+    CreateSubjectByTitle,
     GetSubjectByID,
     GetSubjectByTitle,
     UpdateSubject,

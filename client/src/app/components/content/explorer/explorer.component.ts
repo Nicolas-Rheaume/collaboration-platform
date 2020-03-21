@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router"
 import { Subscription } from 'rxjs';
+import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 
 import { ContentService } from '../../../services/content.service';
 
@@ -14,8 +15,15 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
   /*****************************************************************************
    *  VARIABLES
    ****************************************************************************/
-  private sub: Subscription;
   public description: string;
+
+  done: string[] = [
+    'Get up',
+    'Brush teeth',
+    'Take a shower',
+    'Check e-mail',
+    'Walk dog'
+  ];
 
   /*****************************************************************************
    *  MAIN
@@ -32,7 +40,6 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
   }
 
   /*****************************************************************************
@@ -44,7 +51,23 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
   }
 
   update() {
-    console.log(this.cs.editorText);
+
+  }
+
+  /*****************************************************************************
+   *  DRAGGABLE
+   ****************************************************************************/
+
+
+  drop(event: CdkDragDrop<string[]>) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    } else {
+      transferArrayItem(event.previousContainer.data,
+                        event.container.data,
+                        event.previousIndex,
+                        event.currentIndex);
+    }
   }
 
 }

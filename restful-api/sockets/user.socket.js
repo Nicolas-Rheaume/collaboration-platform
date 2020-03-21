@@ -49,11 +49,19 @@ module.exports = function(app, io){
     });
 
 
-
     // Get All Users 
-    socket.on('get', (data) => {
-      User.findAll().then(users => {
-        socket.emit("get", users);
+    socket.on('get-top5', (username) => {
+      User.GetTop5Users(username).then(users => {
+
+        let list = [];
+
+        users.forEach(user => {
+          list.push({
+            username: user.username
+          })
+        });
+
+        socket.emit("get", list);
       }).catch(err => console.log(err));
     });
 

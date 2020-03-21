@@ -6,6 +6,7 @@ export class Text {
     views?: number;
     likes?: number;
     dislikes?: number;
+    showDetailed?: boolean;
     createdAt?: Date;
     updateAt?: Date;
   
@@ -16,6 +17,7 @@ export class Text {
       views: number = 0, 
       likes: number = 0, 
       dislikes: number = 0, 
+      showDetailed: boolean = false,
     ) {
       this.id = id;
       this.text = text;
@@ -23,6 +25,7 @@ export class Text {
       this.views = views;
       this.likes = likes;
       this.dislikes = dislikes;
+      this.showDetailed = showDetailed;
     }
 
     public static map(data): Text {

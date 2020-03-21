@@ -1,0 +1,17 @@
+.content-window{
+    height: calc(100% - 56px);
+}
+
+.content-subject{
+}
+
+.content-main{
+    height: 100%;
+    width: 100%;
+    //flex: 1 1 calc(100% - 500px);
+}
+
+.add-button {
+    height: 53.81px;
+    border-radius: 0px;
+}

@@ -30,6 +30,9 @@ require("./configs/mysql.config.js")(app).then(() => {
   })
 });
 
+// Middleware
+require('./mw/socket.mw')(app, io);
+
 // Sockets
 require('./sockets/content.socket.js')(app, io);
 require('./sockets/relation.socket.js')(app, io);

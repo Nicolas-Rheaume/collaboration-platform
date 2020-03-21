@@ -10,4 +10,5 @@ module.exports = new Sequelize(config.database_name, config.database_user, confi
         acquire: 3000,
         idle: 10000
     },
+    logging: false
 });
