@@ -1,17 +1,17 @@
 const Subject = require('../models/relation.model.js').Relation;
 
-const content = "relation";
+const NAME = "Relation: ";
 
 module.exports = function(app, io){
 
-  io.of(content).on('connection', socket => {
+  io.of("relations").on('connection', socket => {
 
     // Client connected
-    console.log('user connected to : ' + content);
+    console.log(NAME + 'user connected');
 
     // Client disconnected
     socket.on('disconnect', () => {
-      console.log('user disconnected from : ' + content);
+      console.log(NAME + 'user disconnected');
     });
 
     /*

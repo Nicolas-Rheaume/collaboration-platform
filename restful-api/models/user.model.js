@@ -29,7 +29,7 @@ const User = db.define(NAME, {
         allowNull: false
     },
     role: {
-        type: Sequelize.INTEGER(1),
+        type: Sequelize.ENUM(['Contributor', 'Admin']),
         allowNull: false
     },
     createdAt: {
@@ -55,86 +55,77 @@ const CreateTableIfNonExistant = () => {
     })
 }
 
-// Create User
-const CreateUser = (user) => {
-    return new Promise(resolve => {
-
-        let newUser = {
-            username: '',
-            email: '',
-            password: '',
-            role: 0,
-        }
-        
-        if(user.hasOwnProperty('username')) { newUser.username = user.username; }
-        if(user.hasOwnProperty('email')) { newUser.username = user.email; }
-        if(user.hasOwnProperty('password1')) { newUser.username = user.password1; }
-        if(user.hasOwnProperty('role')) { newUser.username = 0; }
-
-        User.create(newUser).then((user) => {
-            resolve(user);
-        }).catch(err => {
-            resolve({success: false, message: err});
-        });
+// Register and Login a new user
+const RegisterAndLoginUser = async(user) => {
+    return new Promise( async(resolve, reject) => {
+      const data = await RegisterUser(user).catch(err => reject(err));
+  
+      const username = user.username;
+      const password = user.password1;
+  
+      LoginUser({username, password})
+        .then(data => resolve(data))
+        .catch(err => reject(err))
     });
-}
+};
 
 // Register a new User
-const RegisterUser = (user) => {
-    return new Promise(resolve => {
-        if(user.hasOwnProperty("username")) {
-            User.findAll({
+const RegisterUser = async (user) => {
+    return new Promise(async (resolve, reject) => {
+        if(user.hasOwnProperty("username") === true) {
+            User.count({
                 where: Sequelize.or(
                         {username: user.username}, 
                         {email: user.email}
                 )
-            }).then(users => {
-                if(users.length > 0) resolve({success: false, message: "Username already exists"});
+            }).then(count => {
+                if(count > 0) reject("Invalid username or email. It already exists");
                 else if(user.hasOwnProperty("password1")) {
-                    bcrypt.genSalt(10, (err, salt) => {
-                        bcrypt.hash(user.password1, salt, (err, hash) => {
-                            if(err) resolve({err: err});
+                    try{
+                        bcrypt.genSalt(10, (err, salt) => {
+                            if(err) throw err;
+                            else {
+                                bcrypt.hash(user.password1, salt, (err, hash) => {
+                                    if(err) throw err;
+                                    else {
+                                        let newUser = {
+                                            username: user.username,
+                                            email: user.email,
+                                            password: hash,
+                                            role: 'Contributor'
+                                        }
 
-                            let newUser = {
-                                username: '',
-                                email: '',
-                                password: hash,
-                                role: 0
+                                        console.log()
+                                        User.create(newUser)
+                                            .then((user) => { resolve(user.dataValues); })
+                                            .catch(err => reject(err));
+                                    }
+                                });
                             }
-
-                            if(user.hasOwnProperty('username')) { newUser.username = user.username; }
-                            if(user.hasOwnProperty('email')) { newUser.email = user.email; }
-    
-                            User.create(newUser).then((user) => {
-                                if(err) resolve({success: false, message: "failed at registration"});
-                                else resolve({success: true, user: user});
-                            });
                         });
-                    });
+                    } catch (err) {
+                        reject(err);
+                    }
                 }
             }).catch(err => {
-                resolve({success: false, message: err});
+                reject(err);
             });
         }
     });
 }
 
 // Authenticate a user
-const AuthenticateUser = (user) => {
-    return new Promise(resolve => {
-
-        const username = user.username;
-        const password = user.password;
-
+const LoginUser = async ({username, password}) => {
+    return new Promise(async (resolve, reject) => {
         User.findOne({
             where: {
                 username: username
             }
         }).then(user => {
             bcrypt.compare(password, user.password, (err, isMatch) => {
-                if(err) resolve({err: err});
+                if(err) reject("Passwords do not match");
                 else if(isMatch) {
-                    const token = jwt.sign({data: user}, config.jwt_secret, {
+                    const token = jwt.sign({ username: user.username }, config.jwt_secret, {
                         expiresIn: 604800 // 1 week
                     });
 
@@ -142,20 +133,41 @@ const AuthenticateUser = (user) => {
                         success: true,
                         token: 'JWT ' + token,
                         user: {
-                          id: user.id,
                           username: user.username,
                           email: user.email,
-                          role: user.role
+                          role: user.role,
+                          createdAt: user.createdAt
                         }
                       });
                 } else {
-                    resolve({success: false, message: "Wrong password"});
+                    reject("Wrong password");
                 }
             });
         }).catch(err => {
-            resolve({success: false, message: "User not found"});
+            reject("User not found");
         });
+    });
+}
 
+// Validate a user
+const AuthenticateUser = async(token) => {
+    return new Promise( async(resolve, reject) => {
+        if(token == '' || token == null) reject('Empty token');
+        else{
+            jwt.verify(token.replace(/^JWT\s/, ''), config.jwt_secret, (err, decoded) => {
+                if(err) reject("Invalid token")
+                else {
+                    GetUserByUsername(decoded.username).then(user => {
+                        resolve({
+                            username: user.username,
+                            email: user.email,
+                            role: user.role,
+                            createdAt: user.createdAt
+                        })
+                    }).catch(err => reject(err));
+                }
+            });
+        }
     });
 }
 
@@ -166,7 +178,7 @@ const GetUserByUsername = async (username) => {
                 username: username
             }
         }).then(user => {
-            resolve(user);
+            resolve(user.dataValues);
         }).catch(err => {
             reject(err);
         });
@@ -240,8 +252,9 @@ module.exports.addUser = function(newUser, callback) {
 module.exports = {
     User,
     CreateTableIfNonExistant,
-    CreateUser,
+    RegisterAndLoginUser,
     RegisterUser,
+    LoginUser,
     AuthenticateUser,
     GetUserByUsername,
     GetTop5Users

@@ -1,12 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
-import { Subscriber, Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import {  Subscription } from 'rxjs';
 
-import { User, Role } from '../../models/user.model';
 import { UserService } from '../../services/user.service';
-import { AuthenticationService } from '../../services/authentication.service';
+import { SocketService } from 'src/app/services/socket.service';
 
 @Component({
   selector: 'app-register.component',
@@ -15,50 +12,57 @@ import { AuthenticationService } from '../../services/authentication.service';
 })
 export class RegisterComponent implements OnInit {
 
-  private sub: Subscription;
+  /*****************************************************************************
+   *  VARIABLES
+   ****************************************************************************/
 
+  private sub: Subscription;
   public userLogin = {
     username: '',
     password: '',
   }
-
   public userRegistration = {
     username: '',
     email: '',
     password1: '',
     password2: '',
   }
-
   public registrationWarning: string = '';
   public loginWarning: string = '';
 
 
+  /*****************************************************************************
+   *  MAIN
+   ****************************************************************************/
   constructor(
-    private formBuilder: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
     private us: UserService,
-) {
+    private socket: SocketService,
+    private router: Router
+  ) {
 
-  this.us.registerMessage().subscribe(message => {
-    this.registrationWarning = message;
-  });
+    // Registration Warning Message
+    this.socket.response('user/register-error').subscribe(message => {
+      console.log(message);
+      this.registrationWarning = message;
+    });
 
-  this.us.loginMessage().subscribe(message => {
-    this.loginWarning = message;
-  });
-
+    // Login Warning Message
+    this.socket.response('user/login-error').subscribe(message => {
+      this.loginWarning = message;
+    });
 
     // redirect to home if already logged in
-    /*
     if (this.us.currentUser != null) { 
         this.router.navigate(['/']);
     }
-    */
 }
 
   ngOnInit() {
   }
+
+  /*****************************************************************************
+   *  REGISTRATION METHODS
+   ****************************************************************************/
 
   onRegister() {
 
@@ -80,147 +84,26 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-
     // Register user
     else {
       this.registrationWarning = '';
-      this.us.registerSocket(this.userRegistration);
-
-      /*
-      this.us.register(this.userRegistration).subscribe(data => {
-        if(data.success) {
-          this.registrationWarning = 'You are now registered and can now login';
-          this.router.navigate(['/']);
-        } else {
-          this.registrationWarning = data.msg;
-        }
-      });
-      */
-      return;
+      this.us.register(this.userRegistration);
     }
+    return;
   }
 
   onLogin() {
+
     // All fields required
     if(this.userLogin.username === '' || this.userLogin.password === '') {
       this.loginWarning = "Please fill in all fields";
       return;
-    } else {
-      this.us.loginSocket(this.userLogin);
     } 
-    /*
-    this.us.authenticate(this.userLogin).subscribe(data => {
-      console.log(data);
-        if(data.success) {
-          this.us.storeUserData(data.token, data.user);
-          this.loginWarning = 'You are now logged in';
-          this.router.navigate(['/']);
-        } else {
-          this.loginWarning = data.msg;
-        }
-    });
-    */
+    
+    // Login user
+    else {
+      this.loginWarning = '';
+      this.us.login(this.userLogin);
+    } 
   }
-
-  /*
-  // convenience getter for easy access to form fields
-  get f() { return this.loginForm.controls; }
-
-  onSubmit() {
-      this.submitted = true;
-
-      // stop here if form is invalid
-      if (this.loginForm.invalid) {
-          return;
-      }
-
-      this.loading = true;
-      this.as.login(this.f.username.value, this.f.password.value)
-          .pipe(first())
-          .subscribe(
-              data => {
-                  this.router.navigate([this.returnUrl]);
-              },
-              error => {
-                  this.error = error;
-                  this.loading = false;
-              });
-  }
-
-
-
-  onRegisterSubmit() {
-
-    // Required Fields
-    if(!this.us.validateRegister(this.userRegistration)) {
-      this.flashMessage.show('Please fill in all fields', {cssClass: 'alert-danger', timeout: 3000});
-      return false;
-    }
-
-    // Validate Email
-    if(!this.us.validateEmail(user.email)) {
-    this.flashMessage.show('Please use a valid email', {cssClass: 'alert-danger', timeout: 3000});
-      return false;
-    }
-
-    // Register user
-    this.us.registerUser(user).subscribe(data => {
-    if(data.success) {
-      this.flashMessage.show('You are now registered and can now login', {cssClass: 'alert-success', timeout: 3000});
-      this.router.navigate(['/login']);
-    } else {
-      this.flashMessage.show('Something went wrong', {cssClass: 'alert-danger', timeout: 3000});
-      this.router.navigate(['/register']);
-    }
-  });
-  }
-
-  /*
-  // Déclaration de la fonction ascync
-  async register() {
-    try {
-      await this.registerWithEmailAndPassword();
-      this.updateUserInfo();
-      this.redirectToLoginPage();
-    } catch (error) {
-      // Handle Errors here.
-      this.errorMessage = error.message;
-      console.log(this.errorMessage);
-    }
-  }
-  // Methode qui fait l'enregistrement des utilisateurs en créant
-  async registerWithEmailAndPassword() {
-    try {
-      const user = await firebase.auth().createUserWithEmailAndPassword(this.userInfo.email, this.userInfo.password);
-      this.userInfo.uid = user.user.uid;
-      await user.user.updateProfile({
-        displayName: this.userInfo.firstname,
-        photoURL: ''
-      });
-    } catch (err) {
-      throw err;
-    }
-  }
-
-  // Cette methode fait la mise à jour de l'utilisateur puis ensuite, le logout() de authservice déconnécte l'utilisateur
-  updateUserInfo() {
-    this.afs.collection('Users/').doc(this.userInfo.uid).set({
-      uid: this.userInfo.uid,
-      email: this.userInfo.email,
-      firstname: this.userInfo.firstname,
-      lastname: this.userInfo.lastname,
-      role: Role.Visitor
-    });
-    this.authService.logout();
-  }
-  // Methode qui redirige l'utilisateur vers la page de connexion
-  redirectToLoginPage() {
-    this.router.navigate(['/login']);
-  }
-  // Cette methode retourne un message d'erreur quand l'email est invalid
-  otherInvalid() {
-    return this.errorMessage !== '';
-  }
-  */
-
 }

@@ -31,7 +31,7 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
   constructor(
     private activeRouter: ActivatedRoute,
     private router: Router,
-    private cs: ContentService
+    private cs: ContentService,
   ) { 
 
   }
@@ -47,7 +47,7 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
    ****************************************************************************/
 
   public save(): void {
-    this.cs.saveEditorText();
+    //this.cs.saveEditorText();
   }
 
   update() {

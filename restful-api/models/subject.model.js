@@ -17,6 +17,10 @@ const Subject = db.define(NAME, {
     description: {
         type: Sequelize.TEXT,
         allowNull: true
+    },
+    url: {
+        type: Sequelize.STRING(50),
+        allowNull: true
     },/*
     creator: {
         type: Sequelize.TEXT,
@@ -50,8 +54,8 @@ const CreateTableIfNonExistant = () => {
 }
 
 // Create Subject
-const CreateSubject = (subject) => {
-    return new Promise(resolve => {
+const CreateSubject = async(subject) => {
+    return new Promise(async(resolve, reject) => {
 
         let newSubject = {
             title: '',
@@ -70,22 +74,72 @@ const CreateSubject = (subject) => {
     });
 }
 
-// Create Subject
-const CreateSubjectByTitle = (title) => {
-    return new Promise((resolve, reject) => {
+// Create Subject by title 
+const CreateSubjectByTitle = async(title) => {
+    return new Promise( async(resolve, reject) => {
+        await ValidateTitle(title).then( async({name, url}) => {
+            // Check if the title already exists
+            if(await TitleExists(name).catch(err => reject(err))) {
+                reject("Subject title already exists");
+            } else {
+                // Create the subject
+                const subject = await Subject.create({title: name, url: url}).catch(err => reject(err));
+                resolve(subject);
+            }
+        }).catch(err => reject(err));
+    });
+}
 
-        let newSubject = {
-            title: title,
-            description: '',
+const ValidateTitle = async(title) => {
+    return new Promise(async(resolve, reject) => {
+
+        if(title === '' || title === null) reject("Subject title can't be empty");
+        else {
+            let name = title.replace(/\s\s+/g, ' ');
+            name = name.split(" ");
+            console.log(name);
+            if(name[0] == '') name.splice(0, 1);
+            if(name[name.length - 1] == '') name.splice(-1, 1);
+            name = name.join(" ");
+
+            const path = ('/' + name).replace(/ /g, "_").match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g);
+
+            if(path === null || path.length != 1) reject("Subject title is invalid");
+            else {
+                const url = path[0];
+                resolve({name, url});
+            }
         }
 
-        Subject.create(newSubject).then(subject => {
-            resolve(subject);
+    })
+}
+
+const TitleExists = async(title) => {
+    return new Promise( async(resolve, reject) => {
+        Subject.findOne({
+            where: {title: title}
+        }).then(subject => {
+            if(subject != null) resolve(true);
+            else resolve(false);
         }).catch(err => {
-            reject(err);
+            reject("Error validating the title");
         });
     });
 }
+
+const URLExists = async(url) => {
+    return new Promise( async(resolve, reject) => {
+        Subject.findOne({
+            where: {url: url }
+        }).then(subject => {
+            if(subject != null) resolve(true);
+            else resolve(false);
+        }).catch(err => {
+            reject("Error validating the URL");
+        });
+    });
+}
+
 
 // Get Subject by ID
 const GetSubjectByID = (id) => {
@@ -137,8 +191,8 @@ const UpdateSubject = (subject) => {
 }
 
 // Delete Subject
-const DeleteSubjectByID = (id) => {
-    return new Promise(resolve => {
+const DeleteSubjectByID = async (id) => {
+    return new Promise(async(resolve,reject) => {
         Subject.destroy({
             where: {
               id: id,
@@ -146,8 +200,22 @@ const DeleteSubjectByID = (id) => {
         }).then( subject => {
             resolve(subject);
         }).catch(err => {
-            console.log(err);
+            reject(err);
+        });
+    });
+}
+
+// Delete Subject
+const DeleteSubjectByTitle = async (title) => {
+    return new Promise( async(resolve,reject) => {
+        Subject.destroy({
+            where: {
+              title: title,
+            }
+        }).then(() => {
             resolve();
+        }).catch(err => {
+            reject(err)
         });
     });
 }
@@ -162,6 +230,7 @@ const GetAllSubjects = () => {
                     id: subject.dataValues.id,
                     title: subject.dataValues.title,
                     description: subject.dataValues.description,
+                    url: subject.dataValues.url,
                     createdAt: subject.dataValues.createdAt,
                     updatedAt: subject.dataValues.updatedAt
                 });
@@ -183,5 +252,7 @@ module.exports = {
     GetSubjectByTitle,
     UpdateSubject,
     DeleteSubjectByID,
-    GetAllSubjects
+    DeleteSubjectByTitle,
+    GetAllSubjects,
+    TitleExists
 };

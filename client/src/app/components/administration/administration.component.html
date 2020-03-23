@@ -1,1 +1,59 @@
-<p>administration works!</p>
+
+<h1 class="text-center">Connected Users</h1>
+
+<div class="container">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Path</th>
+                <th scope="col">Email</th>
+                <th scope="col">Authorization</th>
+                <th scope="col">Connected</th>
+                <th scope="col">Created</th>
+                <th scope="col">Socket</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="table-primary" *ngFor="let user of data; let i = index">
+                <td>{{i}}</td>
+                <td>{{users[i].username}}</td>
+                <td>{{user.path}}</td>
+                <td>{{users[i].email}}</td>
+                <td>{{users[i].role}}</td>
+                <td>{{user.connectedOn | timeAgo}}</td>
+                <td>{{users[i].createdAt | timeAgo}}</td>
+                <td>{{user.id}}</td>
+            </tr>
+        </tbody>
+    </table> 
+</div>
+
+
+<!--
+<div class="container">
+    <br>
+    <h1>Users : </h1>
+
+    <button type="button" class="btn btn-success" (click)="getMessage()">Get</button>
+    <button type="button" class="btn btn-info" (click)="saveUsers()">Save</button>
+    <br><br>
+
+    <div class="form-group">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="New user" id="addUser" [(ngModel)]="newUser.username">
+            <button type="button" class="btn btn-success" (click)="addUser()">Add</button>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row" *ngFor="let user of users; let num = index">
+            <div class="col-sm-8"><h2>{{user.username}}</h2></div>
+            <div class="col-sm-4"><button type="button" class="btn btn-danger" (click)="removeUser(num)">Remove</button></div>
+        </div>
+    </div>
+</div>
+-->
+
+

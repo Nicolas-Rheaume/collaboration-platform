@@ -3,6 +3,7 @@ export class Subject {
     id?: number;
     title?: string;
     description?: string;
+    url?: string;
     createdAt?: Date;
     updatedAt?: Date;
   
@@ -10,10 +11,12 @@ export class Subject {
       id: number = 0, 
       title: string = "", 
       description: string = "", 
+      url: string = ""
     ) {
       this.id = id;
       this.title = title;
       this.description = description;
+      this.url = url;
     }
 
     public static maps(data): Subject[] {
@@ -26,9 +29,10 @@ export class Subject {
         subject.id = data[index].id;
         subject.title = data[index].title;
         subject.description = data[index].description;
+        subject.url = data[index].url;
         subject.createdAt = data[index].createdAt;
         subject.updatedAt = data[index].updatedAt;
-
+        
         subjects.push(subject);
       }
 
@@ -42,6 +46,7 @@ export class Subject {
       subject.id = data.id;
       subject.title = data.title;
       subject.description = data.description;
+      subject.url = data.url;
       subject.createdAt = data.createdAt;
       subject.updatedAt = data.updatedAt;
 

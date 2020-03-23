@@ -9,7 +9,6 @@ import { MatIconModule } from '@angular/material/icon'
 import { MaterialModule } from './material-module'
 
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { EditorModule } from '@tinymce/tinymce-angular';
 import { AngularSplitModule } from 'angular-split';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MatDialogModule } from '@angular/material'
@@ -21,8 +20,6 @@ import { AppComponent } from './app.component';
 import { RegisterComponent } from './components/register/register.component';
 import { HeaderComponent } from './views/header/header.component';
 import { FooterComponent } from './views/footer/footer.component';
-import { SubjectComponent } from './components/subject/subject.component';
-import { UsersComponent } from './components/users/users.component';
 import { UserService } from './services/user.service';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { HomeComponent } from './components/home/home.component';
@@ -36,7 +33,8 @@ import { ContentService } from './services/content.service';
 import { SubjectService } from './services/subject.service';
 import { AdministrationComponent } from './components/administration/administration.component';
 import { ProfileComponent } from './components/profile/profile.component';
-
+import { SocketService } from './services/socket.service';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -44,8 +42,6 @@ import { ProfileComponent } from './components/profile/profile.component';
     RegisterComponent,
     HeaderComponent,
     FooterComponent,
-    SubjectComponent,
-    UsersComponent,
     DashboardComponent,
     HomeComponent,
     ContentComponent,
@@ -54,7 +50,8 @@ import { ProfileComponent } from './components/profile/profile.component';
     ExplorerComponent,
     TimeAgoPipe,
     AdministrationComponent,
-    ProfileComponent
+    ProfileComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -62,7 +59,6 @@ import { ProfileComponent } from './components/profile/profile.component';
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
-    EditorModule,
     BrowserAnimationsModule,
     DragDropModule,
     MatNativeDateModule,
@@ -74,6 +70,7 @@ import { ProfileComponent } from './components/profile/profile.component';
     AngularSplitModule.forRoot()
   ],
   providers: [
+    SocketService,
     UserService,
     ContentService,
     SubjectService,
@@ -85,6 +82,3 @@ import { ProfileComponent } from './components/profile/profile.component';
   ]
 })
 export class AppModule { }
-
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.error(err));

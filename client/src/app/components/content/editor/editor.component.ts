@@ -47,7 +47,7 @@ export class EditorComponent implements OnInit, OnDestroy {
    ****************************************************************************/
 
   public save(): void {
-    this.cs.saveEditorText();
+    //this.cs.saveEditorText();
   }
 
   update() {

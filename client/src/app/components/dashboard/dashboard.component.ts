@@ -6,6 +6,7 @@ import { SubjectService } from "../../services/subject.service";
 import { Subject } from '../../models/subject.model';
 import { UserService } from 'src/app/services/user.service';
 import { User } from '../../models/user.model';
+import { SocketService } from 'src/app/services/socket.service';
 
 declare var $: any;
 
@@ -24,9 +25,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
   subjects: Subject[] = [] as Subject[];
   contributors: User[] = [] as User[];
 
-  newSubjectTitle: string = "";
+  // Create subject
+  createSubjectTitle: string = "";
+  createSubjectError: string = "";
+  createSubjectInvalid: boolean = false;
+  /*
   subjectCreated: boolean = true;
   subjectCreatedMessage: string = "";
+  */
 
   contributorUsername: string = "";
 
@@ -36,20 +42,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private ss: SubjectService,
-    private us: UserService
+    private us: UserService,
+    private socket: SocketService
   ) { 
-    this.sub = this.ss.subjectCreated().subscribe(message => {
-      console.log(message);
-      if(message.success === true){
-        this.ss.getAll();
-        this.subjectCreated = true;
-        this.newSubjectTitle = "";
+
+    // Subject Error Message
+    this.sub = this.socket.response('subject/create-error').subscribe(message => {
+      if(message == null) {
+        this.createSubjectTitle = '';
+        this.createSubjectError = '';
+        this.createSubjectInvalid = false;
         $('#createSubject').modal('hide');
-        this.subjectCreatedMessage = "";
-      }
-      else {
-        this.subjectCreatedMessage = message.message;
-        this.subjectCreated = false;
+      } else {
+        this.createSubjectError = message;
+        this.createSubjectInvalid = true;
       }
     });
 
@@ -74,8 +80,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.socket.request('subject/get-all', {});
+    /*
     this.ss.getDashboardSubjects();
-    this.us.getTop5Users(this.contributorUsername);
+    this.us.getTop5Users(this.contributorUsername);*/
   }
 
   ngOnDestroy() {
@@ -83,27 +91,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   /*****************************************************************************
-   *  DIALOG
+   *  CREATE DIALOG
    ****************************************************************************/
    openModal() {
     $('#createSubject').modal('show');
   }
 
   closeModal() {
-    this.subjectCreated = true;
-    this.newSubjectTitle = "";
+    this.createSubjectInvalid = false;
+    this.createSubjectTitle = "";
     $('#createSubject').modal('hide'); 
   }
 
   createNewSubject() {
-    this.ss.createNewSubject(this.newSubjectTitle);
+    console.log(this.createSubjectTitle.replace(/\s\s+/g, ' '));
+    console.log(this.createSubjectTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
+    this.socket.request('subject/create-by-title', this.createSubjectTitle);
   }
 
   viewSubject(subject: Subject): void {
-    this.router.navigate(['/content', subject.title])
+    this.router.navigate(['/content', subject.url])
   }
 
   removeSubject(index: number): void {
-    this.ss.delete(this.subjects[index]);
+    this.socket.request('subject/delete-by-title', this.ss.subjects[index].title);
   }
 }

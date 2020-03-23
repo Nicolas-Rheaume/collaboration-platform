@@ -14,10 +14,13 @@
 
                 <!-- User's content -->
                 <div class="input-group slate-group">
-                    <button class="form-control list-group-item list-group-item-action slate-top-left">{{us.user.username}}</button>
+                    <button type="button" class="btn btn-outline-success slate-top create-button" (click)="openModal()">Create new subject</button>
+                    <!--
+                    <button class="form-control list-group-item list-group-item-action slate-top-left">{{us.currentUser.username}}</button>
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-success slate-top-right" (click)="openModal()">New</button>
+                        <button type="button" class="btn btn-outline-success slate-top-right" (click)="openModal()">Create new subject</button>
                     </div>
+                    -->
                 </div>
 
                 <!-- Search Bar-->
@@ -58,7 +61,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex w-100 justify-content-between">
-                            <a><h4 class="card-title slate-title" (click)="viewSubject(subject)" [routerLink]="['content', subject.title]">{{subject.title}}</h4></a>
+                            <a><h4 class="card-title slate-title" (click)="viewSubject(subject)" [routerLink]="['content', subject.url]">{{subject.title}}</h4></a>
                         </div>
                         <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
 
@@ -93,7 +96,7 @@
         </div>
     </div>
 
-<!-- Modal -->
+<!-- Create Subject Modal -->
 <div class="modal fade" id="createSubject" #createSubject tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -101,8 +104,8 @@
           <h5 class="modal-title">Create a new subject</h5>
         </div>
         <div class="modal-body">
-            <input class="form-control slate-search-name" [ngClass]="(subjectCreated === true)?'':'is-invalid'" placeholder="Enter the subject title..." type="text" [(ngModel)]="newSubjectTitle">
-            <div class="invalid-feedback">{{subjectCreatedMessage}}</div>
+            <input class="form-control slate-search-name" [ngClass]="createSubjectInvalid ? 'is-invalid' : ''" placeholder="Enter the subject title..." type="text" [(ngModel)]="createSubjectTitle">
+            <div class="invalid-feedback">{{createSubjectError}}</div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewSubject()">Create</button>

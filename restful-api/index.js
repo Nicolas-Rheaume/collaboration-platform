@@ -30,18 +30,20 @@ require("./configs/mysql.config.js")(app).then(() => {
   })
 });
 
-// Middleware
-require('./mw/socket.mw')(app, io);
+// Controller
+require('./controllers/socket.controller.js')(app, io);
+
 
 // Sockets
+/*
 require('./sockets/content.socket.js')(app, io);
 require('./sockets/relation.socket.js')(app, io);
 require('./sockets/subject.socket.js')(app, io);
 require('./sockets/user.socket.js')(app, io);
-require('./sockets/app.socket.js')(app, io);
+require('./controllers/socket.controller.js')(app, io);*/
 
 // Controllers
-app.use('/user', require("./controllers/user.controller.js"));
+//app.use('/user', require("./controllers/user.controller.js"));
 
 app.get('/', (req, res) => res.send("INDEX"));
 

@@ -36,13 +36,6 @@
         -->
 
       </ul>
-
-      <!--
-      <ul class="nav navbar-nav navbar-center mr-auto">
-        <li><a href="#">Collaboration Platform</a></li>
-      </ul>
-      -->
-
       <ul class="nav navbar-nav navbar-right">
         <!--If not connected-->
         <li class="nav-item" *ngIf="!us.isConnected()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
@@ -51,11 +44,11 @@
 
         <!--If connected-->
         <li class="nav-item dropdown" *ngIf="us.isConnected()">
-          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="profile" aria-expanded="true">{{us.user.username}}<span class="caret"></span></a>
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="profile" aria-expanded="true">{{us.currentUser.username}}<span class="caret"></span></a>
           <div class="dropdown-menu" aria-labelledby="profile">
             <a class="dropdown-item" [routerLink]="['/profile']" profile="">Your profile</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item"  href="#" (click)="onLogout()" profile="">Sign out</a>
+            <a class="dropdown-item"  href="#" (click)="us.logout()" profile="">Sign out</a>
           </div>
         </li>
       </ul>
