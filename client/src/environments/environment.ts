@@ -19,7 +19,8 @@ export const environment = {
 
 export const environment = {
   url: 'http://192.168.0.183:3000',
-  api: 'http://192.168.0.183:3000',
+  api: 'ws://192.168.0.183:3000',
+  /*api: 'http://192.168.0.183:3000',*/
   production: false
 };
 

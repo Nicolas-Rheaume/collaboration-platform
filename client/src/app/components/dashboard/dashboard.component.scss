@@ -1,3 +1,7 @@
+.create-button {
+    width: 100%;
+}
+
 .dark-color {
     background-color: #1C1E22;
 }
@@ -35,6 +39,12 @@
 .slate-top-right {
     border-bottom: none;
     border-bottom-right-radius: 0px;
+}
+
+.slate-top {
+    border-bottom: none;
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
 }
 
 .slate-middle {

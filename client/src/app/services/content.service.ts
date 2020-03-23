@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router"
 import { Observable, Subscription } from 'rxjs';
 
-import * as io from 'socket.io-client';
+//import * as io from 'socket.io-client';
 import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
 
 import { User } from '../models/user.model';
 import { Subject } from '../models/subject.model';
 import { Text } from '../models/text.model';
+import { SocketService } from './socket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,7 @@ export class ContentService {
    *  VARIABLES
    ****************************************************************************/
   private apiURL = environment.api + '/content';
-  private socket: SocketIOClient.Socket = io(this.apiURL);
+  //private socket: SocketIOClient.Socket = io(this.apiURL);
   private sub: Subscription;
 
   private user: User = new User();
@@ -35,117 +36,80 @@ export class ContentService {
    *  MAIN
    ****************************************************************************/
   constructor(
+    private socket: SocketService,
     private us: UserService,
     private activeRouter: ActivatedRoute
   ) { 
-
-    console.log("Content Service");
 
     if(this.useMockData){
       this.setMockData();
     } else {
 
+      // Editor Error Message
+      this.sub = this.socket.response('editor/error').subscribe(message => {
+        console.log(message);
+      });
+
+      // Explorer Error Message
+      this.sub = this.socket.response('explorer/error').subscribe(message => {
+        console.log(message);
+      });
+
+      // Editor Texts
+      this.sub = this.socket.response('editor/all-texts').subscribe(editorTexts => {
+        this.editorTexts = Text.maps(editorTexts);
+      });
+
+      // Explorer Texts
+      this.sub = this.socket.response('explorer/all-texts').subscribe(explorerTexts => {
+        this.explorerTexts = Text.maps(explorerTexts);
+      });
+
+
+
+      /*
       // Get the current User
-      if(this.us.isConnected){
-        this.sub = this.us.getLoggedUser().subscribe(user => {
+      if(this.us.isConnected()){
 
-          // Set User
-          this.user = user;
+        // Set User
+        this.user = this.us.currentUser;
 
-          // Get route params
-          this.sub = this.activeRouter.params.subscribe(params => {
-            this.subjectTitle = params.title;
+        // Get route params
+        this.sub = this.activeRouter.params.subscribe(params => {
+          this.subjectTitle = params.title;
 
-            // Error Message
-            this.sub = this.errorMessage().subscribe(message => {
-              console.log(message);
-            });
+          // Error Message
+          this.sub = this.errorMessage().subscribe(message => {
+            console.log(message);
+          });
 
-            // Editor Texts
-            this.sub = this.editorResponse().subscribe(editorTexts => {
-              this.editorTexts = Text.maps(editorTexts);
-            });
+          // Editor Texts
+          this.sub = this.editorResponse().subscribe(editorTexts => {
+            this.editorTexts = Text.maps(editorTexts);
+          });
 
-            // Explorer Texts
-            this.sub = this.explorerResponse().subscribe(explorerTexts => {
-              this.explorerTexts = Text.maps(explorerTexts);
-            });
+          // Explorer Texts
+          this.sub = this.explorerResponse().subscribe(explorerTexts => {
+            this.explorerTexts = Text.maps(explorerTexts);
+          });
 
-            // Update Explorer
-            this.sub = this.explorerUpdate().subscribe(() => {
-              this.getExplorerText();
-            });
-
-            this.getEditorText();
+          // Update Explorer
+          this.sub = this.explorerUpdate().subscribe(() => {
             this.getExplorerText();
           });
+
+          this.getEditorText();
+          this.getExplorerText();
         });
-
-                  // Subscribe content
-          /*
-          this.sub = this.contentResponse().subscribe(content => {
-            this.subject = Subject.map(content.subject);
-            this.editorTexts = Text.maps(content.editorText);
-            this.explorerTexts = Text.maps(content.explorerText);
-            console.log(content);
-          });*/
-
       }
+      */
     }
   }
-
-
-   /*****************************************************************************
-   *  WEB SOCKETS RESPONSE
-   ****************************************************************************/
-
-  public editorResponse = () => {
-    return Observable.create((observer) => {
-        this.socket.on('editor-response', (message) => {
-            observer.next(message);
-        });
-    });
-  }
-
-  public explorerResponse = () => {
-    return Observable.create((observer) => {
-        this.socket.on('explorer-response', (message) => {
-            observer.next(message);
-        });
-    });
-  }
-
-  public explorerUpdate = () => {
-    return Observable.create((observer) => {
-        this.socket.on('explorer-update', () => {
-            observer.next();
-        });
-    });
-  }
-
-  // to delete
-  public contentResponse = () => {
-    return Observable.create((observer) => {
-        this.socket.on('content-response', (message) => {
-          console.log(message);
-            observer.next(message);
-        });
-    });
-  }
-
-  public errorMessage = () => {
-    return Observable.create((observer) => {
-        this.socket.on('error-message', (message) => {
-            observer.next(message);
-        });
-    });
-  }
-
-
 
   /*****************************************************************************
    *  WEB SOCKETS REQUEST
    ****************************************************************************/
+  /*
 
   public createTextAtIndex(index: number) {
     this.socket.emit('create-text-at-index', {
@@ -211,8 +175,8 @@ export class ContentService {
   }
 
   public createText(route: string) {
-    console.log({username: this.us.user.username, title: route});
-    this.socket.emit('create-empty-text-by-username-and-title', {username: this.us.user.username, title: route});
+    console.log({username: this.us.currentUser.username, title: route});
+    this.socket.emit('create-empty-text-by-username-and-title', {username: this.us.currentUser.username, title: route});
   }
 
   /*****************************************************************************

@@ -9,6 +9,7 @@ import { UserService } from 'src/app/services/user.service';
 
 import { Subject } from '../../models/subject.model';
 import { Text } from '../../models/text.model';
+import { SocketService } from 'src/app/services/socket.service';
 
 @Component({
   selector: 'app-content',
@@ -31,16 +32,18 @@ export class ContentComponent implements OnInit, OnDestroy {
 
   constructor(
     private activeRouter: ActivatedRoute,
-    private router: Router,
+    private router: Router/*,
     private ss: SubjectService,
     private cs: ContentService,
-    private us: UserService
+    private us: UserService,
+    private socketService: SocketService*/
   ) { 
   }
 
   ngOnInit() {
 
     // Get the Active Route parameter
+    /*
     this.sub = this.activeRouter.params.subscribe(params => {
       this.cs.subjectTitle = params.title;
 
@@ -61,11 +64,12 @@ export class ContentComponent implements OnInit, OnDestroy {
         });
       }
       */
-    });
+     /*
+    });*/
   }
 
   ngOnDestroy() {
-    this.sub.unsubscribe();
+    //this.sub.unsubscribe();
   }
 
   /*****************************************************************************
@@ -76,7 +80,7 @@ export class ContentComponent implements OnInit, OnDestroy {
   }
 
   test() {
-    this.cs.test();
+    //this.cs.test();
   }
  
 }

@@ -1,12 +1,13 @@
 export const enum Role {
-    visitor,
-    admin
+    visitor = "Visitor",
+    contributor = "Contributor",
+    admin = "Admin"
   }
 
 export class User {
 
     id?: number;
-    username: string;
+    username?: string;
     email?: string;
     password?: string;
     role?: Role = Role.visitor;
@@ -15,16 +16,20 @@ export class User {
   
     constructor(
       id: number = 0, 
-      username: string = "asd", 
+      username: string = "", 
       email: string = "", 
       password: string = "", 
-      role: Role = Role.visitor, 
+      role: Role = Role.visitor,
+      createdAt: Date = null,
+      updateAt: Date = null
     ) {
       this.id = id;
       this.username = username;
       this.email = email;
       this.password = password;
       this.role = role;
+      this.createdAt = createdAt;
+      this.updateAt = updateAt;
     }
 
     public static newUser(){
@@ -42,6 +47,8 @@ export class User {
       user.email = data.email;
       user.password = data.password;
       user.role = data.role;
+      user.createdAt = data.createdAt;
+      user.updateAt = data.updateAt;
 
       return user;
     }
@@ -59,6 +66,8 @@ export class User {
         u.email = data[index].email;
         u.password = data[index].password;
         u.role = data[index].role;
+        u.createdAt = data[index].createdAt;
+        u.updateAt = data[index].updateAt;
 
         users.push(u);
       }
