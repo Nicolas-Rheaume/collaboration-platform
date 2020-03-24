@@ -34,6 +34,7 @@ export class ContentService {
   public subject: Subject = new Subject();
   public editorTexts: Text[] = [];
   public explorerTexts: Text[] = [];
+  public editorCommands: boolean = true;
 
   public useMockData: boolean = false;
 
@@ -48,7 +49,7 @@ export class ContentService {
 
 
     if(this.useMockData){
-      this.setMockData();
+      //this.setMockData();
     } else {
 
       // Set the subject to the client
@@ -67,7 +68,14 @@ export class ContentService {
 
         // Editor Texts
         this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
+          console.log(editorTexts);
           this.editorTexts = Text.maps(editorTexts);
+        });
+
+        // Editor Text
+        this.sub = this.socket.response('editor/text').subscribe(({text, index}) => {
+          console.log(text);
+          this.editorTexts[index] = Text.map(text);
         });
 
         // Editor Texts - Create Text
@@ -87,6 +95,7 @@ export class ContentService {
 
         // Explorer Texts
         this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
+          console.log(explorerTexts);
           this.explorerTexts = Text.maps(explorerTexts);
         });
 
@@ -151,6 +160,14 @@ export class ContentService {
     this.socket.request('explorer/adopt-text', {from, to});
   } 
 
+  public increasePointer(index: number, amount: number) {
+    this.socket.request('editor/increase-pointer', {index, amount});
+  } 
+
+  public hideCommands(){
+    if(this.editorCommands === true) this.editorCommands = false;
+    else this.editorCommands = true;
+  }
 
   /*
 
@@ -226,6 +243,7 @@ export class ContentService {
    *  MOCK DATA
    ****************************************************************************/
 
+   /*
    private setMockData() {
     this.subject = new Subject(1,"subject title", "this is the description");
     this.editorTexts = [

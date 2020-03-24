@@ -73,7 +73,7 @@ const CreateEmptyTextAtIndex = async(userID, subjectID, index) => {
     return new Promise( async(resolve, reject) => {
         try {
             if(index < 0 || index > await Relation.CountRelationByUserAndSubject(userID, subjectID)) throw "Index is out of bound";
-            const text = await Text.CreateEmptyText().catch(err => { throw err; });
+            const text = await Text.CreateEmptyText(userID).catch(err => { throw err; });
             await Relation.ChangeOrders(userID, subjectID, index, 1).catch(err => { throw err; });
             await Relation.CreateRelation(userID, subjectID, text.id, index).catch(err => { throw err; });
             resolve(text);
@@ -136,7 +136,7 @@ const AdoptText = async(socket, from, to) => {
             if(from < 0 || from > socket.explorer.length) throw "Explorer index is out of bound";
             if(to < 0 || to > socket.editor.length) throw "Explorer index is out of bound";
             const {userID, subjectID} = await GetUserAndSubjectID(socket).catch(err => { throw err; });
-            const text = await Text.CreateText(socket.explorer[from]).catch(err => { throw err; });
+            const text = await Text.CreateText(socket.explorer[from], userID).catch(err => { throw err; });
             await Relation.ChangeOrders(userID, subjectID, to, 1).catch(err => { throw err; });
             await Relation.CreateRelation(userID, subjectID, text.id, to).catch(err => { throw err; });
             resolve(text);

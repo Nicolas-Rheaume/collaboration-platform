@@ -208,6 +208,16 @@ const GetTop5Users = async (username) => {
     });
 }
 
+// Get Text by ID
+const GetUserByID = async(id) => {
+    return new Promise( async(resolve,reject) => {
+      try {
+        const user = await User.findByPk(id).catch(err => { throw "Error finding user by id"; });
+        resolve(user);
+      } catch(err) { reject(err); }
+    });
+}
+
 
 /*
 module.exports.getUserById = function(id) {
@@ -263,5 +273,6 @@ module.exports = {
     LoginUser,
     AuthenticateUser,
     GetUserByUsername,
-    GetTop5Users
+    GetTop5Users,
+    GetUserByID
 };

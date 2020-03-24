@@ -173,7 +173,7 @@ module.exports = function(app, io){
           const {subject, texts} = await Content.InitializeEditor(socket, url).catch(err => { throw err; });
           socket.subject = subject;
           socket.editor = texts;
-          socket.emit('editor/texts', texts);
+          socket.emit('editor/texts', await Text.MapTexts(texts));
         } catch(err) { socket.emit("editor/error", err); }
       });
 
@@ -206,7 +206,7 @@ module.exports = function(app, io){
         try {
           const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
           const texts = await Content.GetEditorText(userID, subjectID).catch(err => { throw err; });
-          socket.emit('editor/texts', texts);
+          socket.emit('editor/texts', await Text.MapTexts(texts));
         } catch(err) { socket.emit("editor/error", err); }
       });
 
@@ -234,6 +234,17 @@ module.exports = function(app, io){
         } catch(err) {socket.emit("editor/error", err); }
       });
 
+      // Increase or decrease the pointer of text
+      socket.on('editor/increase-pointer', async({index , amount}) => {
+        try {
+          if(index < 0 || index >= socket.editor.length) throw "Index is out of bound";
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          await Text.IncreasePointerOfText(socket.editor[index], amount).catch(err => { throw err; });
+          socket.editor[index].pointer += amount;
+          const text = await Text.MapText(socket.editor[index]).catch(err => { throw err; });
+          socket.emit('editor/text', {text, index});
+        } catch(err) {socket.emit("editor/error", err); }
+      });
 
       /*****************************************************************************
           *  EXPLORER
@@ -244,7 +255,7 @@ module.exports = function(app, io){
         try {
           const texts = await Content.InitializeExplorer(socket, url).catch(err => { throw err; });
           socket.explorer = texts;
-          socket.emit('explorer/texts', texts);
+          socket.emit('explorer/texts', await Text.MapTexts(texts));
         } catch(err) { socket.emit("explorer/error", err); }
       });
 
@@ -252,7 +263,7 @@ module.exports = function(app, io){
       socket.on('explorer/refresh-texts', async () => {
         try {
           const texts = await Content.GetExplorerText(socket.user.id, socket.subject.id).catch(err => { throw err; });
-          socket.emit('explorer/texts', texts);
+          socket.emit('explorer/texts', await Text.MapTexts(texts));
         } catch(err) { socket.emit("explorer/error", err); }
       });
 
@@ -269,7 +280,6 @@ module.exports = function(app, io){
       socket.on('explorer/adopt-text', async({from , to}) => {
         try {
           await Content.AdoptText(socket, from, to).catch(err => { throw err; });
-          console.log("asd");
         } catch(err) { socket.emit("explorer/adopt-text-error", {to, from}); }
       });
 

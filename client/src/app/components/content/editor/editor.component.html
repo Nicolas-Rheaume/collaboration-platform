@@ -21,13 +21,16 @@
             cdkDrag
         >
             <div class="editor-box">
-                <ckeditor class="editor-detailed-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === true" [config]=""></ckeditor>
-                <ckeditor class="editor-simple-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === false" [config]="{toolbar: false}"></ckeditor>
-                <div class="editor-commands d-flex justify-content-end">
+                <ckeditor class="editor-detailed-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === true" [disabled]="text.disabled" [config]=""></ckeditor>
+                <ckeditor class="editor-simple-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === false" [disabled]="text.disabled" [config]="{toolbar: false}"></ckeditor>
+                <div class="editor-commands d-flex justify-content-end" *ngIf="cs.editorCommands">
+
+                    <footer class="blockquote-footer text-right">{{text.branches}} branches  -  Author: {{text.author}}  -  Updated: {{cs.editorTexts[i].updatedAt | timeAgo }}</footer>
+                    <div>&nbsp;&nbsp;</div>
                     <div class="editor-icon" (click)="toggleDetailedEditor(i)"><mat-icon>create</mat-icon></div>
                     <div class="editor-icon" (click)="cs.createTextAtIndex(i+1)"><mat-icon>add</mat-icon></div>
-                    <div class="editor-icon"><mat-icon>chevron_left</mat-icon></div>
-                    <div class="editor-icon"><mat-icon>chevron_right</mat-icon></div>
+                    <div class="editor-icon" (click)="cs.increasePointer(i, -1)"><mat-icon>chevron_left</mat-icon></div>
+                    <div class="editor-icon" (click)="cs.increasePointer(i, 1)"><mat-icon>chevron_right</mat-icon></div>
                     <div class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
                     <div class="editor-icon" (click)="cs.deleteTextAtIndex(i)"><mat-icon>clear</mat-icon></div>
                 </div>
