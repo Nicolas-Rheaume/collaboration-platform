@@ -6,6 +6,7 @@
     <div
         class="list-group"
         cdkDropList
+        [cdkDropListEnterPredicate]="noReturnPredicate"
         [cdkDropListData]="cs.explorerTexts"
         (cdkDropListDropped)="drop($event)"
     >
@@ -14,13 +15,12 @@
             *ngFor="let text of cs.explorerTexts; let i = index"
             cdkDrag
         >
-            <div class="d-flex justify-content-end" cdkDragHandle>
-                <mat-icon>minimize</mat-icon>
-                <mat-icon>control_camera</mat-icon>
-                <div><mat-icon>close</mat-icon></div>
-            </div>
-            <div>{{text.text}}</div>
+            <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+            <ckeditor [editor]="Editor" [(ngModel)]="cs.explorerTexts[i].text" [disabled]="true" [config]="{toolbar: false}"></ckeditor>
             <footer class="blockquote-footer text-right">Someone famous in <cite title="Source Title">Source Title</cite></footer>
+            <div *cdkDragPreview>
+                <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.explorerTexts[i].text | slice:0:100}}</div>
+            </div>
         </div>
 
     </div>

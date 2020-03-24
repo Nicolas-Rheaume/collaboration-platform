@@ -42,7 +42,10 @@
                         <button class="nav-link" href="" class="btn btn-outline-success add-button" (click)="cs.createTextAtIndex(0)"><mat-icon>add</mat-icon></button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link" href="" class="btn btn-outline-success add-button" (click)="socketService.request()"><mat-icon>code</mat-icon></button>
+                        <button class="nav-link" href="" class="btn btn-outline-info add-button" (click)="cs.saveEditorTexts()"><mat-icon>save</mat-icon></button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" href="" class="btn btn-outline-warning add-button" (click)="cs.refreshEditorTexts()"><mat-icon>refresh</mat-icon></button>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#richeditor">Rich Editor</a>

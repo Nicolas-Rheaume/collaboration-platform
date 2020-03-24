@@ -32,7 +32,8 @@ export class ContentComponent implements OnInit, OnDestroy {
 
   constructor(
     private activeRouter: ActivatedRoute,
-    private router: Router/*,
+    private router: Router,
+    private cs: ContentService/*,
     private ss: SubjectService,
     private cs: ContentService,
     private us: UserService,

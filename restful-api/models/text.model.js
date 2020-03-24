@@ -6,20 +6,20 @@ const model_name = "text";
 // Model
 const Text = db.define(model_name, {
     id: {
-        type: Sequelize.INTEGER(10),
-        allowNull: false,
-        primaryKey: true,
-        autoIncrement: true
+      type: Sequelize.INTEGER(10),
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true
     },
     text: {
       type: Sequelize.TEXT,
       allowNull: true
     },
-    previous: {
+    previousID: {
       type: Sequelize.INTEGER(10),
       allowNull: true
     },
-    views: {
+    view: {
       type: Sequelize.INTEGER(10),
       allowNull: true
     },
@@ -36,8 +36,8 @@ const Text = db.define(model_name, {
       allowNull: false
     },
     updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false
+      type: Sequelize.DATE,
+      allowNull: false
     }
     
   }, {
@@ -57,8 +57,8 @@ const CreateTableIfNonExistant = function() {
 }
 
 // Create Text
-const CreateText = async (text) => {
-  return new Promise((resolve,reject) => {
+const CreateText = async(text) => {
+  return new Promise( async(resolve,reject) => {
 
     console.log(text);
       let newText = {
@@ -83,8 +83,8 @@ const CreateText = async (text) => {
   });
 }
 
-const CreateEmptyText = async () => {
-  return new Promise((resolve,reject) => {
+const CreateEmptyText = async() => {
+  return new Promise( async(resolve,reject) => {
 
       let newText = {
           text: '',
@@ -103,8 +103,8 @@ const CreateEmptyText = async () => {
 }
 
 // Get Text by ID
-const getTextByID = (id) => {
-  return new Promise((resolve, reject) => {
+const getTextByID = async(id) => {
+  return new Promise( async(resolve,reject) => {
       Text.findByPk(id).then(text => {
         resolve(text);
       }).catch(err => {
@@ -115,7 +115,7 @@ const getTextByID = (id) => {
 
 // Update Text by ID
 const UpdateTextByID = async(textID, text) => {
-  return new Promise((resolve, reject) => {
+  return new Promise( async(resolve,reject) => {
       Text.update(
           {   text: text, },
           {   where: { id: textID }}
@@ -127,16 +127,49 @@ const UpdateTextByID = async(textID, text) => {
   });
 }
 
+// Update Texts by ID
+const UpdateTexts = async(texts) => {
+  return new Promise( async(resolve,reject) => {
+    try {
+      let updates = new Array(texts.length);
+      texts.forEach( async(text, i) => {
+        updates[i] = Text.update({ text: text.text }, { where: { id: text.id }}).catch(err => { throw err; });
+      });
+
+      await Promise.all(updates).catch(err => {throw err});
+      resolve();
+    } catch(err) { reject(err); }
+
+      /*
+      Promise.all(
+        texts.forEach(text => {
+          Text.update(
+            {   text: text.text, },
+            {   where: { id: text.id }}
+          ).catch(err => { reject(err); });
+        })).then(() => resolve()).catch(err => { throw err });
+    } catch (err) { reject(err); }*/
+  });
+}
+
 // Delete Text by ID
-const DeleteTextByID = async(textID) => {
-  return new Promise((resolve, reject) => {
+const DeleteTextByID = async(id) => {
+  return new Promise( async(resolve,reject) => {
       Text.destroy(
-          {   where: { id: textID }}
+          {   where: { id: id }}
       ).then(() => {
           resolve();
       }).catch(err => {
           reject(err);
       });
+  });
+}
+
+// 
+const GetTextsByID = async(IDs) => {
+  return new Promise( async(resolve,reject) => {
+    try { resolve( await Text.findAll({ where: { id: IDs}}).catch(err => { throw err; }))}
+    catch(err) { reject(err); }
   });
 }
 
@@ -147,6 +180,8 @@ module.exports = {
   CreateText,
   CreateEmptyText,
   getTextByID,
+  GetTextsByID,
   UpdateTextByID,
+  UpdateTexts,
   DeleteTextByID
 };

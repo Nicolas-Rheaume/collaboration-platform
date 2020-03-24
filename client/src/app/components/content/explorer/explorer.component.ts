@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from "@angular/router"
 import { Subscription } from 'rxjs';
 import {CdkDragDrop, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 
+import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+
 import { ContentService } from '../../../services/content.service';
 
 @Component({
@@ -16,6 +18,7 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
    *  VARIABLES
    ****************************************************************************/
   public description: string;
+  public Editor = ClassicEditor;
 
   done: string[] = [
     'Get up',
@@ -57,17 +60,20 @@ export class ExplorerComponent implements OnInit, OnDestroy  {
   /*****************************************************************************
    *  DRAGGABLE
    ****************************************************************************/
-
-
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      this.cs.moveExplorerText(event.previousIndex, event.currentIndex);
     } else {
       transferArrayItem(event.previousContainer.data,
                         event.container.data,
                         event.previousIndex,
                         event.currentIndex);
     }
+  }
+
+  noReturnPredicate() {
+    return false;
   }
 
 }

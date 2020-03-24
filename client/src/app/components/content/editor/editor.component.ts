@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, NgZone, ViewChild, ElementRef  } from '@angular/core';
 import { ActivatedRoute, Router } from "@angular/router"
-import { Subscription } from 'rxjs';
+import { Subscription, fromEventPattern } from 'rxjs';
 import { CdkDragDrop, CdkDragEnter, CdkDragExit, CdkDragStart, CdkDrag, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { CdkTextareaAutosize } from '@angular/cdk/text-field';
 import { take } from 'rxjs/operators';
@@ -9,7 +9,6 @@ import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
 import { ContentService } from '../../../services/content.service';
 import { Text } from '../../../models/text.model';
-
 
 @Component({
   selector: 'app-editor',
@@ -62,11 +61,13 @@ export class EditorComponent implements OnInit, OnDestroy {
   drop(event: CdkDragDrop<string[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      this.cs.moveEditorText(event.previousIndex, event.currentIndex);
     } else {
       transferArrayItem(event.previousContainer.data,
                         event.container.data,
                         event.previousIndex,
                         event.currentIndex);
+      this.cs.adoptExplorerText(event.previousIndex, event.currentIndex);
     }
   }
 

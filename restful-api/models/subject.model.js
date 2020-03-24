@@ -39,8 +39,8 @@ const Subject = db.define(NAME, {
 );
 
 // Create Subject Table if it is non-existant
-const CreateTableIfNonExistant = () => {
-    return new Promise(resolve => {
+const CreateTableIfNonExistant = async() => {
+    return new Promise(async(resolve, reject) => {
         db.query(`SHOW TABLES like "` + NAME + 's"').then(([results, metadata]) => {
             if(results == 0) {
                 Subject.sync();
@@ -76,7 +76,7 @@ const CreateSubject = async(subject) => {
 
 // Create Subject by title 
 const CreateSubjectByTitle = async(title) => {
-    return new Promise( async(resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         await ValidateTitle(title).then( async({name, url}) => {
             // Check if the title already exists
             if(await TitleExists(name).catch(err => reject(err))) {
@@ -97,14 +97,13 @@ const ValidateTitle = async(title) => {
         else {
             let name = title.replace(/\s\s+/g, ' ');
             name = name.split(" ");
-            console.log(name);
             if(name[0] == '') name.splice(0, 1);
             if(name[name.length - 1] == '') name.splice(-1, 1);
             name = name.join(" ");
 
             const path = ('/' + name).replace(/ /g, "_").match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g);
 
-            if(path === null || path.length != 1) reject("Subject title is invalid");
+            if(path === null || path.length != 1) reject("Subject URL is invalid");
             else {
                 const url = path[0];
                 resolve({name, url});
@@ -114,8 +113,19 @@ const ValidateTitle = async(title) => {
     })
 }
 
+const ValidateURL = async(url) => {
+    return new Promise(async(resolve, reject) => {
+        if(url === '' || url === null) reject("Subject URL can't be empty");
+        else {
+            const path = ('/' + url).replace(/ /g, "_").match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g);
+            if(path === null || path.length != 1) reject("Subject URL is invalid");
+            else resolve(path[0]);
+        }
+    })
+}
+
 const TitleExists = async(title) => {
-    return new Promise( async(resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         Subject.findOne({
             where: {title: title}
         }).then(subject => {
@@ -128,7 +138,7 @@ const TitleExists = async(title) => {
 }
 
 const URLExists = async(url) => {
-    return new Promise( async(resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
         Subject.findOne({
             where: {url: url }
         }).then(subject => {
@@ -142,8 +152,8 @@ const URLExists = async(url) => {
 
 
 // Get Subject by ID
-const GetSubjectByID = (id) => {
-    return new Promise(resolve => {
+const GetSubjectByID = async(id) => {
+    return new Promise(async(resolve, reject) => {
         Subject.findByPk(id).then(subject => {
             resolve(subject);
         }).catch(err => {
@@ -154,8 +164,8 @@ const GetSubjectByID = (id) => {
 }
 
 // Get Subject by ID
-const GetSubjectByTitle = (title) => {
-    return new Promise((resolve, reject) => {
+const GetSubjectByTitle = async(title) => {
+    return new Promise(async(resolve, reject) => {
         Subject.findOne({
             where: {
                 title: title
@@ -168,9 +178,21 @@ const GetSubjectByTitle = (title) => {
     });
 }
 
+// Get Subject by Where
+const GetSubjectWhere = async(search) => {
+    return new Promise(async(resolve, reject) => {
+        Subject.findOne(search).then(subject => {
+            if(subject === null) reject("Subject doesn't exists");
+            else resolve(subject.dataValues);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
 // Update Subject
-const UpdateSubject = (subject) => {
-    return new Promise(resolve => {
+const UpdateSubject = async(subject) => {
+    return new Promise(async(resolve, reject) => {
         Subject.update(
             {   title: subject.title,
                 description: subject.description
@@ -191,8 +213,8 @@ const UpdateSubject = (subject) => {
 }
 
 // Delete Subject
-const DeleteSubjectByID = async (id) => {
-    return new Promise(async(resolve,reject) => {
+const DeleteSubjectByID = async(id) => {
+    return new Promise(async(resolve, reject) => {
         Subject.destroy({
             where: {
               id: id,
@@ -206,8 +228,8 @@ const DeleteSubjectByID = async (id) => {
 }
 
 // Delete Subject
-const DeleteSubjectByTitle = async (title) => {
-    return new Promise( async(resolve,reject) => {
+const DeleteSubjectByTitle = async(title) => {
+    return new Promise(async(resolve, reject) => {
         Subject.destroy({
             where: {
               title: title,
@@ -221,8 +243,8 @@ const DeleteSubjectByTitle = async (title) => {
 }
 
 // Get All Subjects
-const GetAllSubjects = () => {
-    return new Promise((resolve, reject) => {
+const GetAllSubjects = async() => {
+    return new Promise(async(resolve, reject) => {
         Subject.findAll().then(subjects => {
             let list = [];
             subjects.forEach(subject => {
@@ -254,5 +276,8 @@ module.exports = {
     DeleteSubjectByID,
     DeleteSubjectByTitle,
     GetAllSubjects,
-    TitleExists
+    TitleExists,
+    ValidateTitle,
+    ValidateURL,
+    GetSubjectWhere
 };

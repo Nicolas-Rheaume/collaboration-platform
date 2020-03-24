@@ -26,7 +26,11 @@
 }
 
 .editor-handle {
-  cursor: move;
+  cursor: grab;
+}
+
+.editor-handle:active {
+  cursor: grabbing;
 }
 
 .editor-icon {
@@ -35,6 +39,11 @@
 
 .editor-list.cdk-drop-list-dragging .editor-textbox:not(.cdk-drag-placeholder) {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  cursor: grabbing;
+}
+
+.cdk-drag-animating {
+  //transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .editor-preview {

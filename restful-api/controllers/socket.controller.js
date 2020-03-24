@@ -1,11 +1,15 @@
 /*****************************************************************************
     *  VARIABLES
 *****************************************************************************/
+const arrayMove = require('array-move');
+const config = require('../configuration');
+
 // Global
 const User = require('../models/user.model');
 const Subject = require('../models/subject.model');
 const Text = require('../models/text.model');
 const Relation = require('../models/relation.model');
+const Content = require('../mw/content.mw');
 
 // Local
 let connections = new Array();
@@ -36,8 +40,10 @@ module.exports = function(app, io){
 
       // User Route
       socket.on("path", ({url}) => {
-        connections[connections.indexOf(socket)].path = url;
+        socket.path = url;
         console.log(connections.indexOf(socket) + ": " + socket.path);
+        if(url.startsWith("/content/")) socket.join(url);
+        else socket.join('');
       });
 
       // User Information
@@ -120,19 +126,162 @@ module.exports = function(app, io){
       });
 
       /*****************************************************************************
+          *  CONTENT
+      *****************************************************************************/
+
+     /*
+     const ValidateSubjectURL = async(url) => {
+       return new Promise( async(resolve, reject) => {
+
+        // Check if the connections has already a subject
+        if(connections[connections.indexOf(socket)].hasOwnProperty('subject')) {
+
+          // If the connection's subject is the same, resolve
+          if(connections[connections.indexOf(socket)].subject.url === url) resolve("Resolved with same subject");
+          else {
+
+            // Check if it has a valid URL
+            await Subject.ValidateURL(url).then( async() => {
+
+              // Get Subject
+              const subject = await Subject.GetSubjectWhere({where: {url: url}}).catch(err => reject(err));
+              connections[connections.indexOf(socket)].subject = subject.dataValues;
+              resolve("Successfully added the subject");
+            }).catch(err => reject(err));
+          }
+        } else {
+          // Check if it has a valid URL
+          await Subject.ValidateURL(url).then( async() => {
+
+            // Get Subject
+            const subject = await Subject.GetSubjectWhere({where: {url: url}}).catch(err => reject(err));
+            connections[connections.indexOf(socket)].subject = subject.dataValues;
+            resolve("Successfully added the subject");
+          }).catch(err => reject(err));
+        }
+     });
+    };
+    */
+
+      /*****************************************************************************
           *  EDITOR
       *****************************************************************************/
 
-      // Get All Editor Texts
-      socket.on('editor/all-texts', async () => {
-        console.log("editor texts");
-        /*
-        await Subject.DeleteSubjectByTitle(title).catch(err => { socket.emit("subject/delete-error", err); });
-        const subjects = await Subject.GetAllSubjects().catch(err => { socket.emit("subject/dashboard-error", err); });
-        socket.emit("subject/dashboard", subjects);
-        socket.broadcast.emit("subject/dashboard", subjects);
-        */
+      // Initialize Editor Texts
+      socket.on('editor/initialize', async (url) => {
+        try {
+          const {subject, texts} = await Content.InitializeEditor(socket, url).catch(err => { throw err; });
+          socket.subject = subject;
+          socket.editor = texts;
+          socket.emit('editor/texts', texts);
+        } catch(err) { socket.emit("editor/error", err); }
       });
+
+
+      // Create new Text
+      socket.on('editor/create-text-at-index', async(index) => {
+        try {
+          if(socket.hasOwnProperty('texts')) { if(socket.editor.length >= config.editor_text_size) { throw "Max number of texts"; }};
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          const text = await Content.CreateEmptyTextAtIndex(userID, subjectID, index).catch(err => { throw err; });
+          socket.editor.splice(index, 0, text);
+          socket.emit('editor/create-text-response', {text, index});
+          socket.to(socket.path).broadcast.emit("explorer/update", {});
+        } catch(err) {socket.emit("editor/error", err); }
+      });
+
+      // Update all texts
+      socket.on('editor/update-texts', async(texts) => {
+        try {
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          if(texts.length != socket.editor.length) throw "Texts mismatch";
+          socket.editor.forEach((text, i) => { text.text = texts[i]; });
+          await Text.UpdateTexts(socket.editor).catch(err => { throw err; });
+          socket.to(socket.path).broadcast.emit("explorer/update", {});
+        } catch(err) {socket.emit("editor/error", err); }
+      });
+
+      // Refresh all texts
+      socket.on('editor/refresh-texts', async() => {
+        try {
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          const texts = await Content.GetEditorText(userID, subjectID).catch(err => { throw err; });
+          socket.emit('editor/texts', texts);
+        } catch(err) { socket.emit("editor/error", err); }
+      });
+
+      // Drag text from to
+      socket.on('editor/move-text', async({from , to}) => {
+        try {
+          if(from === to) throw "from and to value can't be the same";
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          arrayMove.mutate(socket.editor, from, to);
+          const min = Math.min(from, to);
+          const max = Math.max(from, to);
+          await Relation.UpdateRelationsOrder(userID, subjectID, socket.editor.slice(min, max + 1), min).catch(err => { throw err; });
+        } catch(err) { socket.emit("editor/move-text-error", {to, from}); }
+      });
+
+      // Delete Editor Text
+      socket.on('editor/delete-text-at-index', async(index) => {
+        try {
+          if(index < 0 || index >= socket.editor.length) throw "Index is out of bound";
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          await Content.DeleteTextAtIndex(userID, subjectID, socket.editor[index].id, index).catch(err => { throw err; });
+          socket.editor.splice(index, 1);
+          socket.emit('editor/delete-text-response', index);
+          socket.to(socket.path).broadcast.emit("explorer/update", {});
+        } catch(err) {socket.emit("editor/error", err); }
+      });
+
+
+      /*****************************************************************************
+          *  EXPLORER
+      *****************************************************************************/
+
+      // Initialize Explorer Texts
+      socket.on('explorer/initialize', async (url) => {
+        try {
+          const texts = await Content.InitializeExplorer(socket, url).catch(err => { throw err; });
+          socket.explorer = texts;
+          socket.emit('explorer/texts', texts);
+        } catch(err) { socket.emit("explorer/error", err); }
+      });
+
+      // Get Explorer Texts
+      socket.on('explorer/refresh-texts', async () => {
+        try {
+          const texts = await Content.GetExplorerText(socket.user.id, socket.subject.id).catch(err => { throw err; });
+          socket.emit('explorer/texts', texts);
+        } catch(err) { socket.emit("explorer/error", err); }
+      });
+
+      // Move text from to
+      socket.on('explorer/move-text', async({from , to}) => {
+        try {
+          if(from === to) throw "from and to value can't be the same";
+          const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
+          arrayMove.mutate(socket.explorer, from, to);
+        } catch(err) { socket.emit("explorer/move-text-error", {to , from}); }
+      });
+
+      // Adopt text from explorer to editor
+      socket.on('explorer/adopt-text', async({from , to}) => {
+        try {
+          await Content.AdoptText(socket, from, to).catch(err => { throw err; });
+          console.log("asd");
+        } catch(err) { socket.emit("explorer/adopt-text-error", {to, from}); }
+      });
+
+
+
+
+
+
+
+
+
+
       /*
 
 

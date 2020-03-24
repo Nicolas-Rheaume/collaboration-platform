@@ -11,6 +11,8 @@ import { Subject } from '../models/subject.model';
 import { Text } from '../models/text.model';
 import { SocketService } from './socket.service';
 
+import * as arrayMove from 'array-move';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -19,12 +21,15 @@ export class ContentService {
   /*****************************************************************************
    *  VARIABLES
    ****************************************************************************/
+  
+  private subjectTitle: string = "";
+
+  // TO DELETE
   private apiURL = environment.api + '/content';
   //private socket: SocketIOClient.Socket = io(this.apiURL);
   private sub: Subscription;
 
   private user: User = new User();
-  public subjectTitle: string = "";
 
   public subject: Subject = new Subject();
   public editorTexts: Text[] = [];
@@ -41,74 +46,112 @@ export class ContentService {
     private activeRouter: ActivatedRoute
   ) { 
 
+
     if(this.useMockData){
       this.setMockData();
     } else {
 
-      // Editor Error Message
-      this.sub = this.socket.response('editor/error').subscribe(message => {
-        console.log(message);
-      });
+      // Set the subject to the client
+      this.sub = this.activeRouter.params.subscribe(params => {
+        this.subjectTitle = params.title;
 
-      // Explorer Error Message
-      this.sub = this.socket.response('explorer/error').subscribe(message => {
-        console.log(message);
-      });
-
-      // Editor Texts
-      this.sub = this.socket.response('editor/all-texts').subscribe(editorTexts => {
-        this.editorTexts = Text.maps(editorTexts);
-      });
-
-      // Explorer Texts
-      this.sub = this.socket.response('explorer/all-texts').subscribe(explorerTexts => {
-        this.explorerTexts = Text.maps(explorerTexts);
-      });
-
-
-
-      /*
-      // Get the current User
-      if(this.us.isConnected()){
-
-        // Set User
-        this.user = this.us.currentUser;
-
-        // Get route params
-        this.sub = this.activeRouter.params.subscribe(params => {
-          this.subjectTitle = params.title;
-
-          // Error Message
-          this.sub = this.errorMessage().subscribe(message => {
-            console.log(message);
-          });
-
-          // Editor Texts
-          this.sub = this.editorResponse().subscribe(editorTexts => {
-            this.editorTexts = Text.maps(editorTexts);
-          });
-
-          // Explorer Texts
-          this.sub = this.explorerResponse().subscribe(explorerTexts => {
-            this.explorerTexts = Text.maps(explorerTexts);
-          });
-
-          // Update Explorer
-          this.sub = this.explorerUpdate().subscribe(() => {
-            this.getExplorerText();
-          });
-
-          this.getEditorText();
-          this.getExplorerText();
+        // Editor Error Message
+        this.sub = this.socket.response('editor/error').subscribe(message => {
+          console.log(message);
         });
-      }
-      */
+
+        // Explorer Error Message
+        this.sub = this.socket.response('explorer/error').subscribe(message => {
+          console.log(message);
+        });
+
+        // Editor Texts
+        this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
+          this.editorTexts = Text.maps(editorTexts);
+        });
+
+        // Editor Texts - Create Text
+        this.sub = this.socket.response('editor/create-text-response').subscribe(({text, index}) => {
+          this.editorTexts.splice(index, 0, Text.map(text));
+        });
+
+        // Editor Texts - Delete Text
+        this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
+          this.editorTexts.splice(index, 1);
+        });
+
+        // Editor Texts - Error while moving text
+        this.sub = this.socket.response('editor/move-text-error').subscribe(({from, to}) => {
+          arrayMove.mutate(this.editorTexts, from, to);
+        });
+
+        // Explorer Texts
+        this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
+          this.explorerTexts = Text.maps(explorerTexts);
+        });
+
+        // Explorer Texts - Error while moving text
+        this.sub = this.socket.response('explorer/move-text-error').subscribe(({from, to}) => {
+          arrayMove.mutate(this.explorerTexts, from, to);
+        });
+
+        // Adopt explorer to editor
+        this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({from, to}) => {
+          const text = this.editorTexts[from];
+          this.editorTexts.splice(from, 0);
+          this.explorerTexts.splice(to, 0, text);
+        });
+
+        // Explorer Texts
+        this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
+          this.socket.request('explorer/refresh-texts', {});
+        });
+
+        
+
+        this.socket.request('editor/initialize', this.subjectTitle);
+        this.socket.request('explorer/initialize', this.subjectTitle);
+
+
+      });
     }
   }
 
   /*****************************************************************************
    *  WEB SOCKETS REQUEST
    ****************************************************************************/
+
+  public createTextAtIndex(index: number) {
+    this.socket.request('editor/create-text-at-index', index);
+  }
+
+  public deleteTextAtIndex(index: number) {
+    this.socket.request('editor/delete-text-at-index', index);
+  }
+
+  public saveEditorTexts() {
+    this.socket.request('editor/update-texts', this.editorTexts.map(text => {return text.text;}));
+  }
+
+  public refreshEditorTexts() {
+    this.socket.request('editor/refresh-texts', {});
+  }
+
+  public moveEditorText(from: number, to: number) {
+    if(from === to) return;
+    else this.socket.request('editor/move-text', {from, to});
+  }
+
+  public moveExplorerText(from: number, to: number) {
+    if(from === to) return;
+    else this.socket.request('explorer/move-text', {from, to});
+  } 
+
+  public adoptExplorerText(from: number, to: number) {
+    this.socket.request('explorer/adopt-text', {from, to});
+  } 
+
+
   /*
 
   public createTextAtIndex(index: number) {

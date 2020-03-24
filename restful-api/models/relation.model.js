@@ -1,4 +1,5 @@
 const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 const db = require('../middleware/sequelize.mw.js');
 
 const model_name = "relation";
@@ -53,7 +54,7 @@ const CreateTableIfNonExistant = function() {
 
 // Create Relation
 const CreateRelation = async (userID, subjectID, textID, order) => {
-    return new Promise((resolve, reject) => {
+    return new Promise( async(resolve, reject) => {
   
         let newRelation = {
             subjectID: subjectID,
@@ -72,7 +73,7 @@ const CreateRelation = async (userID, subjectID, textID, order) => {
 
 // Get Relation by user id and subject id
 const GetRelationByUserAndSubject = async(userID, subjectID) => {
-    return new Promise((resolve, reject) => {
+    return new Promise( async(resolve, reject) => {
         Relation.findAll({
             where: {
                 userID: userID,
@@ -80,7 +81,9 @@ const GetRelationByUserAndSubject = async(userID, subjectID) => {
             },
             order: [['order', 'ASC']]
         }).then((relations) => {
-            resolve(relations);
+            resolve(relations.map(relation => {
+                return relation.dataValues;
+            }));
         }).catch(err => {
             reject(err);
         });
@@ -89,13 +92,11 @@ const GetRelationByUserAndSubject = async(userID, subjectID) => {
 
 // Get Relation with subject id but without user id
 const GetRelationBySubjectWithoutUser = async(userID, subjectID) => {
-    return new Promise((resolve, reject) => {
+    return new Promise( async(resolve, reject) => {
         Relation.findAll({
             where: {
                 subjectID: subjectID,
-                [Sequelize.Op.not]: [
-                    {userID: userID}
-                ]
+                [Op.not]: [{userID: userID}]
             }
         }).then((relations) => {
             resolve(relations);
@@ -107,7 +108,7 @@ const GetRelationBySubjectWithoutUser = async(userID, subjectID) => {
 
 // Get Relation with subject id but without user id
 const GetRelationByUserSubjectAndOrder = async(userID, subjectID, order) => {
-    return new Promise((resolve, reject) => {
+    return new Promise( async(resolve, reject) => {
         Relation.findOne({
             where: {
                 userID: userID,
@@ -125,7 +126,7 @@ const GetRelationByUserSubjectAndOrder = async(userID, subjectID, order) => {
 
 // Count the number of relations by the userID and subjectID
 const CountRelationByUserAndSubject = async(userID, subjectID) => {
-    return new Promise((resolve, reject) => {
+    return new Promise( async(resolve, reject) => {
         Relation.count({
             where: {
                 userID, userID,
@@ -141,16 +142,40 @@ const CountRelationByUserAndSubject = async(userID, subjectID) => {
 }
 
 // Count the number of relations by the userID and subjectID
-const SetOrder = async(relationID, order) => {
-    return new Promise((resolve, reject) => {
-        Relation.update(
-            {   order: order },
-            {   where: { id: relationID }}
-        ).then(() => {
+const UpdateRelationsOrder = async(userID, subjectID, texts, offset) => {
+    return new Promise( async(resolve, reject) => {
+        try {
+            let updates = new Array(texts.length);
+            texts.forEach( async(text,i) => {
+                updates[i] = Relation.update({ order: i + offset }, {where: {
+                    subjectID: subjectID,
+                    userID: userID,
+                    textID: text.id
+                }}).catch(err => {throw err});
+            });
+            Promise.all(updates).then(() => {
+                resolve();
+            }).catch(err => {throw err});
+        } catch (err) {reject(err);}
+    });
+}
+
+// Change the order of all the relations after index and by amount
+const ChangeOrders = async(userID, subjectID, index, amount) => {
+    return new Promise( async(resolve, reject) => {
+        try {
+            await Relation.increment(
+                { order: amount },
+                { where: { 
+                    userID: userID,
+                    subjectID: subjectID,
+                    order: {
+                        [Op.gte]: index
+                    }
+                }
+            }).catch(err => reject(err))
             resolve();
-        }).catch(err => {
-            reject(err);
-        });
+        } catch(err) {reject(err)}
     });
 }
 
@@ -231,6 +256,22 @@ const DeleteRelationByID = async(relationID) => {
     });
   }
 
+const DeleteRelationByOrder = async(userID, subjectID, order) => {
+    return new Promise( async(resolve, reject) => {
+        try {
+            await Relation.destroy({   
+                where: {
+                    userID: userID,
+                    subjectID: subjectID,
+                    order: order
+                }}
+            ).catch(err => { throw(err); });
+            resolve();
+        } catch(err) { reject(err); }
+
+    });
+}
+
 
 module.exports = {
     Relation,
@@ -241,8 +282,11 @@ module.exports = {
     GetRelationByUserSubjectAndOrder,
     CountRelationByUserAndSubject,
     InsertAtIndex,
-    SetOrder,
+    UpdateRelationsOrder,
     IncreaseOrder,
     DecreaseOrder,
-    DeleteRelationByID
+    ChangeOrders,
+    DeleteRelationByID,
+    DeleteRelationByOrder
+    
 };

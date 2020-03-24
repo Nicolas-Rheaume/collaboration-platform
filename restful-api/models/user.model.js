@@ -94,11 +94,15 @@ const RegisterUser = async (user) => {
                                             password: hash,
                                             role: 'Contributor'
                                         }
-
-                                        console.log()
-                                        User.create(newUser)
-                                            .then((user) => { resolve(user.dataValues); })
-                                            .catch(err => reject(err));
+                                        User.create(newUser).then((user) => { 
+                                            resolve({
+                                                id: user.dataValues.id,
+                                                username: user.dataValues.username,
+                                                email: user.dataValues.email,
+                                                role: user.dataValues.role,
+                                                createdAt: user.dataValues.createdAt
+                                            });
+                                        }).catch(err => reject(err));
                                     }
                                 });
                             }
@@ -133,6 +137,7 @@ const LoginUser = async ({username, password}) => {
                         success: true,
                         token: 'JWT ' + token,
                         user: {
+                          id: user.id,
                           username: user.username,
                           email: user.email,
                           role: user.role,
@@ -159,6 +164,7 @@ const AuthenticateUser = async(token) => {
                 else {
                     GetUserByUsername(decoded.username).then(user => {
                         resolve({
+                            id: user.id,
                             username: user.username,
                             email: user.email,
                             role: user.role,

@@ -26,12 +26,10 @@
                 <div class="editor-commands d-flex justify-content-end">
                     <div class="editor-icon" (click)="toggleDetailedEditor(i)"><mat-icon>create</mat-icon></div>
                     <div class="editor-icon" (click)="cs.createTextAtIndex(i+1)"><mat-icon>add</mat-icon></div>
-                    <div class="editor-icon" (click)="cs.updateTextAtIndex(i)"><mat-icon>save</mat-icon></div>
                     <div class="editor-icon"><mat-icon>chevron_left</mat-icon></div>
-                    <div class="editor-icon"><mat-icon>refresh</mat-icon></div>
                     <div class="editor-icon"><mat-icon>chevron_right</mat-icon></div>
                     <div class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
-                    <div class="editor-icon" (click)="cs.deleteTextAtIndex(i)"><mat-icon>delete_forever</mat-icon></div>
+                    <div class="editor-icon" (click)="cs.deleteTextAtIndex(i)"><mat-icon>clear</mat-icon></div>
                 </div>
                 <div *cdkDragPreview>
                     <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.editorTexts[i].text | slice:0:100}}</div>
