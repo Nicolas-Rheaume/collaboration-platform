@@ -225,6 +225,7 @@ module.exports = function(app, io){
       // Delete Editor Text
       socket.on('editor/delete-text-at-index', async(index) => {
         try {
+          console.log(index + ", " + socket.editor.length);
           if(index < 0 || index >= socket.editor.length) throw "Index is out of bound";
           const {userID, subjectID} = await Content.GetUserAndSubjectID(socket).catch(err => { throw err; });
           await Content.DeleteTextAtIndex(userID, subjectID, socket.editor[index].id, index).catch(err => { throw err; });
@@ -279,7 +280,9 @@ module.exports = function(app, io){
       // Adopt text from explorer to editor
       socket.on('explorer/adopt-text', async({from , to}) => {
         try {
-          await Content.AdoptText(socket, from, to).catch(err => { throw err; });
+          const text = await Content.AdoptText(socket, from, to).catch(err => { throw err; });
+          console.log(text);
+          socket.editor.splice(to, 0, text);
         } catch(err) { socket.emit("explorer/adopt-text-error", {to, from}); }
       });
 

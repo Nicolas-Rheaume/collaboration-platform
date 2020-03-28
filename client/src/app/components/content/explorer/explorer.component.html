@@ -17,10 +17,12 @@
         >
             <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
             <ckeditor [editor]="Editor" [(ngModel)]="cs.explorerTexts[i].text" [disabled]="true" [config]="{toolbar: false}"></ckeditor>
-            <footer class="blockquote-footer text-right">{{text.branches}} branches  -  Author: {{text.author}}  -  Updated: {{cs.editorTexts[i].updatedAt | timeAgo }}</footer>
+            <footer class="blockquote-footer text-right">{{text.branches}} branches  -  Author: {{text.author}}  -  Updated: {{cs.explorerTexts[i].updatedAt | timeAgo }}</footer>
             <div *cdkDragPreview>
                 <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.explorerTexts[i].text | slice:0:100}}</div>
             </div>
+
+            <div [innerHTML]="text.text"></div>
         </div>
 
     </div>

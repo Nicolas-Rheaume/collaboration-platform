@@ -135,6 +135,8 @@ export class ContentService {
   }
 
   public deleteTextAtIndex(index: number) {
+    console.log(index);
+    console.log(this.editorTexts);
     this.socket.request('editor/delete-text-at-index', index);
   }
 
