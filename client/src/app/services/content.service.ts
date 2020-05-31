@@ -34,7 +34,7 @@ export class ContentService {
   public subject: Subject = new Subject();
   public editorTexts: Text[] = [];
   public explorerTexts: Text[] = [];
-  public editorCommands: boolean = true;
+  public editorCommands: boolean = false;
 
   public useMockData: boolean = false;
 

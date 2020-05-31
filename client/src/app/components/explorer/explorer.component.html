@@ -1,0 +1,108 @@
+
+<div class="container-fluid">
+    <div
+        class="list-group"
+        cdkDropList
+        [cdkDropListEnterPredicate]="noReturnPredicate"
+        [cdkDropListData]="cs.explorerTexts"
+        (cdkDropListDropped)="drop($event)"
+    >
+        <div
+            class="list-group-item justify-content-between align-items-center editor-textbox"
+            *ngFor="let text of cs.explorerTexts; let i = index"
+            cdkDrag
+        >
+        <!--
+            <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+            <ckeditor [editor]="Editor" [(ngModel)]="cs.explorerTexts[i].text" [disabled]="true" [config]="{toolbar: false}"></ckeditor>
+            <footer class="blockquote-footer text-right">{{text.branches}} branches  -  Author: {{text.author}}  -  Updated: {{cs.explorerTexts[i].updatedAt | timeAgo }}</footer>
+            <div *cdkDragPreview>
+                <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.explorerTexts[i].text | slice:0:100}}</div>
+            </div>
+        -->
+
+            <!--<div [innerHTML]="text.text"></div>-->
+        </div>
+
+    </div>
+
+    <!--
+    <p *ngFor="let text of cs.explorerText; index as i; trackBy: trackByFn">{{text.text}}</p>
+
+
+    <div
+        cdkDropList
+        class="example-list"
+        (cdkDropListDropped)="drop($event)">
+        <div class="example-box" *ngFor="let item of done" cdkDrag>{{item}}</div>
+    </div>
+    -->
+
+<!--
+    <div
+        class="list-group"
+        cdkDropList
+        [cdkDropListData]="cs.explorerTexts"
+        (cdkDropListDropped)="drop($event)"
+    >
+        <div
+            class="list-group-item justify-content-between align-items-center editor-textbox"
+            *ngFor="let text of cs.explorerTexts; let i = index"
+            cdkDrag
+        >
+            {{text.text}}
+            <footer class="blockquote-footer text-right">Someone famous in <cite title="Source Title">Source Title</cite></footer>
+        </div>
+
+    </div>
+
+
+    <div
+        class="list-group editor-list"
+        cdkDropList
+        [cdkDropListData]="mockTexts"
+        (cdkDropListDropped)="drop($event)"
+        (cdkDropListEntered)="entered($event)" 
+        (cdkDropListExited)="exited($event)"
+        (cdkDropListDragged)="started($event)"
+    >
+        <div
+            class="list-group-item justify-content-between align-items-center editor-textbox"
+            *ngFor="let text of cs.explorerTexts; let i = index"
+            (mouseenter)="onMouseOver(i, true)"
+            (mouseleave)="onMouseOver(i, false)"
+            (cdkDragStarted)="started($event)"
+            (cdkDragEnded)="ended($event)"
+            cdkDrag
+        >
+            <div>{{text.text}}</div>
+
+        </div>
+
+        <div 
+            class="list-group-item justify-content-between align-items-center editor-textbox"
+            *ngFor="let text of cs.editorTexts; let i = index"
+            (mouseenter)="onMouseOver(i, true)"
+            (mouseleave)="onMouseOver(i, false)"
+            (cdkDragStarted)="started($event)"
+            (cdkDragEnded)="ended($event)"
+            cdkDrag
+        >
+
+        <div class="editor-box">
+            <ckeditor class="editor-detailed-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === true" [config]=""></ckeditor>
+            <ckeditor class="editor-simple-interface" [editor]="Editor" [(ngModel)]="cs.editorTexts[i].text" *ngIf="cs.editorTexts[i].showDetailed === false" [config]="{toolbar: false}"></ckeditor>
+            <div class="editor-commands d-flex justify-content-around">
+                <div class="editor-icon" (click)="toggleDetailedEditor(i)"><mat-icon>create</mat-icon></div>
+                <div class="editor-icon" (click)="createText(i)"><mat-icon>add</mat-icon></div>
+                <div class="editor-icon"><mat-icon>save</mat-icon></div>
+                <div class="editor-icon"><mat-icon>autorenew</mat-icon></div>
+                <div class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+                <div class="editor-icon" (click)="deleteText(i)"><mat-icon>delete_forever</mat-icon></div>
+            </div>
+            <div *cdkDragPreview>
+                <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.editorTexts[i].text | slice:0:100}}</div>
+            </div>
+        </div>
+    -->
+</div>

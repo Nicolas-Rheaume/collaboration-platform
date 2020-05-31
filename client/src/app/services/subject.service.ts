@@ -16,7 +16,11 @@ export class SubjectService {
   private sub: Subscription;
 
   // Dashboard
-  public settings = {};
+  public settings = {
+    search: "",
+    sort: "recent",
+    contributor: ""
+  };
   public subjects: Subject[] = [] as Subject[];
 
   /*

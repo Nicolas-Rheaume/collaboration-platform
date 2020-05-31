@@ -17,9 +17,9 @@ export class UserService {
    *  VARIABLES
    ****************************************************************************/
 
+  public currentUser: User = null;
   private sub: Subscription;
   public isAuthenticating: boolean = true;
-  public currentUser: User = null;
   public token: string = null;
 
 
@@ -103,50 +103,5 @@ export class UserService {
    ****************************************************************************/
   public getTop5Users(username: string) {
     this.socket.request('get-top5', username);
-  }
-
-    /*
-  public getAll() {
-    this.socket.request('get-all', {});
-  }
-
-  public getTop5Users(username: string) {
-    this.socket.request('get-top5', username);
-  }
-
-  public create(user: User) {
-    this.socket.request('create', user);
-  }
-
-  public delete(user: User) {
-    this.socket.request('delete', user);
-  }
-
- 
-  public get = () => {
-    return Observable.create((observer) => {
-        this.socket.on('get', (message) => {
-            observer.next(message);
-        });
-    });
-  }
-
-  public update = () => {
-    return Observable.create((observer) => {
-        this.socket.on('update', (message) => {
-            observer.next(message);
-        });
-    });
-  }
- 
-
-  public test() {
-    this.socket.request('test', "message");
-  }
-
-  public getMessage() {
-    this.socket.request('get message', " data");
-  }
-  */
-  
+  } 
 }

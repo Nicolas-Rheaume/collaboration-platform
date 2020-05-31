@@ -2,14 +2,14 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule, CanActivate } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
 
-import { RegisterComponent } from './components/register/register.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { HomeComponent } from './components/home/home.component';
-import { ContentComponent } from './components/content/content.component';
-import { ProfileComponent } from './components/profile/profile.component';
-import { AdministrationComponent } from './components/administration/administration.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HomeComponent } from './pages/home/home.component';
+import { ContentComponent } from './pages/content/content.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { AdministrationComponent } from './pages/administration/administration.component';
 import { AdminGuard } from './guards/admin.guard';
-import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component'
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component'
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
