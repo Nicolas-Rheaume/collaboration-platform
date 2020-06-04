@@ -4,7 +4,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 const User = require('../models/user.model');
 
 module.exports = function(app){
-
+  
   app.use(passport.initialize());
   app.use(passport.session());
 

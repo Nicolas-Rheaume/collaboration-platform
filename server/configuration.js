@@ -1,7 +1,7 @@
 
 
 module.exports = {
-    database_host: 'localhost',
+    database_host: '127.0.0.1',
     database_user: 'root',
     database_password: 'password',
     database_name: 'collab-db-dev-1.0',
