@@ -8,7 +8,7 @@ const path          = require('path');
 const io            = require('socket.io')(http);
 
 // Port
-const port = process.env.PORT || 3000;
+const port = process.env.SERVER_PORT || 3000;
 
 // Static paths
 //app.use(express.static(path.join(__dirname, "../client/dist")));
@@ -20,13 +20,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 require("./configs/mysql.config.js")(app).then(() => {
   require("./configs/sequelize.config.js")(app).then(() => {
     require("./configs/passport.config.js")(app);
-  
+
     // Models
     require("./models/user.model.js").CreateTableIfNonExistant();
     require("./models/page.model.js").CreateTableIfNonExistant();
     require("./models/text.model.js").CreateTableIfNonExistant();
     require("./models/document.model.js").CreateTableIfNonExistant();
-  
   })
 });
 

@@ -17,12 +17,18 @@ export const environment = {
   production: false
 };*/
 
+import { angular_env } from '../../angular-env';
+
+
 export const environment = {
-  url: 'http://192.168.0.183:3000',
-  api: 'ws://192.168.0.183:3000',
-  /*api: 'http://192.168.0.183:3000',*/
+  url: 'http://127.0.0.1:3000',
+  api: `ws://` + angular_env.host_ip_address + `:` + angular_env.server_port,
+  //api: 'ws://127.0.0.1:3000',
+  //api: 'http://192.168.0.183:3000',
   production: false
 };
+
+
 
 /*
  * For easier debugging in development mode, you can import the following file
