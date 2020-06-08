@@ -42,6 +42,15 @@ During the MySQL installation, use these following configuration values:
  - database_password: 'password',
  - database_name: 'collab-db-dev-1.0',
 
+If the MySQL Database refuses your privileges, execute:
+ ```
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password'
+```
+ ```
+flush privileges;
+```
+
+
 ### 3.4 Initializing the Node.js server:
 
 Travel to the `./server` folder and use the following command to install all of its dependencies.

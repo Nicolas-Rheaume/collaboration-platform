@@ -32,6 +32,8 @@ require("./configs/mysql.config.js")(app).then(() => {
 // Controller
 require('./controllers/socket.controller.js')(app, io);
 
+require('./routes/socket.router')(io);
+
 // Sockets
 /*
 require('./sockets/content.socket.js')(app, io);
