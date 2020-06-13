@@ -8,7 +8,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "dev": "npm run config -- && ng serve --host 0.0.0.0"
+    "dev": "npm run config -- && ng serve --host 0.0.0.0",
+    "format": "prettier --config ./.prettierrc --write \"src/**/*.ts\" \"test/**/*.ts\""
   },
   "private": true,
   "dependencies": {

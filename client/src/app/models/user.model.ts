@@ -1,78 +1,57 @@
-export const enum Role {
-    visitor = "Visitor",
-    contributor = "Contributor",
-    admin = "Admin"
-  }
+export enum UserRole {
+	ADMIN = 'Admin',
+	CONTRIBUTOR = 'Contributor',
+	VISITOR = 'Visitor',
+}
 
 export class User {
+	username?: string;
+	email?: string;
+	role?: UserRole = UserRole.VISITOR;
+	createdAt?: Date;
+	updateAt?: Date;
 
-    id?: number;
-    username?: string;
-    email?: string;
-    password?: string;
-    role?: Role = Role.visitor;
-    createdAt?: Date;
-    updateAt?: Date;
-  
-    constructor(
-      id: number = 0, 
-      username: string = "", 
-      email: string = "", 
-      password: string = "", 
-      role: Role = Role.visitor,
-      createdAt: Date = null,
-      updateAt: Date = null
-    ) {
-      this.id = id;
-      this.username = username;
-      this.email = email;
-      this.password = password;
-      this.role = role;
-      this.createdAt = createdAt;
-      this.updateAt = updateAt;
-    }
+	constructor(username: string = '', email: string = '', role: UserRole = UserRole.VISITOR, createdAt: Date = null, updateAt: Date = null) {
+		this.username = username;
+		this.email = email;
+		this.role = role;
+		this.createdAt = createdAt;
+		this.updateAt = updateAt;
+	}
 
-    public static newUser(){
-      let user = new User();
-      user.username = "asd";
-      return user;
-    }
+	public static newUser() {
+		let user = new User();
+		user.username = 'asd';
+		return user;
+	}
 
-    public static map(data): User {
+	public static map(data): User {
+		let user: User = new User();
 
-      let user: User = new User();
+		user.username = data.username;
+		user.email = data.email;
+		user.role = data.role;
+		user.createdAt = data.createdAt;
+		user.updateAt = data.updateAt;
 
-      user.id = data.id;
-      user.username = data.username;
-      user.email = data.email;
-      user.password = data.password;
-      user.role = data.role;
-      user.createdAt = data.createdAt;
-      user.updateAt = data.updateAt;
+		return user;
+	}
 
-      return user;
-    }
+	public static maps(data): User[] {
+		let users: User[] = [];
 
+		for (let index = 0; index < data.length; index++) {
+			let u = new User();
 
-    public static maps(data): User[] {
+			u.username = data[index].username;
+			u.email = data[index].email;
+			u.role = data[index].role;
+			u.createdAt = data[index].createdAt;
+			u.updateAt = data[index].updateAt;
 
-      let users: User[] = [];
+			users.push(u);
+		}
 
-      for (let index = 0; index < data.length; index++) {
-        let u = new User();
-
-        u.id = data[index].id;
-        u.username = data[index].username;
-        u.email = data[index].email;
-        u.password = data[index].password;
-        u.role = data[index].role;
-        u.createdAt = data[index].createdAt;
-        u.updateAt = data[index].updateAt;
-
-        users.push(u);
-      }
-
-      return users;
-    }
-
-  }
+		return users;
+	}
+}

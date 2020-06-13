@@ -1,15 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-contributors',
-  templateUrl: './contributors.component.html',
-  styleUrls: ['./contributors.component.scss']
+	selector: 'app-contributors',
+	templateUrl: './contributors.component.html',
+	styleUrls: ['./contributors.component.scss'],
 })
 export class ContributorsComponent implements OnInit {
+	constructor() {}
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+	ngOnInit() {}
 }

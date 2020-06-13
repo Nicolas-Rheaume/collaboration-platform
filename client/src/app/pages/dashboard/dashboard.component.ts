@@ -1,146 +1,140 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from "@angular/router"
-import { Subscription  } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
-import { SubjectService } from "../../services/subject.service";
-import { Subject } from '../../models/subject.model';
+import { CorpusService } from 'src/app/services/corpus.service';
+import { Corpus, CorpusSort } from 'src/app/models/corpus.model';
 import { UserService } from 'src/app/services/user.service';
-import { User } from '../../models/user.model';
+import { User } from 'src/app/models/user.model';
 import { SocketService } from 'src/app/services/socket.service';
 
 declare var $: any;
 
 @Component({
-  selector: 'app-dasboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+	selector: 'app-dasboard',
+	templateUrl: './dashboard.component.html',
+	styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+	/*****************************************************************************
+	 *  VARIABLES
+	 ****************************************************************************/
+	private sub: Subscription;
+	//newCorpus: Corpus = new Corpus();
+	corpora: Corpus[] = [] as Corpus[];
+	contributors: User[] = [] as User[];
 
-  /*****************************************************************************
-   *  VARIABLES
-   ****************************************************************************/
-  private sub: Subscription;
-  //newSubject: Subject = new Subject();
-  subjects: Subject[] = [] as Subject[];
-  contributors: User[] = [] as User[];
+	// Search
+	searchTitle: String = '';
+	sortOptions: String[] = ['A - Z', 'Z - A', 'Oldest', 'Newest', 'Most Contributors', 'Least Contributors', 'Most Texts', 'Least Texts'];
+	searchSort: String = 'none';
+	searchContributor: String = '';
 
-  // Search
-  searchTitle: String = "";
-  sortOptions: String[] = ["A - Z", "Z - A", "Oldest", "Newest", "Most Contributors", "Least Contributors", "Most Texts", "Least Texts"];
-  searchSort: String = "none";
-  searchContributor: String = "";
-
-  // Create subject
-  createSubjectTitle: string = "";
-  createSubjectError: string = "";
-  createSubjectInvalid: boolean = false;
-  /*
-  subjectCreated: boolean = true;
-  subjectCreatedMessage: string = "";
+	// Create corpus
+	createCorpusTitle: string = '';
+	createCorpusError: string = '';
+	createCorpusInvalid: boolean = false;
+	/*
+  corpusCreated: boolean = true;
+  corpusCreatedMessage: string = "";
   */
 
-  contributorUsername: string = "";
+	contributorUsername: string = '';
 
-  /*****************************************************************************
-   *  MAIN
-   ****************************************************************************/
-  constructor(
-    private router: Router,
-    private ss: SubjectService,
-    private us: UserService,
-    private socket: SocketService
-  ) { 
+	/*****************************************************************************
+	 *  MAIN
+	 ****************************************************************************/
+	constructor(private router: Router, private ss: CorpusService, private us: UserService, private socket: SocketService) {
 
-    // Subject Error Message
-    this.sub = this.socket.response('subject/create-error').subscribe(message => {
-      if(message == null) {
-        this.createSubjectTitle = '';
-        this.createSubjectError = '';
-        this.createSubjectInvalid = false;
-        $('#createSubject').modal('hide');
-      } else {
-        this.createSubjectError = message;
-        this.createSubjectInvalid = true;
-      }
-    });
+		// Get Pages
 
-    /*
-    this.sub = this.ss.getAllSubjectsResponse().subscribe(subjects => {
-      console.log(subjects);
-      this.subjects = Subject.maps(subjects);
-      console.log(this.subjects);
+		// Corpus Error Message
+		this.sub = this.socket.response('dashboard/create-error').subscribe(message => {
+			if (message == null) {
+				this.createCorpusTitle = '';
+				this.createCorpusError = '';
+				this.createCorpusInvalid = false;
+				$('#createCorpus').modal('hide');
+			} else {
+				this.createCorpusError = message;
+				this.createCorpusInvalid = true;
+			}
+		});
+
+		/*
+    this.sub = this.ss.getAllCorporaResponse().subscribe(corpora => {
+      console.log(corpora);
+      this.corpora = Corpus.maps(corpora);
+      console.log(this.corpora);
     });
 
 
-    this.sub = this.ss.update().subscribe(subjects => {
-      console.log(subjects);
-      this.subjects = Subject.maps(subjects);
-      console.log(subjects);
+    this.sub = this.ss.update().subscribe(corpora => {
+      console.log(corpora);
+      this.corpora = Corpus.maps(corpora);
+      console.log(corpora);
     });
 
     this.sub = this.us.get().subscribe(users => {
       this.contributors = User.maps(users);
     });
     */
-  }
+	}
 
-  ngOnInit() {
-    this.socket.request('subject/search', {
-      title: this.searchTitle,
-      sort: this.searchSort
-    });
-    /*
-    this.ss.getDashboardSubjects();
+	ngOnInit() {
+		this.socket.request('dashboard/findAllPages', {
+			title: this.searchTitle,
+			sort: this.searchSort,
+		});
+		/*
+    this.ss.getDashboardCorpora();
     this.us.getTop5Users(this.contributorUsername);*/
-  }
+	}
 
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
+	ngOnDestroy() {
+		this.sub.unsubscribe();
+	}
 
-  /*****************************************************************************
-   *  CREATE DIALOG
-   ****************************************************************************/
-   openModal() {
-    $('#createSubject').modal('show');
-  }
+	/*****************************************************************************
+	 *  CREATE DIALOG
+	 ****************************************************************************/
+	openModal() {
+		$('#createCorpus').modal('show');
+	}
 
-  closeModal() {
-    this.createSubjectInvalid = false;
-    this.createSubjectTitle = "";
-    $('#createSubject').modal('hide'); 
-  }
+	closeModal() {
+		this.createCorpusInvalid = false;
+		this.createCorpusTitle = '';
+		$('#createCorpus').modal('hide');
+	}
 
-  createNewSubject() {
-    console.log(this.createSubjectTitle.replace(/\s\s+/g, ' '));
-    console.log(this.createSubjectTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
-    this.socket.request('subject/create-by-title', this.createSubjectTitle);
-  }
+	createNewCorpus() {
+		console.log(this.createCorpusTitle.replace(/\s\s+/g, ' '));
+		console.log(this.createCorpusTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
+		this.socket.request('dashboard/createPage', this.createCorpusTitle);
+	}
 
-  viewSubject(subject: Subject): void {
-    this.router.navigate(['/content', subject.url])
-  }
+	viewCorpus(corpus: Corpus): void {
+		this.router.navigate(['/content', corpus.url]);
+	}
 
-  removeSubject(index: number): void {
-    this.socket.request('subject/delete-by-title', this.ss.subjects[index].title);
-  }
-  
-  /*****************************************************************************
-   *  SEARCH SUBJECTS
-   ****************************************************************************/
-  searchSubjects(): void {
-    this.socket.request('subject/search', {
-      title: this.searchTitle,
-      sort: this.searchSort
-    });
-  }
+	removeCorpus(index: number): void {
+		this.socket.request('dashboard/deletePage', this.ss.corpora[index].title);
+	}
 
-  getContributors(): void {
-    console.log(this.searchContributor);
-  }
+	/*****************************************************************************
+	 *  SEARCH SUBJECTS
+	 ****************************************************************************/
+	searchCorpora(): void {
+		this.socket.request('corpus/search', {
+			title: this.searchTitle,
+			sort: this.searchSort,
+		});
+	}
 
-  searchContributors(): void {
-    
-  }
+	getContributors(): void {
+		console.log(this.searchContributor);
+	}
+
+	searchContributors(): void {}
 }

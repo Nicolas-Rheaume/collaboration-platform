@@ -6,10 +6,12 @@
       "moduleResolution": "node",
       "sourceMap": true,
       "outDir": "dist",
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
     },
     "lib": ["es2015"],
     "include": [
-      "src/**/*"
+      "src/**/*", "src/app/configuration.ts"
     ]
   }
 

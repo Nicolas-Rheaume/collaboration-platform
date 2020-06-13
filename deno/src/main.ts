@@ -1,3 +1,8 @@
-import { Application } from './app/server';
-let app = new Application().application;
-export { app };
+import { App } from './app/app';
+
+const main = async() => {
+    const app = new App();
+    await app.listen(); 
+} 
+
+main();
