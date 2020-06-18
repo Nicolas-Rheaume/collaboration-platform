@@ -31,7 +31,7 @@ export class User {
 	public async getEntity(): Promise<UserEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new UserEntity(0, this.username, this.email, '', this.role, this.createdAt, this.updatedAt));
+				resolve(new UserEntity(0, this.username, this.email, '', this.role, null, null, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -91,38 +91,64 @@ export class User {
 /*****************************************************************************
  *  USER ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Repository } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Repository, OneToMany } from 'typeorm';
+import { DocumentEntity } from './document.entity';
+import { TextEntity } from './text.entity';
 
 @Entity('users')
 export class UserEntity {
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id: number;
 
 	@Column({ type: 'varchar', width: 255 })
-	username: string;
+	public username: string;
 
 	@Column({ type: 'varchar', width: 255 })
-	email: string;
+	public email: string;
 
 	@Column({ type: 'varchar', width: 255 })
-	password: string;
+	public password: string;
 
 	@Column({ type: 'enum', enum: UserRole, default: UserRole.VISITOR })
-	role: UserRole;
+	public role: UserRole;
+
+	@OneToMany(
+		type => DocumentEntity,
+		documents => documents.author,
+	)
+	public documents: DocumentEntity[];
+
+	@OneToMany(
+		type => TextEntity,
+		text => text.author,
+	)
+	public texts: TextEntity[];
 
 	@CreateDateColumn()
-	createdAt: Date;
+	public createdAt: Date;
 
 	@UpdateDateColumn()
-	updatedAt: Date;
+	public updatedAt: Date;
 
 	// Constructor
-	constructor(id: number = 0, username: string = '', email: string = '', password: string = '', role: UserRole = UserRole.VISITOR, createdAt: Date = null, updatedAt: Date = null) {
+	constructor(
+		id: number = 0,
+		username: string = '',
+		email: string = '',
+		password: string = '',
+		role: UserRole = UserRole.VISITOR,
+		documents: DocumentEntity[] = null,
+		texts: TextEntity[] = null,
+		createdAt: Date = new Date(),
+		updatedAt: Date = new Date(),
+	) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
 		this.role = role;
+		this.documents = documents;
+		this.texts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}

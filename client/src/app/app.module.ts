@@ -31,7 +31,6 @@ import { ContributorsComponent } from './components/contributors/contributors.co
 import { EditorComponent } from './components/editor/editor.component';
 import { ExplorerComponent } from './components/explorer/explorer.component';
 import { ContentService } from './services/content.service';
-import { CorpusService } from './services/corpus.service';
 import { AdministrationComponent } from './pages/administration/administration.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SocketService } from './services/socket.service';
@@ -80,7 +79,7 @@ import { ContenteditableDirective } from './components/editor/editable/editable.
 		NgbModule,
 		AngularSplitModule.forRoot(),
 	],
-	providers: [SocketService, UserService, ContentService, CorpusService, AuthGuard, AdminGuard],
+	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
 	bootstrap: [AppComponent],
 })
 export class AppModule {}

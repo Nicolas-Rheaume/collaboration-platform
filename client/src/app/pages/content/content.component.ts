@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { SplitComponent, AngularSplitModule, SplitAreaDirective } from 'angular-split';
 
-import { CorpusService } from '../../services/corpus.service';
 import { ContentService } from 'src/app/services/content.service';
 import { UserService } from 'src/app/services/user.service';
 
@@ -30,9 +29,9 @@ export class ContentComponent implements OnInit, OnDestroy {
 	 ****************************************************************************/
 
 	constructor(
-		private activeRouter: ActivatedRoute,
-		private router: Router,
-		private cs: ContentService /*,
+		public activeRouter: ActivatedRoute,
+		public router: Router,
+		public cs: ContentService /*,
     private ss: SubjectService,
     private cs: ContentService,
     private us: UserService,

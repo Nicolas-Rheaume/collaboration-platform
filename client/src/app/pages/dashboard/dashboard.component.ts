@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { CorpusService } from 'src/app/services/corpus.service';
 import { Corpus, CorpusSort } from 'src/app/models/corpus.model';
 import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/models/user.model';
@@ -20,15 +19,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	 *  VARIABLES
 	 ****************************************************************************/
 	private sub: Subscription;
-	//newCorpus: Corpus = new Corpus();
+
 	corpora: Corpus[] = [] as Corpus[];
-	contributors: User[] = [] as User[];
 
 	// Search
 	searchTitle: String = '';
-	sortOptions: String[] = ['A - Z', 'Z - A', 'Oldest', 'Newest', 'Most Contributors', 'Least Contributors', 'Most Texts', 'Least Texts'];
-	searchSort: String = 'none';
-	searchContributor: String = '';
+	searchSort: CorpusSort = CorpusSort.A_Z;
+	sortOptions: CorpusSort[] = [
+		CorpusSort.A_Z,
+		CorpusSort.Z_A,
+		CorpusSort.OLDEST,
+		CorpusSort.NEWEST,
+		CorpusSort.MOST_CONTRIBUTOR,
+		CorpusSort.LEAST_CONTRIBUTOR,
+		CorpusSort.MOST_TEXTS,
+		CorpusSort.LEAST_TEXTS,
+	];
 
 	// Create corpus
 	createCorpusTitle: string = '';
@@ -44,51 +50,36 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private router: Router, private ss: CorpusService, private us: UserService, private socket: SocketService) {
-
+	constructor(private router: Router, private us: UserService, private socket: SocketService) {
 		// Get Pages
 
+		// Get the Corpora
+		this.sub = this.socket.response('dashboard/corpora').subscribe((corpora: Corpus[]) => {
+			this.corpora = Corpus.maps(corpora);
+		});
+
 		// Corpus Error Message
-		this.sub = this.socket.response('dashboard/create-error').subscribe(message => {
-			if (message == null) {
+		this.sub = this.socket.response('dashboard/create-error').subscribe(response => {
+			if (response.success === true) {
 				this.createCorpusTitle = '';
 				this.createCorpusError = '';
 				this.createCorpusInvalid = false;
 				$('#createCorpus').modal('hide');
 			} else {
-				this.createCorpusError = message;
+				this.createCorpusError = response.message;
 				this.createCorpusInvalid = true;
 			}
 		});
 
-		/*
-    this.sub = this.ss.getAllCorporaResponse().subscribe(corpora => {
-      console.log(corpora);
-      this.corpora = Corpus.maps(corpora);
-      console.log(this.corpora);
-    });
-
-
-    this.sub = this.ss.update().subscribe(corpora => {
-      console.log(corpora);
-      this.corpora = Corpus.maps(corpora);
-      console.log(corpora);
-    });
-
-    this.sub = this.us.get().subscribe(users => {
-      this.contributors = User.maps(users);
-    });
-    */
+		// Send Search Options
+		this.sub = this.socket.response('dashboard/search').subscribe(({ search, sort }) => {
+			this.searchTitle = search;
+			this.searchSort = sort;
+		});
 	}
 
 	ngOnInit() {
-		this.socket.request('dashboard/findAllPages', {
-			title: this.searchTitle,
-			sort: this.searchSort,
-		});
-		/*
-    this.ss.getDashboardCorpora();
-    this.us.getTop5Users(this.contributorUsername);*/
+		this.socket.request('dashboard/getCorpora', null);
 	}
 
 	ngOnDestroy() {
@@ -111,29 +102,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	createNewCorpus() {
 		console.log(this.createCorpusTitle.replace(/\s\s+/g, ' '));
 		console.log(this.createCorpusTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
-		this.socket.request('dashboard/createPage', this.createCorpusTitle);
+		this.socket.request('dashboard/createCorpus', this.createCorpusTitle);
 	}
 
 	viewCorpus(corpus: Corpus): void {
 		this.router.navigate(['/content', corpus.url]);
 	}
 
+	modifyCorpus(index: number): void {
+		$('#createCorpus').modal('show');
+		//this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
+	}
+
 	removeCorpus(index: number): void {
-		this.socket.request('dashboard/deletePage', this.ss.corpora[index].title);
+		this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
 	}
 
 	/*****************************************************************************
 	 *  SEARCH SUBJECTS
 	 ****************************************************************************/
 	searchCorpora(): void {
-		this.socket.request('corpus/search', {
+		this.socket.request('dashboard/searchCorpora', {
 			title: this.searchTitle,
 			sort: this.searchSort,
 		});
-	}
-
-	getContributors(): void {
-		console.log(this.searchContributor);
 	}
 
 	searchContributors(): void {}

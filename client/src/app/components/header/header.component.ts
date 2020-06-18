@@ -9,7 +9,7 @@ import { UserService } from 'src/app/services/user.service';
 export class HeaderComponent implements OnInit {
 	username: string = null;
 
-	constructor(private us: UserService) {}
+	constructor(public us: UserService) {}
 
 	ngOnInit() {}
 }

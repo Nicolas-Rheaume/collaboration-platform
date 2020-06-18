@@ -69,13 +69,14 @@ export class DashboardGateway implements OnGatewayInit {
 	}
 
 	// Find all corpora
-	@SubscribeMessage('dashboard/findAll')
-	public async findAll(client: Socket): Promise<WsResponse<{ success: boolean; message: string }>> {
+	@SubscribeMessage('dashboard/getCorpora')
+	public async getCorpora(client: Socket): Promise<WsResponse<{ success: boolean; message: string }>> {
 		try {
-			const corpora: Corpus[] = await this.dashController.findAll(client).catch(err => {
+			const [corpora, search, sort] = await this.dashController.findAll(client).catch(err => {
 				throw err;
 			});
 			client.emit('dashboard/corpora', corpora);
+			client.emit('dashboard/search', { search, sort });
 			return {
 				event: 'dashboard/error',
 				data: {
@@ -96,7 +97,7 @@ export class DashboardGateway implements OnGatewayInit {
 
 	// Find all corpora
 	@SubscribeMessage('dashboard/searchCorpora')
-	public async searchCorpora(client: Socket, title: string, sort: CorpusSort): Promise<WsResponse<{ success: boolean; message: string }>> {
+	public async searchCorpora(client: Socket, { title, sort }): Promise<WsResponse<{ success: boolean; message: string }>> {
 		try {
 			const corpora: Corpus[] = await this.dashController.searchCorpora(client, title, sort).catch(err => {
 				throw err;

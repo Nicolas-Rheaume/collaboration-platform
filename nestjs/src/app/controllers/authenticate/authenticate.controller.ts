@@ -33,7 +33,7 @@ export class AuthenticateController {
 				const userEntity = await this.userModel.findOneByUsername(loginUsername).catch(err => {
 					throw err;
 				});
-				bcrypt.compare(loginPassword, userEntity.password, (err: any, isMatch: boolean) => {
+				bcrypt.compare(loginPassword, userEntity.password, async (err: any, isMatch: boolean) => {
 					if (err) reject('Passwords do not match');
 					else if (isMatch) {
 						const token = jwt.sign({ username: userEntity.username }, environment.jwt_secret, {
@@ -44,7 +44,7 @@ export class AuthenticateController {
 						resolve({
 							success: true,
 							token: 'JWT ' + token,
-							user: userEntity.getUser(),
+							user: await userEntity.getUser(),
 						});
 					} else {
 						reject('Wrong password');

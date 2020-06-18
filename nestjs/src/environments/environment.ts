@@ -15,5 +15,5 @@ export const environment = {
 
 	bcrypt_saltRounds: 10,
 	jwt_secret: 'my_secret',
-	admin_password: 'rheaume'
+	admin_password: 'rheaume',
 };

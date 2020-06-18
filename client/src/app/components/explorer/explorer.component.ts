@@ -8,6 +8,8 @@ import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/dr
 import { ChangeEvent } from '@ckeditor/ckeditor5-angular/ckeditor.component';
 
 import { ContentService } from '../../services/content.service';
+import { Text } from 'src/app/models/text.model';
+import { SocketService } from 'src/app/services/socket.service';
 
 @Component({
 	selector: 'app-explorer',
@@ -21,26 +23,48 @@ export class ExplorerComponent implements OnInit, OnDestroy {
 	public description: string;
 	//public Editor = DecoupledEditor;
 
+	public explorerTexts: Text[] = [];
+
 	done: string[] = ['Get up', 'Brush teeth', 'Take a shower', 'Check e-mail', 'Walk dog'];
 
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private activeRouter: ActivatedRoute, private router: Router, private cs: ContentService) {}
+	constructor(private socket: SocketService, private activeRouter: ActivatedRoute, private router: Router, private cs: ContentService) {
+		// Set the corpus to the client
+		this.sub = this.activeRouter.params.subscribe(async params => {
+			this.corpusTitle = params.title;
+			await this.socketResponse();
+		});
+	}
 
 	ngOnInit() {}
 
 	ngOnDestroy() {}
 
 	/*****************************************************************************
-	 *  MAIN
+	 *  SOCKET
 	 ****************************************************************************/
 
-	public save(): void {
-		//this.cs.saveEditorText();
-	}
+	// Variables
+	sub: Subscription;
+	corpusTitle: string = '';
 
-	update() {}
+	// Socket Response
+	private async socketResponse(): Promise<void> {
+		// Editor Error Message
+		this.sub = this.socket.response('explorer/error').subscribe(response => {
+			if (response.success === false) console.log(response.message);
+		});
+
+		// Editor Document
+		this.sub = this.socket.response('explorer/texts').subscribe((texts: Text[]) => {
+			this.explorerTexts = texts;
+		});
+
+		// Initialize the Document
+		this.socket.request('explorer/initialize', this.corpusTitle);
+	}
 
 	/*****************************************************************************
 	 *  DRAGGABLE
@@ -48,7 +72,7 @@ export class ExplorerComponent implements OnInit, OnDestroy {
 	drop(event: CdkDragDrop<string[]>) {
 		if (event.previousContainer === event.container) {
 			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-			this.cs.moveExplorerText(event.previousIndex, event.currentIndex);
+			this.socket.request('explorer/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
 		} else {
 			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
 		}

@@ -37,6 +37,8 @@ export class ContentService {
 
 	public useMockData: boolean = false;
 
+	public editorDocument: Document = null;
+
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
@@ -49,64 +51,65 @@ export class ContentService {
 				this.corpusTitle = params.title;
 
 				// Editor Error Message
-				this.sub = this.socket.response('editor/error').subscribe(message => {
-					console.log(message);
+				this.sub = this.socket.response('editor/error').subscribe(response => {
+					if (response.success === false) console.log(response.message);
 				});
 
-				// Explorer Error Message
-				this.sub = this.socket.response('explorer/error').subscribe(message => {
-					console.log(message);
+				// Editor Document
+				this.sub = this.socket.response('editor/document').subscribe(document => {
+					console.log(document);
+					this.editorDocument = document;
+					//this.editorTexts[index] = Text.map(text);
 				});
 
-				// Editor Texts
-				this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
-					console.log(editorTexts);
-					this.editorTexts = Text.maps(editorTexts);
-				});
+				// // Explorer Error Message
+				// this.sub = this.socket.response('explorer/error').subscribe(message => {
+				// 	console.log(message);
+				// });
 
-				// Editor Text
-				this.sub = this.socket.response('editor/text').subscribe(({ text, index }) => {
-					console.log(text);
-					this.editorTexts[index] = Text.map(text);
-				});
+				// // Editor Texts
+				// this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
+				// 	console.log(editorTexts);
+				// 	this.editorTexts = Text.maps(editorTexts);
+				// });
 
-				// Editor Texts - Create Text
-				this.sub = this.socket.response('editor/create-text-response').subscribe(({ text, index }) => {
-					this.editorTexts.splice(index, 0, Text.map(text));
-				});
+				// // Editor Texts - Create Text
+				// this.sub = this.socket.response('editor/create-text-response').subscribe(({ text, index }) => {
+				// 	this.editorTexts.splice(index, 0, Text.map(text));
+				// });
 
-				// Editor Texts - Delete Text
-				this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
-					this.editorTexts.splice(index, 1);
-				});
+				// // Editor Texts - Delete Text
+				// this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
+				// 	this.editorTexts.splice(index, 1);
+				// });
 
-				// Editor Texts - Error while moving text
-				this.sub = this.socket.response('editor/move-text-error').subscribe(({ from, to }) => {
-					arrayMove.mutate(this.editorTexts, from, to);
-				});
+				// // Editor Texts - Error while moving text
+				// this.sub = this.socket.response('editor/move-text-error').subscribe(({ from, to }) => {
+				// 	arrayMove.mutate(this.editorTexts, from, to);
+				// });
 
-				// Explorer Texts
-				this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
-					console.log(explorerTexts);
-					this.explorerTexts = Text.maps(explorerTexts);
-				});
+				// // Explorer Texts
+				// this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
+				// 	console.log(explorerTexts);
+				// 	this.explorerTexts = Text.maps(explorerTexts);
+				// });
 
-				// Explorer Texts - Error while moving text
-				this.sub = this.socket.response('explorer/move-text-error').subscribe(({ from, to }) => {
-					arrayMove.mutate(this.explorerTexts, from, to);
-				});
+				// // Explorer Texts - Error while moving text
+				// this.sub = this.socket.response('explorer/move-text-error').subscribe(({ from, to }) => {
+				// 	arrayMove.mutate(this.explorerTexts, from, to);
+				// });
 
-				// Adopt explorer to editor
-				this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({ from, to }) => {
-					const text = this.editorTexts[from];
-					this.editorTexts.splice(from, 0);
-					this.explorerTexts.splice(to, 0, text);
-				});
+				// // Adopt explorer to editor
+				// this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({ from, to }) => {
+				// 	const text = this.editorTexts[from];
+				// 	this.editorTexts.splice(from, 0);
+				// 	this.explorerTexts.splice(to, 0, text);
+				// });
 
-				// Explorer Texts
-				this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
-					this.socket.request('explorer/refresh-texts', {});
-				});
+				// // Explorer Texts
+				// this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
+				// 	this.socket.request('explorer/refresh-texts', {});
+				// });
 
 				this.socket.request('editor/initialize', this.corpusTitle);
 				this.socket.request('explorer/initialize', this.corpusTitle);

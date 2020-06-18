@@ -3,7 +3,7 @@
  *****************************************************************************/
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, getConnection, getManager, Repository } from 'typeorm';
+import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
 import { Corpus, CorpusEntity, CorpusSort, SORTMAP } from 'app/entities/corpus.entity';
 
 @Injectable()
@@ -54,11 +54,37 @@ export class CorpusModel {
 		});
 	}
 
+	public async findOneByTitle(title: string): Promise<CorpusEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const corpusEntity = await this.corpusRepository.findOne({ title: title }).catch(err => {
+					throw 'Error finding the corpus';
+				});
+				resolve(corpusEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	public async findAll(search: string, sort: CorpusSort): Promise<CorpusEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
+				let corpora: CorpusEntity[] = await this.corpusRepository.find().catch(err => {
+					throw 'Error searching for the corpora';
+				});
+				resolve(corpora);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findBySearch(search: string, sort: CorpusSort): Promise<CorpusEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
 				let title = '%' + search + '%';
-				let corpora: CorpusEntity[] = await this.corpusRepository.find({ title: title }).catch(err => {
+				let corpora: CorpusEntity[] = await this.corpusRepository.find({ title: Like(title) }).catch(err => {
 					throw 'Error searching for the corpora';
 				});
 				corpora.sort(SORTMAP.get(sort));

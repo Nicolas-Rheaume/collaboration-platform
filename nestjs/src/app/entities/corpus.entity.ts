@@ -98,7 +98,7 @@ export class Corpus {
 	public async getEntity(): Promise<CorpusEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new CorpusEntity(0, this.title, this.url, this.contributors, this.texts, this.createdAt, this.updatedAt));
+				resolve(new CorpusEntity(0, this.title, this.url, this.contributors, null, this.texts, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -180,7 +180,8 @@ export class Corpus {
 /*****************************************************************************
  *  CORPUS ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { DocumentEntity } from './document.entity';
 
 @Entity('corpora')
 export class CorpusEntity {
@@ -194,6 +195,12 @@ export class CorpusEntity {
 	@Column({ type: 'varchar', width: 255 })
 	public url: string;
 
+	@OneToMany(
+		type => DocumentEntity,
+		document => document.corpus,
+	)
+	public documents: DocumentEntity[];
+
 	@CreateDateColumn()
 	public createdAt: Date;
 
@@ -204,11 +211,21 @@ export class CorpusEntity {
 	public texts?: number;
 
 	// Constructor
-	constructor(id: number = 0, title: string = '', url: string = '', contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
+	constructor(
+		id: number = 0,
+		title: string = '',
+		url: string = '',
+		contributors: number = 0,
+		documents: DocumentEntity[] = null,
+		texts: number = 0,
+		createdAt: Date = new Date(),
+		updatedAt: Date = new Date(),
+	) {
 		this.id = id;
 		this.title = title;
 		this.url = url;
 		this.contributors = contributors;
+		this.documents = documents;
 		this.texts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;

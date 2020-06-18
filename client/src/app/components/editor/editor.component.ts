@@ -18,6 +18,8 @@ import { ContenteditableDirective } from './editable/editable.directive';
 
 //import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import * as DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
+import { SocketService } from 'src/app/services/socket.service';
+import { Document } from 'src/app/models/document.model';
 //import * as MultirootEditor from '../../../tools/ckeditor/MultiRootEditor/multirooteditor';
 
 // Multirooteditor
@@ -32,15 +34,9 @@ export class EditorComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
-
 	Editor = DecoupledEditor;
-	document: string[] = ['<p>Hello, world!</p>', '<p>This is a test</p>', '<p>This is a test2</p>'];
-	shows: boolean[] = [true, false, false];
-	switch: number = 0;
 	isDisabled = false;
 	configData = { toolbar: false };
-
-	text: string = 'asdasdasdasdasd';
 	@ViewChildren('editable') editables: QueryList<any>;
 
 	/*
@@ -70,7 +66,20 @@ export class EditorComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private activeRouter: ActivatedRoute, private router: Router, private _ngZone: NgZone, private cs: ContentService, private elementRef: ElementRef) {}
+
+	// Variables
+	corpusTitle: string = '';
+	document: Document = new Document();
+	activeText: number = 0;
+
+	// Constructor
+	constructor(public socket: SocketService, public activeRouter: ActivatedRoute, public router: Router, public _ngZone: NgZone, public cs: ContentService, public elementRef: ElementRef) {
+		// Set the corpus to the client
+		this.sub = this.activeRouter.params.subscribe(async params => {
+			this.corpusTitle = params.title;
+			await this.socketResponse();
+		});
+	}
 
 	ngOnInit() {}
 
@@ -79,120 +88,80 @@ export class EditorComponent implements OnInit, OnDestroy {
 	}
 
 	/*****************************************************************************
-	 *  EVENTS
+	 *  SOCKET
 	 ****************************************************************************/
+
+	// Variables
+	sub: Subscription;
+
+	// Socket Response
+	private async socketResponse(): Promise<void> {
+		// Editor Error Message
+		this.sub = this.socket.response('editor/error').subscribe(response => {
+			if (response.success === false) console.log(response.message);
+		});
+
+		// Editor Document
+		this.sub = this.socket.response('editor/document').subscribe((document: Document) => {
+			this.document = document;
+		});
+
+		// Initialize the Document
+		this.socket.request('editor/initialize', this.corpusTitle);
+	}
 
 	/*****************************************************************************
 	 *  EDITOR
 	 ****************************************************************************/
 
+	/*****************************************************************************
+	 *  EDITABLE EVENTS
+	 ****************************************************************************/
+
+	// Variables
+
 	private onReady(editor) {
 		document.getElementById('toolbar').appendChild(editor.ui.view.toolbar.element);
 	}
 
-	private onClickText(index: number) {
-		for (let i = 0; i < this.shows.length; i++) {
-			if (i === index) this.shows[i] = true;
-			else this.shows[i] = false;
-		}
+	private onActivateText(index: number) {
+		this.activeText = index;
 	}
 
+	private onUpdate(event) {
+		const index: number = this.activeText;
+		const text: string = this.document.texts[this.activeText].text;
+		this.socket.request('editor/updateTextAtIndex', [index, text]);
+	}
+
+	// Split Event when a new line is entered
 	private onSplit(event) {
-		console.log(event);
-
-		this.document.splice(event.index + 1, 0, event.second);
-		this.shows.splice(event.index + 1, 0, true);
-
+		this.document.texts[event.index].text = event.first;
+		const text = new Text(event.second);
+		this.document.texts.splice(event.index + 1, 0, text);
+		this.activeText++;
 		setTimeout(() => {
-			this.shows[event.index] = false;
 			this.editables.last.elementRef.editorElement.focus();
-
-			//console.log(this.editables.last.elementRef.editorElement.focus());
-
-			console.log('Asd');
 		}, 0);
-
-		/*
-    this.document[event.index] = event.text;
-    this.document.splice(event.index + 1, 0, "<p></p>");
-    this.shows.splice(event.index + 1, 0, true);
-    this.shows[event.index] = false;
-    /*
-    let text = event.text.split("</p><p>");
-    this.document[event.index] = text[0] + "</p>";
-    this.document.splice(event.index + 1, 0, text[1].replace("&nbsp;", "<p>"));
-    */
-
-		/*
-    console.log(event);
-    this.shows[event.index] = false;
-    this.document[event.index] = event.text;
-
-    setTimeout(() => {
-      this.document[event.index] = event.text;
-      this.shows[event.index] = false;
-    }, 0);
-
-    /*
-    this.document[event.index] = event.text;
-    this.document.splice(event.index + 1, 0, text[1].replace("&nbsp;", "<p>"));
-
-    this.shows.splice(event.index + 1, 0, true);
-
-    setTimeout(() => {
-      //elements[1].focus();
-      this.shows[event.index] = false;
-    }, 0);
-    */
-
-		//console.log(this.editables[0]);
-
-		/*
-    let elements = document.getElementsByClassName("ck-editor__editable"): HTMLElement;
-    console.log(elements);
-    setTimeout(() => {
-      //elements[1].focus();
-      console.log(elements[1]);
-    }, 0);
-    */
-		console.log(this.document);
+		this.socket.request('editor/splitTextAtIndex', [event.index, event.first, event.second]);
 	}
 
+	// Merge Event when a paragraphs is empty
 	private onMerge(event) {
-		console.log('onMerge');
-
-		let promise = new Promise((resolve, reject) => {
-			//this.editables.last.elementRef.editorElement.blur();
-			//this.shows[event.index] = false;
-			this.document.splice(event.index, 1);
-			this.shows.splice(event.index, 1);
-			this.shows[event.index - 1] = true;
-			resolve();
-		}).then(() => {
-			setTimeout(() => {
-				this.editables.first.elementRef.editorElement.focus();
-				document.getSelection().collapse(this.editables.first.elementRef.editorElement, 1);
-			}, 0);
-		});
-
-		/*
-    setTimeout(() => { 
-      this.editables.first.elementRef.editorElement.focus();
-      //this.setCaretPosition(this.editables.first.elementRef.editorElement, 1);
-
-    }, 100);
-   
-
-    /*
-    setTimeout(() => {  
-      this.shows[event.index] = false;
-      this.editables.last.elementRef.editorElement.focus()
-
-      //console.log(this.editables.last.elementRef.editorElement.focus());
-
-      console.log("Asd");
-    }, 0);
-    */
+		if (this.document.texts.length > 0) {
+			let promise = new Promise((resolve, reject) => {
+				this.editables.last.elementRef.editorElement.blur();
+				this.activeText--;
+				this.document.texts.splice(event.index, 1);
+				resolve();
+			}).then(() => {
+				setTimeout(() => {
+					this.editables.first.elementRef.editorElement.focus();
+					document.getSelection().collapse(this.editables.first.elementRef.editorElement, 1);
+				}, 0);
+				this.socket.request('editor/mergeTextAtIndex', [event.index]);
+			});
+		}
 	}
 
 	setCaretPosition(target, pos) {
@@ -204,17 +173,126 @@ export class EditorComponent implements OnInit, OnDestroy {
 		sel.addRange(range);
 	}
 
-	destroyEditable() {
-		return new Promise((resolve, reject) => {}).then;
-	}
-
 	trackText(index: number, element: any) {
 		return element ? element.guid : null;
 	}
 
 	/*****************************************************************************
+	 *  DRAGGABLE EVENTS
+	 ****************************************************************************/
+	private isDragging: boolean = false;
+
+	onMouseOver(index: number, value: boolean) {}
+
+	drop(event: CdkDragDrop<string[]>) {
+		if (event.previousContainer === event.container) {
+			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+			this.activeText = event.currentIndex;
+			this.socket.request('editor/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
+		} else {
+			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+			this.socket.request('editor/adoptTextAtIndex', [event.previousIndex, event.currentIndex]);
+		}
+	}
+
+	entered(event: CdkDragEnter<string[]>) {
+		//console.log('Entered', event.item.data);
+	}
+	exited(event: CdkDragExit<string[]>) {
+		//console.log('Exited', event.item.data);
+	}
+	started(event: CdkDragStart<string[]>) {
+		//console.log('Started', event);
+	}
+	ended(event: CdkDragExit<string[]>) {
+		//console.log('Started', event);
+	}
+
+	// private onSplit(event) {
+	// 	console.log(event);
+
+	// 	this.document.splice(event.index + 1, 0, event.second);
+	// 	this.shows.splice(event.index + 1, 0, true);
+
+	// 	setTimeout(() => {
+	// 		this.shows[event.index] = false;
+	// 		this.editables.last.elementRef.editorElement.focus();
+
+	// 		//console.log(this.editables.last.elementRef.editorElement.focus());
+
+	// 		console.log('Asd');
+	// 	}, 0);
+
+	// 	/*
+	// this.document[event.index] = event.text;
+	// this.document.splice(event.index + 1, 0, "<p></p>");
+	// this.shows.splice(event.index + 1, 0, true);
+	// this.shows[event.index] = false;
+	// /*
+	// let text = event.text.split("</p><p>");
+	// this.document[event.index] = text[0] + "</p>";
+	// this.document.splice(event.index + 1, 0, text[1].replace("&nbsp;", "<p>"));
+	// */
+
+	// 	/*
+	// console.log(event);
+	// this.shows[event.index] = false;
+	// this.document[event.index] = event.text;
+
+	// setTimeout(() => {
+	//   this.document[event.index] = event.text;
+	//   this.shows[event.index] = false;
+	// }, 0);
+
+	// /*
+	// this.document[event.index] = event.text;
+	// this.document.splice(event.index + 1, 0, text[1].replace("&nbsp;", "<p>"));
+
+	// this.shows.splice(event.index + 1, 0, true);
+
+	// setTimeout(() => {
+	//   //elements[1].focus();
+	//   this.shows[event.index] = false;
+	// }, 0);
+	// */
+
+	// 	//console.log(this.editables[0]);
+
+	// 	/*
+	// let elements = document.getElementsByClassName("ck-editor__editable"): HTMLElement;
+	// console.log(elements);
+	// setTimeout(() => {
+	//   //elements[1].focus();
+	//   console.log(elements[1]);
+	// }, 0);
+	// */
+	// 	console.log(this.document);
+	// }
+
+	// setCaretPosition(target, pos) {
+	// 	var range = document.createRange();
+	// 	var sel = window.getSelection();
+	// 	range.setStart(target, 0);
+	// 	range.collapse(true);
+	// 	sel.removeAllRanges();
+	// 	sel.addRange(range);
+	// }
+
+	// destroyEditable() {
+	// 	return new Promise((resolve, reject) => {}).then;
+	// }
+
+	// trackText(index: number, element: any) {
+	// 	return element ? element.guid : null;
+	// }
+
+	/*****************************************************************************
 	 *  OLD STUFF
 	 ****************************************************************************/
+
+	texts: string[] = ['<p>Hello, world!</p>', '<p>This is a test</p>', '<p>This is a test2</p>'];
+	shows: boolean[] = [true, false, false];
+	switch: number = 0;
 
 	/*
   ngOnInit() { 
@@ -311,24 +389,6 @@ export class EditorComponent implements OnInit, OnDestroy {
     //this.setCaretPosition(document.getElementsByClassName('editable')[index], event.caret, event.caret);
   } 
   */
-
-	onUpdate(event) {
-		console.log(event);
-		console.log(this.document);
-		console.log(this.text);
-
-		/*
-    if(this.document[data.index].includes("</p><p>")) {
-      console.log("change");
-    }
-
-
-    /*
-    console.log(index)
-    console.log(text);
-    this.editorData[index] = text;
-    */
-	}
 
 	onClick() {
 		//this.editorData[0] = "asdasdasdasd";
@@ -430,38 +490,38 @@ export class EditorComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  DRAGGABLE
 	 ****************************************************************************/
-	private isDragging: boolean = false;
+	// private isDragging: boolean = false;
 
-	drop(event: CdkDragDrop<string[]>) {
-		if (event.previousContainer === event.container) {
-			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-			this.cs.moveEditorText(event.previousIndex, event.currentIndex);
-		} else {
-			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
-			this.cs.adoptExplorerText(event.previousIndex, event.currentIndex);
-		}
-	}
+	// drop(event: CdkDragDrop<string[]>) {
+	// 	if (event.previousContainer === event.container) {
+	// 		moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+	// 		this.cs.moveEditorText(event.previousIndex, event.currentIndex);
+	// 	} else {
+	// 		transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+	// 		this.cs.adoptExplorerText(event.previousIndex, event.currentIndex);
+	// 	}
+	// }
 
-	entered(event: CdkDragEnter<string[]>) {
-		//console.log('Entered', event.item.data);
-	}
-	exited(event: CdkDragExit<string[]>) {
-		//console.log('Exited', event.item.data);
-	}
-	started(event: CdkDragStart<string[]>) {
-		//console.log('Started', event);
-	}
-	ended(event: CdkDragExit<string[]>) {
-		//console.log('Started', event);
-	}
+	// entered(event: CdkDragEnter<string[]>) {
+	// 	//console.log('Entered', event.item.data);
+	// }
+	// exited(event: CdkDragExit<string[]>) {
+	// 	//console.log('Exited', event.item.data);
+	// }
+	// started(event: CdkDragStart<string[]>) {
+	// 	//console.log('Started', event);
+	// }
+	// ended(event: CdkDragExit<string[]>) {
+	// 	//console.log('Started', event);
+	// }
 
 	/*****************************************************************************
 	 *  EDITOR
 	 ******************************** ********************************************/
 
 	public toggleDetailedEditor(index: number) {
-		if (this.cs.editorTexts[index].showDetailed === true) this.cs.editorTexts[index].showDetailed = false;
-		else this.cs.editorTexts[index].showDetailed = true;
+		//if (this.cs.editorTexts[index].show === true) this.cs.editorTexts[index].show = false;
+		//else this.cs.editorTexts[index].show = true;
 	}
 
 	public createText(index: number) {
@@ -475,18 +535,18 @@ export class EditorComponent implements OnInit, OnDestroy {
 	//public isDisabled: boolean = true;
 
 	// remove dom
-	public onMouseOver(index: number, value: boolean) {
-		//this.mockTexts[index].showDetailed = value;
-		/*
-     this.mockTexts[index].showDetailed = value;
-     if(value === true)
-      this.mockTexts[index].ckConfig = null;
-    else
-      this.mockTexts[index].ckConfig = {toolbar: false};
+	// public onMouseOver(index: number, value: boolean) {
+	// 	//this.mockTexts[index].showDetailed = value;
+	// 	/*
+	//  this.mockTexts[index].showDetailed = value;
+	//  if(value === true)
+	//   this.mockTexts[index].ckConfig = null;
+	// else
+	//   this.mockTexts[index].ckConfig = {toolbar: false};
 
-    console.log(this.mockTexts[index].ckConfig + "");
-    */
-	}
+	// console.log(this.mockTexts[index].ckConfig + "");
+	// */
+	// }
 }
 
 /*****************************************************************************

@@ -25,7 +25,9 @@ export class DashboardController {
 				await this.corpusModel.create(cleanedTitle, url).catch(err => {
 					throw err;
 				});
-				const corpora = await this.corpusModel.findAll(this.cs.getConnection(client).dashboardSearch.search, this.cs.getConnection(client).dashboardSearch.sort).catch(err => {
+
+				const search = this.cs.getConnection(client).dashboardSearch;
+				const corpora = await this.corpusModel.findBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
 				resolve(await Corpus.parseEntities(corpora));
@@ -42,7 +44,8 @@ export class DashboardController {
 				await this.corpusModel.updateTitle(title).catch(err => {
 					throw err;
 				});
-				const corpora = await this.corpusModel.findAll(this.cs.getConnection(client).dashboardSearch.search, this.cs.getConnection(client).dashboardSearch.sort).catch(err => {
+				const search = this.cs.getConnection(client).dashboardSearch;
+				const corpora = await this.corpusModel.findBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
 				resolve(await Corpus.parseEntities(corpora));
@@ -59,7 +62,8 @@ export class DashboardController {
 				await this.corpusModel.deleteByTitle(title).catch(err => {
 					throw err;
 				});
-				const corpora = await this.corpusModel.findAll(this.cs.getConnection(client).dashboardSearch.search, this.cs.getConnection(client).dashboardSearch.sort).catch(err => {
+				const search = this.cs.getConnection(client).dashboardSearch;
+				const corpora = await this.corpusModel.findBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
 				resolve(await Corpus.parseEntities(corpora));
@@ -90,27 +94,29 @@ export class DashboardController {
 	}
 
 	// Find All corpora
-	public async findAll(client: Socket): Promise<Corpus[]> {
+	public async findAll(client: Socket): Promise<[Corpus[], string, CorpusSort]> {
 		return new Promise<any>(async (resolve, reject) => {
 			try {
-				const corpora = await this.corpusModel.findAll(this.cs.getConnection(client).dashboardSearch.search, this.cs.getConnection(client).dashboardSearch.sort).catch(err => {
+				const search = this.cs.getConnection(client).dashboardSearch;
+				const corporaEntity = await this.corpusModel.findBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
-				resolve(await Corpus.parseEntities(corpora));
+				const corpora = await Corpus.parseEntities(corporaEntity);
+				resolve([corpora, search.search, search.sort]);
 			} catch (err) {
 				reject(err);
 			}
 		});
 	}
 
-	// Search Corpuss
+	// Search Corpus
 	public async searchCorpora(client: Socket, search: string, sort: CorpusSort): Promise<Corpus[]> {
 		return new Promise<any>(async (resolve, reject) => {
 			try {
 				this.cs.getConnection(client).dashboardSearch.search = search;
 				this.cs.getConnection(client).dashboardSearch.sort = sort;
 
-				const corpora = await this.corpusModel.findAll(this.cs.getConnection(client).dashboardSearch.search, this.cs.getConnection(client).dashboardSearch.sort).catch(err => {
+				const corpora = await this.corpusModel.findBySearch(search, sort).catch(err => {
 					throw err;
 				});
 				resolve(await Corpus.parseEntities(corpora));

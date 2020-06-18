@@ -21,13 +21,15 @@ services:
       - 4200
     links:
       - server
+    environment:
+      - NODE_ENV=production
     #volumes:
     #  - client-data:/var/lib/client
     
   # Node.js Server App
   server:
-    container_name: nodejs-server
-    build: ./server
+    container_name: nestjs-server
+    build: ./nestjs
     # working_dir: /usr/src/server
     restart: unless-stopped
     ports:
@@ -37,13 +39,14 @@ services:
     #volumes:
     #  - server-data:/var/lib/server
     environment:
+      - NODE_ENV=production
       - SERVER_PORT=${SERVER_PORT}
-      - HOST_IP_ADDRESS=${IP_ADDRESS}
-      - MYSQL_PORT=${DB_PORT}
-      - MYSQL_USER=${DB_USER}
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
-      - MYSQL_DATABASE=${DB_DATABASE}
+      - HOST_IP_ADDRESS=${HOST_IP_ADDRESS}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
 
   # MySQL Database
   db:

@@ -66,9 +66,9 @@
         <!-- All contents-->
         <div class="col-md-8">
 
-            <h2>{{ss.corpora.length}} corpus found</h2>
+            <h2>{{corpora.length}} corpus found</h2>
             <hr>
-            <div *ngFor="let corpus of ss.corpora; let num = index">
+            <div *ngFor="let corpus of corpora; let num = index">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex w-100 justify-content-between">
@@ -123,6 +123,7 @@
       </div>
     </div>
 </div>
+
 
     <!--
     <br>
