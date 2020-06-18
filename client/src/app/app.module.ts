@@ -1,18 +1,18 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule  } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatNativeDateModule } from '@angular/material/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatIconModule } from '@angular/material/icon'
-import { MaterialModule } from './material-module'
+import { MatIconModule } from '@angular/material/icon';
+import { MaterialModule } from './material-module';
 
 import { ContenteditableModule } from '@ng-stack/contenteditable';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AngularSplitModule } from 'angular-split';
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
-import { MatDialogModule } from '@angular/material'
+import { MatDialogModule } from '@angular/material';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TimeAgoPipe } from 'time-ago-pipe';
 
@@ -31,7 +31,6 @@ import { ContributorsComponent } from './components/contributors/contributors.co
 import { EditorComponent } from './components/editor/editor.component';
 import { ExplorerComponent } from './components/explorer/explorer.component';
 import { ContentService } from './services/content.service';
-import { SubjectService } from './services/subject.service';
 import { AdministrationComponent } from './pages/administration/administration.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SocketService } from './services/socket.service';
@@ -43,53 +42,44 @@ import { ToolbarComponent } from './components/editor/toolbar/toolbar.component'
 import { ContenteditableDirective } from './components/editor/editable/editable.directive';
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    RegisterComponent,
-    HeaderComponent,
-    FooterComponent,
-    DashboardComponent,
-    HomeComponent,
-    ContentComponent,
-    ContributorsComponent,
-    EditorComponent,
-    ExplorerComponent,
-    TimeAgoPipe,
-    AdministrationComponent,
-    ProfileComponent,
-    PageNotFoundComponent,
-    ViewerComponent,
-    EditableComponent,
-    ToolbarComponent,
+	declarations: [
+		AppComponent,
+		RegisterComponent,
+		HeaderComponent,
+		FooterComponent,
+		DashboardComponent,
+		HomeComponent,
+		ContentComponent,
+		ContributorsComponent,
+		EditorComponent,
+		ExplorerComponent,
+		TimeAgoPipe,
+		AdministrationComponent,
+		ProfileComponent,
+		PageNotFoundComponent,
+		ViewerComponent,
+		EditableComponent,
+		ToolbarComponent,
 
-    ContenteditableDirective
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    DragDropModule,
-    MatNativeDateModule,
-    MatIconModule,
-    CKEditorModule,
-    MatDialogModule,
-    MaterialModule,
-    NgbModule,
-    AngularSplitModule.forRoot()
-  ],
-  providers: [
-    SocketService,
-    UserService,
-    ContentService,
-    SubjectService,
-    AuthGuard,
-    AdminGuard
-  ],
-  bootstrap: [
-    AppComponent
-  ]
+		ContenteditableDirective,
+	],
+	imports: [
+		BrowserModule,
+		AppRoutingModule,
+		HttpClientModule,
+		FormsModule,
+		ReactiveFormsModule,
+		BrowserAnimationsModule,
+		DragDropModule,
+		MatNativeDateModule,
+		MatIconModule,
+		CKEditorModule,
+		MatDialogModule,
+		MaterialModule,
+		NgbModule,
+		AngularSplitModule.forRoot(),
+	],
+	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
+	bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

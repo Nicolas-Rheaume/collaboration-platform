@@ -1,146 +1,132 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from "@angular/router"
-import { Subscription  } from 'rxjs';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
-import { SubjectService } from "../../services/subject.service";
-import { Subject } from '../../models/subject.model';
+import { Corpus, CorpusSort } from 'src/app/models/corpus.model';
 import { UserService } from 'src/app/services/user.service';
-import { User } from '../../models/user.model';
+import { User } from 'src/app/models/user.model';
 import { SocketService } from 'src/app/services/socket.service';
 
 declare var $: any;
 
 @Component({
-  selector: 'app-dasboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.scss']
+	selector: 'app-dasboard',
+	templateUrl: './dashboard.component.html',
+	styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
+	/*****************************************************************************
+	 *  VARIABLES
+	 ****************************************************************************/
+	private sub: Subscription;
 
-  /*****************************************************************************
-   *  VARIABLES
-   ****************************************************************************/
-  private sub: Subscription;
-  //newSubject: Subject = new Subject();
-  subjects: Subject[] = [] as Subject[];
-  contributors: User[] = [] as User[];
+	corpora: Corpus[] = [] as Corpus[];
 
-  // Search
-  searchTitle: String = "";
-  sortOptions: String[] = ["A - Z", "Z - A", "Oldest", "Newest", "Most Contributors", "Least Contributors", "Most Texts", "Least Texts"];
-  searchSort: String = "none";
-  searchContributor: String = "";
+	// Search
+	searchTitle: String = '';
+	searchSort: CorpusSort = CorpusSort.A_Z;
+	sortOptions: CorpusSort[] = [
+		CorpusSort.A_Z,
+		CorpusSort.Z_A,
+		CorpusSort.OLDEST,
+		CorpusSort.NEWEST,
+		CorpusSort.MOST_CONTRIBUTOR,
+		CorpusSort.LEAST_CONTRIBUTOR,
+		CorpusSort.MOST_TEXTS,
+		CorpusSort.LEAST_TEXTS,
+	];
 
-  // Create subject
-  createSubjectTitle: string = "";
-  createSubjectError: string = "";
-  createSubjectInvalid: boolean = false;
-  /*
-  subjectCreated: boolean = true;
-  subjectCreatedMessage: string = "";
+	// Create corpus
+	createCorpusTitle: string = '';
+	createCorpusError: string = '';
+	createCorpusInvalid: boolean = false;
+	/*
+  corpusCreated: boolean = true;
+  corpusCreatedMessage: string = "";
   */
 
-  contributorUsername: string = "";
+	contributorUsername: string = '';
 
-  /*****************************************************************************
-   *  MAIN
-   ****************************************************************************/
-  constructor(
-    private router: Router,
-    private ss: SubjectService,
-    private us: UserService,
-    private socket: SocketService
-  ) { 
+	/*****************************************************************************
+	 *  MAIN
+	 ****************************************************************************/
+	constructor(private router: Router, private us: UserService, private socket: SocketService) {
+		// Get Pages
 
-    // Subject Error Message
-    this.sub = this.socket.response('subject/create-error').subscribe(message => {
-      if(message == null) {
-        this.createSubjectTitle = '';
-        this.createSubjectError = '';
-        this.createSubjectInvalid = false;
-        $('#createSubject').modal('hide');
-      } else {
-        this.createSubjectError = message;
-        this.createSubjectInvalid = true;
-      }
-    });
+		// Get the Corpora
+		this.sub = this.socket.response('dashboard/corpora').subscribe((corpora: Corpus[]) => {
+			this.corpora = Corpus.maps(corpora);
+		});
 
-    /*
-    this.sub = this.ss.getAllSubjectsResponse().subscribe(subjects => {
-      console.log(subjects);
-      this.subjects = Subject.maps(subjects);
-      console.log(this.subjects);
-    });
+		// Corpus Error Message
+		this.sub = this.socket.response('dashboard/create-error').subscribe(response => {
+			if (response.success === true) {
+				this.createCorpusTitle = '';
+				this.createCorpusError = '';
+				this.createCorpusInvalid = false;
+				$('#createCorpus').modal('hide');
+			} else {
+				this.createCorpusError = response.message;
+				this.createCorpusInvalid = true;
+			}
+		});
 
+		// Send Search Options
+		this.sub = this.socket.response('dashboard/search').subscribe(({ search, sort }) => {
+			this.searchTitle = search;
+			this.searchSort = sort;
+		});
+	}
 
-    this.sub = this.ss.update().subscribe(subjects => {
-      console.log(subjects);
-      this.subjects = Subject.maps(subjects);
-      console.log(subjects);
-    });
+	ngOnInit() {
+		this.socket.request('dashboard/getCorpora', null);
+	}
 
-    this.sub = this.us.get().subscribe(users => {
-      this.contributors = User.maps(users);
-    });
-    */
-  }
+	ngOnDestroy() {
+		this.sub.unsubscribe();
+	}
 
-  ngOnInit() {
-    this.socket.request('subject/search', {
-      title: this.searchTitle,
-      sort: this.searchSort
-    });
-    /*
-    this.ss.getDashboardSubjects();
-    this.us.getTop5Users(this.contributorUsername);*/
-  }
+	/*****************************************************************************
+	 *  CREATE DIALOG
+	 ****************************************************************************/
+	openModal() {
+		$('#createCorpus').modal('show');
+	}
 
-  ngOnDestroy() {
-    this.sub.unsubscribe();
-  }
+	closeModal() {
+		this.createCorpusInvalid = false;
+		this.createCorpusTitle = '';
+		$('#createCorpus').modal('hide');
+	}
 
-  /*****************************************************************************
-   *  CREATE DIALOG
-   ****************************************************************************/
-   openModal() {
-    $('#createSubject').modal('show');
-  }
+	createNewCorpus() {
+		console.log(this.createCorpusTitle.replace(/\s\s+/g, ' '));
+		console.log(this.createCorpusTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
+		this.socket.request('dashboard/createCorpus', this.createCorpusTitle);
+	}
 
-  closeModal() {
-    this.createSubjectInvalid = false;
-    this.createSubjectTitle = "";
-    $('#createSubject').modal('hide'); 
-  }
+	viewCorpus(corpus: Corpus): void {
+		this.router.navigate(['/content', corpus.url]);
+	}
 
-  createNewSubject() {
-    console.log(this.createSubjectTitle.replace(/\s\s+/g, ' '));
-    console.log(this.createSubjectTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
-    this.socket.request('subject/create-by-title', this.createSubjectTitle);
-  }
+	modifyCorpus(index: number): void {
+		$('#createCorpus').modal('show');
+		//this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
+	}
 
-  viewSubject(subject: Subject): void {
-    this.router.navigate(['/content', subject.url])
-  }
+	removeCorpus(index: number): void {
+		this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
+	}
 
-  removeSubject(index: number): void {
-    this.socket.request('subject/delete-by-title', this.ss.subjects[index].title);
-  }
-  
-  /*****************************************************************************
-   *  SEARCH SUBJECTS
-   ****************************************************************************/
-  searchSubjects(): void {
-    this.socket.request('subject/search', {
-      title: this.searchTitle,
-      sort: this.searchSort
-    });
-  }
+	/*****************************************************************************
+	 *  SEARCH SUBJECTS
+	 ****************************************************************************/
+	searchCorpora(): void {
+		this.socket.request('dashboard/searchCorpora', {
+			title: this.searchTitle,
+			sort: this.searchSort,
+		});
+	}
 
-  getContributors(): void {
-    console.log(this.searchContributor);
-  }
-
-  searchContributors(): void {
-    
-  }
+	searchContributors(): void {}
 }

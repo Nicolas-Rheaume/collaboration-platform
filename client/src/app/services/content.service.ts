@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, Router } from "@angular/router"
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 
 //import * as io from 'socket.io-client';
@@ -7,176 +7,172 @@ import { environment } from '../../environments/environment';
 import { UserService } from './user.service';
 
 import { User } from '../models/user.model';
-import { Subject } from '../models/subject.model';
+import { Corpus } from '../models/corpus.model';
 import { Text } from '../models/text.model';
 import { SocketService } from './socket.service';
 
 import * as arrayMove from 'array-move';
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: 'root',
 })
 export class ContentService {
+	/*****************************************************************************
+	 *  VARIABLES
+	 ****************************************************************************/
 
-  /*****************************************************************************
-   *  VARIABLES
-   ****************************************************************************/
-  
-  private subjectTitle: string = "";
+	private corpusTitle: string = '';
 
-  // TO DELETE
-  private apiURL = environment.api + '/content';
-  //private socket: SocketIOClient.Socket = io(this.apiURL);
-  private sub: Subscription;
+	// TO DELETE
+	private apiURL = environment.api + '/content';
+	//private socket: SocketIOClient.Socket = io(this.apiURL);
+	private sub: Subscription;
 
-  private user: User = new User();
+	private user: User = new User();
 
-  public subject: Subject = new Subject();
-  public editorTexts: Text[] = [];
-  public explorerTexts: Text[] = [];
-  public editorCommands: boolean = false;
+	public corpus: Corpus = new Corpus();
+	public editorTexts: Text[] = [];
+	public explorerTexts: Text[] = [];
+	public editorCommands: boolean = false;
 
-  public useMockData: boolean = false;
+	public useMockData: boolean = false;
 
-  /*****************************************************************************
-   *  MAIN
-   ****************************************************************************/
-  constructor(
-    private socket: SocketService,
-    private us: UserService,
-    private activeRouter: ActivatedRoute
-  ) { 
+	public editorDocument: Document = null;
 
+	/*****************************************************************************
+	 *  MAIN
+	 ****************************************************************************/
+	constructor(private socket: SocketService, private us: UserService, private activeRouter: ActivatedRoute) {
+		if (this.useMockData) {
+			//this.setMockData();
+		} else {
+			// Set the corpus to the client
+			this.sub = this.activeRouter.params.subscribe(params => {
+				this.corpusTitle = params.title;
 
-    if(this.useMockData){
-      //this.setMockData();
-    } else {
+				// Editor Error Message
+				this.sub = this.socket.response('editor/error').subscribe(response => {
+					if (response.success === false) console.log(response.message);
+				});
 
-      // Set the subject to the client
-      this.sub = this.activeRouter.params.subscribe(params => {
-        this.subjectTitle = params.title;
+				// Editor Document
+				this.sub = this.socket.response('editor/document').subscribe(document => {
+					console.log(document);
+					this.editorDocument = document;
+					//this.editorTexts[index] = Text.map(text);
+				});
 
-        // Editor Error Message
-        this.sub = this.socket.response('editor/error').subscribe(message => {
-          console.log(message);
-        });
+				// // Explorer Error Message
+				// this.sub = this.socket.response('explorer/error').subscribe(message => {
+				// 	console.log(message);
+				// });
 
-        // Explorer Error Message
-        this.sub = this.socket.response('explorer/error').subscribe(message => {
-          console.log(message);
-        });
+				// // Editor Texts
+				// this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
+				// 	console.log(editorTexts);
+				// 	this.editorTexts = Text.maps(editorTexts);
+				// });
 
-        // Editor Texts
-        this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
-          console.log(editorTexts);
-          this.editorTexts = Text.maps(editorTexts);
-        });
+				// // Editor Texts - Create Text
+				// this.sub = this.socket.response('editor/create-text-response').subscribe(({ text, index }) => {
+				// 	this.editorTexts.splice(index, 0, Text.map(text));
+				// });
 
-        // Editor Text
-        this.sub = this.socket.response('editor/text').subscribe(({text, index}) => {
-          console.log(text);
-          this.editorTexts[index] = Text.map(text);
-        });
+				// // Editor Texts - Delete Text
+				// this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
+				// 	this.editorTexts.splice(index, 1);
+				// });
 
-        // Editor Texts - Create Text
-        this.sub = this.socket.response('editor/create-text-response').subscribe(({text, index}) => {
-          this.editorTexts.splice(index, 0, Text.map(text));
-        });
+				// // Editor Texts - Error while moving text
+				// this.sub = this.socket.response('editor/move-text-error').subscribe(({ from, to }) => {
+				// 	arrayMove.mutate(this.editorTexts, from, to);
+				// });
 
-        // Editor Texts - Delete Text
-        this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
-          this.editorTexts.splice(index, 1);
-        });
+				// // Explorer Texts
+				// this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
+				// 	console.log(explorerTexts);
+				// 	this.explorerTexts = Text.maps(explorerTexts);
+				// });
 
-        // Editor Texts - Error while moving text
-        this.sub = this.socket.response('editor/move-text-error').subscribe(({from, to}) => {
-          arrayMove.mutate(this.editorTexts, from, to);
-        });
+				// // Explorer Texts - Error while moving text
+				// this.sub = this.socket.response('explorer/move-text-error').subscribe(({ from, to }) => {
+				// 	arrayMove.mutate(this.explorerTexts, from, to);
+				// });
 
-        // Explorer Texts
-        this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
-          console.log(explorerTexts);
-          this.explorerTexts = Text.maps(explorerTexts);
-        });
+				// // Adopt explorer to editor
+				// this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({ from, to }) => {
+				// 	const text = this.editorTexts[from];
+				// 	this.editorTexts.splice(from, 0);
+				// 	this.explorerTexts.splice(to, 0, text);
+				// });
 
-        // Explorer Texts - Error while moving text
-        this.sub = this.socket.response('explorer/move-text-error').subscribe(({from, to}) => {
-          arrayMove.mutate(this.explorerTexts, from, to);
-        });
+				// // Explorer Texts
+				// this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
+				// 	this.socket.request('explorer/refresh-texts', {});
+				// });
 
-        // Adopt explorer to editor
-        this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({from, to}) => {
-          const text = this.editorTexts[from];
-          this.editorTexts.splice(from, 0);
-          this.explorerTexts.splice(to, 0, text);
-        });
+				this.socket.request('editor/initialize', this.corpusTitle);
+				this.socket.request('explorer/initialize', this.corpusTitle);
+			});
+		}
+	}
 
-        // Explorer Texts
-        this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
-          this.socket.request('explorer/refresh-texts', {});
-        });
+	/*****************************************************************************
+	 *  WEB SOCKETS REQUEST
+	 ****************************************************************************/
 
-        
+	public createTextAtIndex(index: number) {
+		this.socket.request('editor/create-text-at-index', index);
+	}
 
-        this.socket.request('editor/initialize', this.subjectTitle);
-        this.socket.request('explorer/initialize', this.subjectTitle);
+	public deleteTextAtIndex(index: number) {
+		console.log(index);
+		console.log(this.editorTexts);
+		this.socket.request('editor/delete-text-at-index', index);
+	}
 
+	public saveEditorTexts() {
+		this.socket.request(
+			'editor/update-texts',
+			this.editorTexts.map(text => {
+				return text.text;
+			}),
+		);
+	}
 
-      });
-    }
-  }
+	public refreshEditorTexts() {
+		this.socket.request('editor/refresh-texts', {});
+	}
 
-  /*****************************************************************************
-   *  WEB SOCKETS REQUEST
-   ****************************************************************************/
+	public moveEditorText(from: number, to: number) {
+		if (from === to) return;
+		else this.socket.request('editor/move-text', { from, to });
+	}
 
-  public createTextAtIndex(index: number) {
-    this.socket.request('editor/create-text-at-index', index);
-  }
+	public moveExplorerText(from: number, to: number) {
+		if (from === to) return;
+		else this.socket.request('explorer/move-text', { from, to });
+	}
 
-  public deleteTextAtIndex(index: number) {
-    console.log(index);
-    console.log(this.editorTexts);
-    this.socket.request('editor/delete-text-at-index', index);
-  }
+	public adoptExplorerText(from: number, to: number) {
+		this.socket.request('explorer/adopt-text', { from, to });
+	}
 
-  public saveEditorTexts() {
-    this.socket.request('editor/update-texts', this.editorTexts.map(text => {return text.text;}));
-  }
+	public increasePointer(index: number, amount: number) {
+		this.socket.request('editor/increase-pointer', { index, amount });
+	}
 
-  public refreshEditorTexts() {
-    this.socket.request('editor/refresh-texts', {});
-  }
+	public hideCommands() {
+		if (this.editorCommands === true) this.editorCommands = false;
+		else this.editorCommands = true;
+	}
 
-  public moveEditorText(from: number, to: number) {
-    if(from === to) return;
-    else this.socket.request('editor/move-text', {from, to});
-  }
-
-  public moveExplorerText(from: number, to: number) {
-    if(from === to) return;
-    else this.socket.request('explorer/move-text', {from, to});
-  } 
-
-  public adoptExplorerText(from: number, to: number) {
-    this.socket.request('explorer/adopt-text', {from, to});
-  } 
-
-  public increasePointer(index: number, amount: number) {
-    this.socket.request('editor/increase-pointer', {index, amount});
-  } 
-
-  public hideCommands(){
-    if(this.editorCommands === true) this.editorCommands = false;
-    else this.editorCommands = true;
-  }
-
-  /*
+	/*
 
   public createTextAtIndex(index: number) {
     this.socket.emit('create-text-at-index', {
       username: this.user.username, 
-      title: this.subjectTitle,
+      title: this.corpusTitle,
       index: index
     });
   }
@@ -184,7 +180,7 @@ export class ContentService {
   public updateTextAtIndex(index: number) {
     this.socket.emit('update-text-at-index', {
       username: this.user.username, 
-      title: this.subjectTitle,
+      title: this.corpusTitle,
       text: this.editorTexts[index].text,
       index: index
     });
@@ -193,7 +189,7 @@ export class ContentService {
   public deleteTextAtIndex(index: number) {
     this.socket.emit('delete-text-at-index', {
       username: this.user.username, 
-      title: this.subjectTitle,
+      title: this.corpusTitle,
       index: index
     });
   }
@@ -204,7 +200,7 @@ export class ContentService {
    public test() {
     this.socket.emit('create-text-at-index', {
       username: this.user.username, 
-      title: this.subjectTitle,
+      title: this.corpusTitle,
       index: 0
     });
    }
@@ -212,21 +208,21 @@ export class ContentService {
    public getEditorText() {
     this.socket.emit('get-editor-text', {
       username: this.user.username, 
-      title: this.subjectTitle
+      title: this.corpusTitle
     });
    } 
 
    public getExplorerText() {
     this.socket.emit('get-explorer-text', {
       username: this.user.username, 
-      title: this.subjectTitle
+      title: this.corpusTitle
     });
    } 
 
    public saveEditorText() {
     this.socket.emit('createContent', {
       username: this.user.username, 
-      title: this.subjectTitle,
+      title: this.corpusTitle,
       texts: [this.editorTexts],
     });
    }
@@ -245,9 +241,9 @@ export class ContentService {
    *  MOCK DATA
    ****************************************************************************/
 
-   /*
+	/*
    private setMockData() {
-    this.subject = new Subject(1,"subject title", "this is the description");
+    this.corpus = new Corpus(1,"corpus title", "this is the description");
     this.editorTexts = [
       new Text(1, "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed pretium sagittis tortor, a mattis ipsum varius quis. Nam at sem sit amet mauris cursus eleifend. Proin non felis a lorem venenatis facilisis. Phasellus a tellus sit amet lorem finibus aliquet. Vivamus sed mollis mauris. Integer ac nisl tincidunt, venenatis nisl at, malesuada urna. Sed non tempor purus. Curabitur sagittis diam magna, et varius risus finibus ut. Donec imperdiet sapien non diam vehicula, id placerat felis interdum. Sed scelerisque vel augue quis luctus. Nullam neque nibh, vulputate ut erat et, posuere rutrum massa. Praesent sit amet sollicitudin ante, vitae tristique quam. Maecenas nec diam libero. Suspendisse vitae est eleifend, congue sem non, auctor augue. Donec mollis finibus felis id placerat. Suspendisse potenti.", 0, 0, 0, 0, false),
       new Text(2, "Quisque vehicula tempus risus, a lobortis dui condimentum sit amet. Nam laoreet elementum nunc ut efficitur. Nunc gravida vestibulum rhoncus. Praesent vitae malesuada dui. Fusce a viverra diam, id fermentum velit. Proin consectetur odio arcu, non pretium turpis interdum et. Etiam ut suscipit dolor. Maecenas tristique sit amet sem in malesuada. Maecenas volutpat sem justo, eu interdum diam lacinia sed. Curabitur lobortis ac dui vitae ultricies. Duis varius justo augue, ac rhoncus ligula euismod in. Phasellus vitae malesuada lectus. Quisque nisl tellus, elementum ac turpis quis, tincidunt sodales nibh. Vivamus id lacus non nibh tristique fringilla ac non est. Praesent non metus nec velit vulputate sagittis.", 0, 0, 0, 0, false),
@@ -269,7 +265,7 @@ export class ContentService {
     this.socket.emit('createContent', {username: username, title: title});
    }
    */
-   /*
+	/*
   public registerSocket(user: User) {
     this.socket.emit('register', user);
   }

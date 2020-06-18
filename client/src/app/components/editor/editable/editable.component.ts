@@ -5,111 +5,107 @@ import * as DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 import { ChangeEvent, BlurEvent, FocusEvent } from '@ckeditor/ckeditor5-angular/ckeditor.component';
 
 @Component({
-  selector: 'editable',
-  templateUrl: './editable.component.html',
-  styleUrls: ['./editable.component.scss'],
+	selector: 'editable',
+	templateUrl: './editable.component.html',
+	styleUrls: ['./editable.component.scss'],
 })
 export class EditableComponent implements OnInit, OnDestroy {
+	/*****************************************************************************
+	 *  VARIABLES
+	 ****************************************************************************/
+	private toolbar;
+	private Editor = DecoupledEditor;
 
-  /*****************************************************************************
-   *  VARIABLES
-  ****************************************************************************/
-  private toolbar;
-  private Editor = DecoupledEditor;
+	@ViewChild('editable', { static: false }) elementRef;
+	@Input() index: number;
+	@Input() text: string;
+	@Output() textChange = new EventEmitter();
+	@Output() blur = new EventEmitter();
+	@Output() update = new EventEmitter();
+	@Output() merge = new EventEmitter();
+	@Output() split = new EventEmitter();
 
-  @ViewChild('editable', {static: false}) elementRef;
-  @Input() index: number;
-  @Input() text: string;
-  @Output() textChange = new EventEmitter();
-  @Output() blur = new EventEmitter();
-  @Output() update = new EventEmitter();
-  @Output() merge = new EventEmitter();
-  @Output() split = new EventEmitter();
+	/*****************************************************************************
+	 *  MAIN
+	 ****************************************************************************/
 
-  /*****************************************************************************
-   *  MAIN
-  ****************************************************************************/
+	constructor() {}
 
-  constructor() { }
+	ngOnInit() {}
 
-  ngOnInit() { }
+	ngOnDestroy() {
+		this.toolbar.remove();
+	}
 
-  ngOnDestroy() {
-    this.toolbar.remove();
-  }
+	/*****************************************************************************
+	 *  EDITOR EVENTS
+	 ****************************************************************************/
+	private onReady(editor) {
+		this.toolbar = editor.ui.view.toolbar.element;
+		document.getElementById('toolbar').appendChild(editor.ui.view.toolbar.element);
+	}
 
-  /*****************************************************************************
-   *  EDITOR EVENTS
-  ****************************************************************************/
-  private onReady( editor ) {
-    this.toolbar = editor.ui.view.toolbar.element;
-    document.getElementById("toolbar").appendChild(editor.ui.view.toolbar.element);
-  }
+	private onChange(event) {
+		this.textChange.emit(this.text);
+		this.update.emit();
 
-  private onChange(event) {
-    this.textChange.emit(this.text);
-    this.update.emit();
+		// Split text if there's a new paragraph
+		if (this.text.includes('</p><p>')) {
+			let text = this.text.split('</p><p>');
+			let first = text[0] + '</p>';
+			let second = '<p>' + text[1];
 
-    // Split text if there's a new paragraph
-    if(this.text.includes("</p><p>")) {
+			setTimeout(() => {
+				console.log(this.elementRef);
+				this.elementRef.editorElement.blur();
+				this.text = first;
 
-      let text = this.text.split("</p><p>");
-      let first = text[0] + "</p>";
-      let second = "<p>" + text[1];
+				console.log(this.text);
+				this.split.emit({ index: this.index, first: first, second: second });
+			}, 0);
+		}
 
-      setTimeout(() => {
-        console.log(this.elementRef);
-        this.elementRef.editorElement.blur();
-        this.text = first;
+		// Merge text if the user backspace when there's no text
+		if (this.text === null || this.text === '') {
+			if (this.index > 0) this.merge.emit({ index: this.index });
+		}
+	}
 
-        console.log(this.text);
-        this.split.emit({index: this.index, first: first, second: second});
-      }, 0);
-    }
+	private getCaretPosition() {
+		if (window.getSelection) {
+			let sel = window.getSelection();
+			if (sel.getRangeAt) {
+				return sel.getRangeAt(0).startOffset;
+			}
+		}
+		return null;
+	}
 
-    // Merge text if the user backspace when there's no text
-    if(this.text === null || this.text === "") {
-      if(this.index > 0)
-        this.merge.emit({index: this.index});
-    }
-  }
+	private setCaretPosition() {
+		setTimeout(() => {
+			let sel = window.getSelection();
 
-  private getCaretPosition() {
-    if (window.getSelection) {
-        let sel = window.getSelection();
-        if (sel.getRangeAt) {
-            return sel.getRangeAt(0).startOffset;
-        }
-    }
-    return null;
-  }
+			console.log(document.getElementsByClassName('editable')[this.index].firstChild.firstChild);
 
-  private setCaretPosition() {
-    setTimeout(() => {
-      let sel = window.getSelection();
+			sel.collapse(document.getElementsByClassName('editable')[this.index].firstChild.firstChild, this.position);
+		}, 1);
+	}
 
-      console.log(document.getElementsByClassName('editable')[this.index].firstChild.firstChild);
+	/*****************************************************************************
+	 *  OLD STUFF
+	 ****************************************************************************/
+	private selection: Selection;
+	private position = 3;
+	private element;
 
-      sel.collapse(document.getElementsByClassName('editable')[this.index].firstChild.firstChild, this.position);
-    }, 1);
-  }
-
-
-  /*****************************************************************************
-   *  OLD STUFF
-  ****************************************************************************/
-  private selection: Selection;
-  private position = 3;
-  private element;
-
-  /*
+	/*
   @Input() disabled: boolean = false;
   @Input() text: string;
   @Input() textHtml: boolean = true;
   @Output() textChange? = new EventEmitter();
   */
 
-  /*
+	/*
   public onChange(target, text: string, html: string, content: string) {
     this.position = this.getCaretPosition();
     this.textChange.emit({caret: this.position, text: this.text});
@@ -117,10 +113,7 @@ export class EditableComponent implements OnInit, OnDestroy {
   }
   */
 
-
-
-
-  /*
+	/*
   onChange(event) {
     this.change.emit({index: this.index, text: this.text});
     //this.editorData[index] = event.text;
@@ -140,29 +133,22 @@ export class EditableComponent implements OnInit, OnDestroy {
   }
   */
 
-
-
-
-
-  onClick() {
-    /*
+	onClick() {
+		/*
     this.editorData[0] = "asdasdasdasd";
     */
-  }
+	}
 
-  onFocus() {
-    //this.toolbar.style.display = "none";
-  }
+	onFocus() {
+		//this.toolbar.style.display = "none";
+	}
 
-  onBlur() {
-    this.blur.emit();
-    //this.toolbar.style.display = "inline";
-  }
+	onBlur() {
+		this.blur.emit();
+		//this.toolbar.style.display = "inline";
+	}
 
-
-
-
-  /*
+	/*
   // Study this shit to figure out how it works
   public getCaretCharacterOffsetWithin(element) {
     var caretOffset = 0;
@@ -210,7 +196,7 @@ export class EditableComponent implements OnInit, OnDestroy {
   }
   */
 
-  /*
+	/*
   ngOnInit() {
   }
 
@@ -266,7 +252,7 @@ export class EditableComponent implements OnInit, OnDestroy {
   }
   */
 
-  /*
+	/*
   ngOnInit() {
   }
 
@@ -400,11 +386,8 @@ export class EditableComponent implements OnInit, OnDestroy {
     this.target.setSelectionRange(index, index)
   }
   */
-  
 
-
-
-  /*
+	/*
   public onReady( editor ) {
     editor.ui.getEditableElement().parentElement.insertBefore(
         editor.ui.view.toolbar.element,
@@ -430,5 +413,4 @@ export class EditableComponent implements OnInit, OnDestroy {
     console.log( "on focus" );
   }
   */
-
 }

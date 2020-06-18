@@ -1,3 +1,52 @@
+
+<!-- NEW VERSION -->
+<div id="toolbar"></div>
+
+<!-- CLASSIC EDITOR -->
+<!--<ckeditor [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
+
+<!-- DECOUPLED EDITOR -->
+<div
+    class="list-group editor-list"
+    cdkDropList
+    [cdkDropListData]="document.texts"
+    (cdkDropListDropped)="drop($event)"
+    (cdkDropListEntered)="entered($event)" 
+    (cdkDropListExited)="exited($event)"
+    (cdkDropListDragged)="started($event)"
+>
+    <div 
+        class="list-group-item justify-content-between align-items-center editor-textbox"
+        *ngFor="let text of document.texts; let i = index; trackBy: trackText"
+        (mouseenter)="onMouseOver(i, true)"
+        (mouseleave)="onMouseOver(i, false)"
+        (cdkDragStarted)="started($event)"
+        (cdkDragEnded)="ended($event)"
+        cdkDrag
+    >
+        <div>
+            <div *ngIf="i === activeText" class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+            <div *ngIf="i === activeText">
+                <editable
+                    #editable
+                    [index]="i"
+                    [(text)]="text.text"
+                    (update)="onUpdate($event)"
+                    (split)="onSplit($event)"
+                    (merge)="onMerge($event)"
+                ></editable>
+            </div>
+            <div *ngIf="i != activeText" (click)="onActivateText(i)">
+                <p class="editableBlock" [innerHTML]="text.text"></p>
+            </div>
+        </div>
+    </div>
+    <!-- <div 
+        cdkDrag 
+        [cdkDragDisabled]="true"
+        style="height: 300px;"
+    ></div> -->
+</div>
 <!-- OLD VERSION -->
 <!--
 <div class="container-fluid">
@@ -46,31 +95,6 @@
     </div>
 </div>
 -->
-
-<div id="toolbar"></div>
-
-
-<!-- CLASSIC EDITOR -->
-<!--<ckeditor [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
-
-<!-- DECOUPLED EDITOR -->
-<div *ngFor="let text of document; let i = index; trackBy: trackText">
-    <div [ngSwitch]="shows[i]">
-        <div *ngSwitchCase="true">
-            <editable
-                #editable
-                [index]="i"
-                [(text)]="text"
-                (update)="onUpdate($event)"
-                (split)="onSplit($event)"
-                (merge)="onMerge($event)"
-            ></editable>
-        </div>
-        <div *ngSwitchCase="false" (click)="onClickText(i)">
-            <p class="editableBlock" [innerHTML]="text"></p>
-        </div>
-    </div>
-</div>
 
 
 <!--

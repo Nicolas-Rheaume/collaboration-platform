@@ -14,27 +14,27 @@
 
                 <!-- User's content -->
                 <div class="input-group slate-group">
-                    <button type="button" class="btn btn-outline-success slate-top create-button" (click)="openModal()">Create new subject</button>
+                    <button type="button" class="btn btn-outline-success slate-top create-button" (click)="openModal()">Create new corpus</button>
                     <!--
                     <button class="form-control list-group-item list-group-item-action slate-top-left">{{us.currentUser.username}}</button>
                     <div class="input-group-append">
-                        <button type="button" class="btn btn-outline-success slate-top-right" (click)="openModal()">Create new subject</button>
+                        <button type="button" class="btn btn-outline-success slate-top-right" (click)="openModal()">Create new corpus</button>
                     </div>
                     -->
                 </div>
 
                 <!-- Search Bar-->
                 <div class="input-group slate-group">
-                    <input class="form-control slate-search-name slate-middle" placeholder="Find a subject..." type="text" [(ngModel)]="searchTitle">
+                    <input class="form-control slate-search-name slate-middle" placeholder="Find a corpus..." type="text" [(ngModel)]="searchTitle">
                     <div class="input-group-append slate-search-button">
-                        <button type="submit" class="btn btn-outline-info slate-search-button slate-middle" (click)="searchSubjects()"><mat-icon>search</mat-icon></button>
+                        <button type="submit" class="btn btn-outline-info slate-search-button slate-middle" (click)="searchCorpora()"><mat-icon>search</mat-icon></button>
                     </div>
                 </div>
 
                 <!-- Sort By -->
                 <mat-form-field  class="list-group-item list-group-item-action">
                     <mat-label>Sort by:</mat-label>
-                    <mat-select [(ngModel)]="searchSort" (ngModelChange)="searchSubjects()">
+                    <mat-select [(ngModel)]="searchSort" (ngModelChange)="searchCorpora()">
                       <mat-option *ngFor="let sort of sortOptions" [value]="sort">
                         {{sort}}
                       </mat-option>
@@ -66,24 +66,24 @@
         <!-- All contents-->
         <div class="col-md-8">
 
-            <h2>{{ss.subjects.length}} subject found</h2>
+            <h2>{{corpora.length}} corpus found</h2>
             <hr>
-            <div *ngFor="let subject of ss.subjects; let num = index">
+            <div *ngFor="let corpus of corpora; let num = index">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex w-100 justify-content-between">
-                            <a><h4 class="card-title slate-title" (click)="viewSubject(subject)" [routerLink]="['content', subject.url]">{{subject.title}}</h4></a>
+                            <a><h4 class="card-title slate-title" (click)="viewCorpus(corpus)" [routerLink]="['content', corpus.url]">{{corpus.title}}</h4></a>
                         </div>
                         <table>
                             <tr>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Created: {{subject.createdAt | timeAgo }}</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{subject.contributors}} Contributors</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-success" (click)="modifySubject(num)">Modify</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Created: {{corpus.createdAt | timeAgo }}</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{corpus.contributors}} Contributors</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-success" (click)="modifyCorpus(num)">Modify</span></td>
                             </tr>
                             <tr>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Updated: {{subject.updatedAt | timeAgo }}</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{subject.texts}} Texts</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-danger" (click)="removeSubject(num)">Delete</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Updated: {{corpus.updatedAt | timeAgo }}</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{corpus.texts}} Texts</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-danger" (click)="removeCorpus(num)">Delete</span></td>
                             </tr>
                         </table>
 
@@ -105,42 +105,43 @@
         </div>
     </div>
 
-<!-- Create Subject Modal -->
-<div class="modal fade" id="createSubject" #createSubject tabindex="-1" role="dialog" aria-hidden="true">
+<!-- Create Corpus Modal -->
+<div class="modal fade" id="createCorpus" #createCorpus tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Create a new subject</h5>
+          <h5 class="modal-title">Create a new corpus</h5>
         </div>
         <div class="modal-body">
-            <input class="form-control slate-search-name" [ngClass]="createSubjectInvalid ? 'is-invalid' : ''" placeholder="Enter the subject title..." type="text" [(ngModel)]="createSubjectTitle">
-            <div class="invalid-feedback">{{createSubjectError}}</div>
+            <input class="form-control slate-search-name" [ngClass]="createCorpusInvalid ? 'is-invalid' : ''" placeholder="Enter the corpus title..." type="text" [(ngModel)]="createCorpusTitle">
+            <div class="invalid-feedback">{{createCorpusError}}</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewSubject()">Create</button>
+          <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewCorpus()">Create</button>
           <button type="button" class="btn btn-outline-danger btn-outline-danger-border" (click)="closeModal()">Close</button>
         </div>
       </div>
     </div>
 </div>
 
+
     <!--
     <br>
-    <h2>Create a new subject : </h2>
+    <h2>Create a new corpus : </h2>
     <div class="form-group">
         <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Enter title" [(ngModel)]="newSubject.title">
-            <button type="button" class="btn btn-success" (click)="createSubject()">Create</button>
+            <input type="text" class="form-control" placeholder="Enter title" [(ngModel)]="newCorpus.title">
+            <button type="button" class="btn btn-success" (click)="createCorpus()">Create</button>
         </div>
     </div>
 
     <br><br>
-    <h2>List of subjects : </h2>
+    <h2>List of corpora : </h2>
     <div class="container-fluid">
-        <div class="row" *ngFor="let subject of subjects; let num = index">
-            <div class="col-sm-8"><a href=""><h2>{{subject.title}}</h2></a></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-success" (click)="viewSubject(subject)">View</button></div>
-            <div class="col-sm-2"><button type="button" class="btn btn-danger" (click)="removeSubject(num)">Remove</button></div>
+        <div class="row" *ngFor="let corpus of corpora; let num = index">
+            <div class="col-sm-8"><a href=""><h2>{{corpus.title}}</h2></a></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-success" (click)="viewCorpus(corpus)">View</button></div>
+            <div class="col-sm-2"><button type="button" class="btn btn-danger" (click)="removeCorpus(num)">Remove</button></div>
         </div>
     </div>
 

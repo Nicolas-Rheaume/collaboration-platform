@@ -4,14 +4,16 @@
         class="list-group"
         cdkDropList
         [cdkDropListEnterPredicate]="noReturnPredicate"
-        [cdkDropListData]="cs.explorerTexts"
+        [cdkDropListData]="explorerTexts"
         (cdkDropListDropped)="drop($event)"
     >
         <div
             class="list-group-item justify-content-between align-items-center editor-textbox"
-            *ngFor="let text of cs.explorerTexts; let i = index"
+            *ngFor="let text of explorerTexts; let i = index"
             cdkDrag
         >
+        <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+        <div [innerHTML]="text.text"></div>
         <!--
             <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
             <ckeditor [editor]="Editor" [(ngModel)]="cs.explorerTexts[i].text" [disabled]="true" [config]="{toolbar: false}"></ckeditor>

@@ -74,70 +74,49 @@ export class ContenteditableDirective implements OnChanges {
 }
 */
 
-import {
-  Directive,
-  ElementRef,
-  Renderer2,
-  HostListener,
-  forwardRef,
-  Input,
-  OnInit,
-  HostBinding
-} from '@angular/core';
+import { Directive, ElementRef, Renderer2, HostListener, forwardRef, Input, OnInit, HostBinding } from '@angular/core';
 
-import { 
-  ControlValueAccessor, 
-  NG_VALUE_ACCESSOR 
-} from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Directive({
-  selector: '[contenteditable]',
-  providers:
-  [
-    { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => ContenteditableDirective), multi: true }
-  ]
+	selector: '[contenteditable]',
+	providers: [{ provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => ContenteditableDirective), multi: true }],
 })
 export class ContenteditableDirective implements ControlValueAccessor {
-  @HostBinding('attr.contenteditable') enabled = true;
+	@HostBinding('attr.contenteditable') enabled = true;
 
-  private onChange: (value: string) => void;
-  private onTouched: () => void;
-  private removeDisabledState: () => void;
+	private onChange: (value: string) => void;
+	private onTouched: () => void;
+	private removeDisabledState: () => void;
 
-  constructor(
-    private elementRef: ElementRef, 
-    private renderer: Renderer2
-    ) { }
+	constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
 
-  @HostListener('input') onInput(): void {
-    this.onChange(this.elementRef.nativeElement.innerHTML);
+	@HostListener('input') onInput(): void {
+		this.onChange(this.elementRef.nativeElement.innerHTML);
 
-    console.log(this.elementRef.nativeElement.innerHTML);
+		console.log(this.elementRef.nativeElement.innerHTML);
+	}
 
-  }
+	@HostListener('blur') onBlur(): void {
+		this.onTouched();
+	}
 
-  @HostListener('blur') onBlur(): void {
-    this.onTouched();
-  }
+	writeValue(value: string): void {
+		this.renderer.setProperty(this.elementRef.nativeElement, 'innerHTML', value || '');
+	}
 
-  writeValue(value: string): void {
-    this.renderer.setProperty(this.elementRef.nativeElement, 'innerHTML', value || '');
-  }
+	registerOnChange(onChange: (value: string) => void): void {
+		this.onChange = onChange;
+	}
 
-  registerOnChange(onChange: (value: string) => void): void {
-    this.onChange = onChange;
-  }
+	registerOnTouched(onTouched: () => void): void {
+		this.onTouched = onTouched;
+	}
 
-  registerOnTouched(onTouched: () => void): void {
-    this.onTouched = onTouched;
-  }
-
-  setDisabledState(disabled: boolean): void {
-    this.enabled = !disabled;
-  }
+	setDisabledState(disabled: boolean): void {
+		this.enabled = !disabled;
+	}
 }
-
-
 
 /*
 // First version based on https://stackoverflow.com/a/41253897/6813271
@@ -170,7 +149,7 @@ import {
   }
   */
 
-    /*
+/*
     ngOnChanges(changes: SimpleChanges) {
 		if (changes['contenteditableModel']) {
             // On init: if contenteditableModel is empty, read from DOM in case the element has content
@@ -191,8 +170,8 @@ import {
 		this.elRef.nativeElement.innerText = this.contenteditableModel;
     }
     */
-  
-    /*
+
+/*
     ngOnChanges(changes: SimpleChanges) {
       if (changes['contenteditableModel']) {
         // On init: if contenteditableModel is empty, read from DOM in case the element has content
@@ -244,6 +223,6 @@ import {
       return this.contenteditableHtml ? this.sanitizer.sanitize(SecurityContext.HTML, content) : content;
     }
     */
-   /*
+/*
   }
   */

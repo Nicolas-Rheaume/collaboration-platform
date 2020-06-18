@@ -27,6 +27,9 @@
 
 .editor-handle {
   cursor: grab;
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 
 .editor-handle:active {
