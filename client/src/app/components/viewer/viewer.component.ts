@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {FormControl} from '@angular/forms';
 
 @Component({
 	selector: 'app-viewer',
@@ -6,7 +7,13 @@ import { Component, OnInit } from '@angular/core';
 	styleUrls: ['./viewer.component.scss'],
 })
 export class ViewerComponent implements OnInit {
-	constructor() {}
+
+	constructor() {
+  }
 
 	ngOnInit() {}
+
+  scroll(el: HTMLElement) {
+    el.scrollIntoView({behavior: 'smooth'});
+  }
 }

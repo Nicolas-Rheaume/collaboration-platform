@@ -15,6 +15,8 @@ import { CKEditorModule } from '@ckeditor/ckeditor5-angular';
 import { MatDialogModule } from '@angular/material';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TimeAgoPipe } from 'time-ago-pipe';
+import { InViewportModule } from '@thisissoon/angular-inviewport';
+import { ScrollSpyModule } from '@thisissoon/angular-scrollspy';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -38,8 +40,18 @@ import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.com
 import { ViewerComponent } from './components/viewer/viewer.component';
 import { EditableComponent } from './components/editor/editable/editable.component';
 import { ToolbarComponent } from './components/editor/toolbar/toolbar.component';
+import { CorpusComponent } from './pages/corpus/corpus.component';
 
 import { ContenteditableDirective } from './components/editor/editable/editable.directive';
+import { OverviewComponent } from './pages/corpus/overview/overview.component';
+import { CorpusDocumentsComponent } from './pages/corpus/documents/documents.component';
+
+import { NotfoundSideNav } from './sidenavs/notfound/notfound.component';
+import { LeftnavComponent } from './components/leftnav/leftnav.component';
+import { RightnavComponent } from './components/rightnav/rightnav.component';
+import { TableofcontentComponent } from './sidenavs/tableofcontent/tableofcontent.component';
+import { FriendlistComponent } from './sidenavs/friendlist/friendlist.component';
+import { SearchComponent } from './pages/search/search.component';
 
 @NgModule({
 	declarations: [
@@ -60,8 +72,17 @@ import { ContenteditableDirective } from './components/editor/editable/editable.
 		ViewerComponent,
 		EditableComponent,
 		ToolbarComponent,
-
+		CorpusComponent,
+		ViewerComponent,
 		ContenteditableDirective,
+		OverviewComponent,
+		CorpusDocumentsComponent,
+		NotfoundSideNav,
+		LeftnavComponent,
+		RightnavComponent,
+		TableofcontentComponent,
+		FriendlistComponent,
+		SearchComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -78,6 +99,8 @@ import { ContenteditableDirective } from './components/editor/editable/editable.
 		MaterialModule,
 		NgbModule,
 		AngularSplitModule.forRoot(),
+		InViewportModule, 
+		ScrollSpyModule.forRoot()
 	],
 	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
 	bootstrap: [AppComponent],

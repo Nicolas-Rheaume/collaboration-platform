@@ -1,0 +1,127 @@
+<div class="container">
+  <div class="mb-3"></div>
+  <div class="row">
+    <div class="col-sm-3">
+      <div class="card">
+
+        <div class="card-body">
+          <h4 class="card-title">Corpus title</h4>
+          <h6 class="card-subtitle text-muted">subtitle</h6>
+        </div>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
+              content.</p>
+          </li>
+          <li class="list-group-item"><a href="#" class="card-link">Card link</a></li>
+        </ul>
+
+        <ul>
+          <li>Created on : </li>
+          <li>Updated on : </li>
+          <li>Create new document : </li>
+          <li>Like : </li>
+          <li>Dislike : </li>
+          <li>Views : </li>
+          <li>Notification : </li>
+          <li>Save : </li>
+          <li>Report : </li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="col-sm-9">
+      <mat-tab-group animationDuration="0ms">
+        <ng-container *ngIf="(asyncTabs | async) === null">
+          Loading tabs...
+        </ng-container>
+
+        <!--Overview-->
+        <mat-tab>
+          <ng-template class="navbar-label" mat-tab-label><span matBadge="4" matBadgeOverlap="false">Overview</span></ng-template>
+          <ng-template matTabContent>
+            <div class="container-fluid">
+              <div class="row">
+                <div class="col-md-12">
+                  <h5 class="corpus-header">Description</h5>
+                </div>
+                <div class="col-md-12">
+                  <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quisquam eum
+                    reiciendis soluta rerum perferendis obcaecati. Voluptatibus velit incidunt quis? Incidunt itaque
+                    impedit eligendi. Expedita, quae quibusdam iusto asperiores provident laudantium!</p>
+                </div>
+                <div class="col-md-12">
+                  <h5 class="corpus-header">Personal documents</h5>
+                </div>
+                <div class="col-md-6">
+                  <div class="card">
+                    <div class="card-body">
+                      <h6 class="card-title"><a href="#" class="card-link">Document title</a></h6>
+                      <p class="card-text text-muted">Some quick example text to build on the card title and make up the
+                        bulk of the card's content.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-body">
+                        <h6 class="card-title"><a href="#" class="card-link">Document title</a></h6>
+                        <p class="card-text text-muted">Some quick example text to build on the card title and make up the
+                          bulk of the card's content.</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-12">
+                    <h5 class="corpus-header">Popular documents</h5>
+                  </div>
+                  <div class="col-md-12">
+                    <h5 class="corpus-header">Recent activity</h5>
+                  </div>
+              </div>
+            </div>
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;<span matBadge="{{count}}" matBadgeOverlap="false"
+              matBadgeColor="accent">Documents</span>
+          </ng-template>
+          <ng-template matTabContent>
+            <app-corpus-documents></app-corpus-documents>
+           </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>person</mat-icon> Collaborators
+          </ng-template>
+          <ng-template matTabContent>
+
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>text_snippet</mat-icon>&nbsp;&nbsp;Texts
+          </ng-template>
+          <ng-template matTabContent>
+
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>chat</mat-icon>&nbsp;&nbsp;<span>Conversation</span>
+          </ng-template>
+          <ng-template matTabContent>
+
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label><mat-icon>insights</mat-icon>&nbsp;&nbsp;History</ng-template>
+          <ng-template matTabContent>
+
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>

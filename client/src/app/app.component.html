@@ -1,5 +1,70 @@
-<app-header></app-header>
-<router-outlet></router-outlet>
+<app-header class="navbar"></app-header>
+
+<mat-sidenav-container class="header-spacer" data-spy="scroll" data-target=".leftnav">
+
+    <!--Left side Navbar-->
+    <mat-sidenav 
+        class="collab-navbar leftnav" 
+        [(opened)]="sidenav.leftOpened" 
+        opened 
+        mode="side" 
+        [@onSideNavOpen]="sidenav.leftSideNavState"
+    >
+        <leftnav-router></leftnav-router>
+    </mat-sidenav>
+
+    <!--Right side Navbar-->
+    <mat-sidenav 
+        class="collab-navbar" 
+        [(opened)]="sidenav.rightOpened" 
+        opened 
+        mode="side" 
+        position="end"
+        [@onSideNavOpen]="sidenav.rightSideNavState"
+    ><app-rightnav></app-rightnav>
+    </mat-sidenav>
+    
+    <!--Main Content-->
+    <mat-sidenav-content
+    class="main-content"
+        [@onMainContentOpen]="sidenav.getSideNavState()"
+    >
+        <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+
+
+<!-- <mat-sidenav #appDrawer mode="rail" opened="true">
+    <mat-nav-list class="dashboard">
+        <a mat-list-item>
+          <mat-icon mat-list-icon >account_circle</mat-icon>
+          <p matLine>Name</p>
+        </a>
+
+        <mat-divider></mat-divider>
+
+        <a mat-list-item>
+						<mat-icon mat-list-icon>inbox</mat-icon>
+						<p matLine>Inbox</p>
+				</a>
+        <a mat-list-item>
+						<mat-icon mat-list-icon>star</mat-icon>
+						<p matLine>Starred</p>
+				</a>
+        <a mat-list-item>
+						<mat-icon mat-list-icon>drafts</mat-icon>
+						<p matLine >Drafts</p>
+				</a>
+    </mat-nav-list>
+  </mat-sidenav> -->
+
+
+  
+
+
+<!-- <div class="header-spacer">
+    <router-outlet class="router"></router-outlet>
+</div> -->
 
 <!--
 <app-footer></app-footer>

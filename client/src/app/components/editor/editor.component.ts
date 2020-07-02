@@ -20,6 +20,7 @@ import { ContenteditableDirective } from './editable/editable.directive';
 import * as DecoupledEditor from '@ckeditor/ckeditor5-build-decoupled-document';
 import { SocketService } from 'src/app/services/socket.service';
 import { Document } from 'src/app/models/document.model';
+import { style } from '@angular/animations';
 //import * as MultirootEditor from '../../../tools/ckeditor/MultiRootEditor/multirooteditor';
 
 // Multirooteditor
@@ -81,7 +82,17 @@ export class EditorComponent implements OnInit, OnDestroy {
 		});
 	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		this.Editor.style.add( 'my_styles', [
+			// Block-level styles.
+			{ name: 'Blue Title', element: 'h2', styles: { color: 'Blue' } },
+			{ name: 'Red Title',  element: 'h3', styles: { color: 'Red' } },
+		
+			// Inline styles.
+			{ name: 'CSS Style', element: 'span', attributes: { 'class': 'my_style' } },
+			{ name: 'Marker: Yellow', element: 'span', styles: { 'background-color': 'Yellow' } }
+		]);
+	}
 
 	ngOnDestroy() {
 		console.log('Editor Destroy');
