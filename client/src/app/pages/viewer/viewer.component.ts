@@ -1,26 +1,23 @@
 import { Component, OnInit } from '@angular/core';
-import { Corpus } from 'src/app/models/corpus.model';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FormControl } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SocketService } from 'src/app/services/socket.service';
+import { Document } from 'src/app/models/document.model';
 
 @Component({
-	selector: 'app-corpus',
-	templateUrl: './corpus.component.html',
-	styleUrls: ['./corpus.component.scss'],
+	selector: 'app-viewer',
+	templateUrl: './viewer.component.html',
+	styleUrls: ['./viewer.component.scss'],
 })
-export class CorpusComponent implements OnInit {
+export class ViewerComponent implements OnInit {
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
 	private sub: Subscription;
-	private title: string = '';
-	public corpus: Corpus = null;
+	private title: string;
 
-	public name: string = 'test';
-	public count: number = 0;
-	public check: boolean = false;
-
+	private document: Document = null;
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
@@ -29,14 +26,19 @@ export class CorpusComponent implements OnInit {
 			this.title = params.title;
 
 			// Get Information
-			this.sub = this.socket.response('corpus/information').subscribe(corpus => {
-				this.corpus = corpus;
+			this.sub = this.socket.response('viewer/document').subscribe(document => {
+				console.log(document);
+				this.document = document;
 			});
 
 			// Request Corpus Information
-			this.socket.request('corpus/getInformation', [this.title]);
+			this.socket.request('viewer/getDocument', [this.title]);
 		});
 	}
 
 	ngOnInit() {}
+
+	scroll(el: HTMLElement) {
+		el.scrollIntoView({ behavior: 'smooth' });
+	}
 }

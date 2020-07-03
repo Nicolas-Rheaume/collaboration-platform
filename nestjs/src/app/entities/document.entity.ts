@@ -4,7 +4,7 @@
 
 export class Document {
 	// Variables
-	public author?: User;
+	public author?: string;
 	public corpus?: Corpus;
 	public texts?: Text[];
 
@@ -12,7 +12,7 @@ export class Document {
 	public updatedAt?: Date;
 
 	// constructor
-	constructor(author: User = null, corpus: Corpus = null, texts: Text[] = [], createdAt: Date = null, updatedAt: Date = null) {
+	constructor(author: string = "", corpus: Corpus = null, texts: Text[] = [], createdAt: Date = null, updatedAt: Date = null) {
 		this.author = author;
 		this.corpus = corpus;
 		this.texts = texts;
@@ -164,7 +164,7 @@ export class DocumentEntity {
 				for (let i = 0; i < texts.length; i++) {
 					texts[i] = await this.paragraphs[i].text.getText();
 				}
-				resolve(new Document(await this.author.getUser(), await this.corpus.getCorpus(), texts, this.createdAt, this.updatedAt));
+				resolve(new Document(await this.author.username, await this.corpus.getCorpus(), texts, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}

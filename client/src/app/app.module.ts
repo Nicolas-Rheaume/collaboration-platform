@@ -37,7 +37,7 @@ import { AdministrationComponent } from './pages/administration/administration.c
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SocketService } from './services/socket.service';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
-import { ViewerComponent } from './components/viewer/viewer.component';
+import { ViewerComponent } from './pages/viewer/viewer.component';
 import { EditableComponent } from './components/editor/editable/editable.component';
 import { ToolbarComponent } from './components/editor/toolbar/toolbar.component';
 import { CorpusComponent } from './pages/corpus/corpus.component';
@@ -99,8 +99,8 @@ import { SearchComponent } from './pages/search/search.component';
 		MaterialModule,
 		NgbModule,
 		AngularSplitModule.forRoot(),
-		InViewportModule, 
-		ScrollSpyModule.forRoot()
+		InViewportModule,
+		ScrollSpyModule.forRoot(),
 	],
 	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
 	bootstrap: [AppComponent],

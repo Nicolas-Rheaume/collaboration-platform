@@ -57,7 +57,7 @@ export class CorpusModel {
 	public async findOneByTitle(title: string): Promise<CorpusEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const corpusEntity = await this.corpusRepository.findOne({ title: title }).catch(err => {
+				let corpusEntity = await this.corpusRepository.findOne({ title: title }).catch(err => {
 					throw 'Error finding the corpus';
 				});
 				resolve(corpusEntity);

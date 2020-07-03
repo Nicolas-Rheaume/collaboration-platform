@@ -80,16 +80,18 @@ export class Corpus {
 	public url?: string;
 
 	public contributors?: number;
+	public documents?: number;
 	public texts?: number;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
 	// constructor
-	constructor(title: string = '', url: string = '', contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
+	constructor(title: string = '', url: string = '', contributors: number = 0, documents: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
 		this.title = title;
 		this.url = url;
 		this.contributors = contributors;
+		this.documents = documents;
 		this.texts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -111,6 +113,7 @@ export class Corpus {
 				this.title = corpus.title;
 				this.url = corpus.url;
 				this.contributors = corpus.contributors;
+				this.documents = corpus.documents.length;
 				this.texts = corpus.texts;
 				this.createdAt = corpus.createdAt;
 				this.updatedAt = corpus.updatedAt;
@@ -128,6 +131,7 @@ export class Corpus {
 					title: this.title,
 					url: this.url,
 					contributors: this.contributors,
+					documents: this.documents,
 					texts: this.texts,
 					createdAt: this.createdAt,
 					updatedAt: this.updatedAt,
@@ -144,6 +148,7 @@ export class Corpus {
 				if (json.hasOwnProperty('title')) this.title = json.title;
 				if (json.hasOwnProperty('url')) this.url = json.url;
 				if (json.hasOwnProperty('contributors')) this.contributors = json.contributors;
+				if (json.hasOwnProperty('documents')) this.documents = json.documents;
 				if (json.hasOwnProperty('texts')) this.texts = json.texts;
 				if (json.hasOwnProperty('createdAt')) this.createdAt = json.createdAt;
 				if (json.hasOwnProperty('updatedAt')) this.updatedAt = json.updatedAt;
@@ -234,7 +239,7 @@ export class CorpusEntity {
 	public async getCorpus(): Promise<Corpus> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new Corpus(this.title, this.url, this.contributors, this.texts, this.createdAt, this.updatedAt));
+				resolve(new Corpus(this.title, this.url, this.contributors, null, this.texts, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -266,6 +271,7 @@ export class CorpusEntity {
 					title: this.title,
 					url: this.url,
 					contributors: this.contributors,
+					documents: this.documents,
 					texts: this.texts,
 					createdAt: this.createdAt,
 					updatedAt: this.updatedAt,
@@ -283,6 +289,7 @@ export class CorpusEntity {
 				if (json.hasOwnProperty('title')) this.title = json.title;
 				if (json.hasOwnProperty('url')) this.url = json.url;
 				if (json.hasOwnProperty('contributors')) this.contributors = json.contributors;
+				if (json.hasOwnProperty('documents')) this.documents = json.documents;
 				if (json.hasOwnProperty('texts')) this.texts = json.texts;
 				if (json.hasOwnProperty('createdAt')) this.createdAt = json.createdAt;
 				if (json.hasOwnProperty('updatedAt')) this.updatedAt = json.updatedAt;

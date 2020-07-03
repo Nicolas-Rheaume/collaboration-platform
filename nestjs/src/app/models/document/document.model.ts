@@ -208,6 +208,24 @@ export class DocumentModel {
 		});
 	}
 
+	public async findDocumentsByCorpusID(corpusID: number): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documents: DocumentEntity[] = await this.documentRepository
+					.createQueryBuilder('document')
+					.leftJoinAndSelect('document.author', 'user')
+					.where(`document.corpus = ${corpusID}`)
+					.getMany()
+					.catch(err => {
+						throw 'Error searching for documents';
+					});
+				resolve(documents);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	/*
 	public async findOneByID(id: number): Promise<UserEntity> {
 		return new Promise(async (resolve, reject) => {
@@ -277,4 +295,52 @@ export class DocumentModel {
 	/*****************************************************************************
 	 *  DELETE
 	 *****************************************************************************/
+
+	/*****************************************************************************
+	 *  COUNT
+	 *****************************************************************************/
+	public async countContributors(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository
+					.createQueryBuilder('document')
+					.where(`document.corpus = ${corpus}`)
+					.groupBy('document.author')
+					.getManyAndCount()
+					.catch(err => {
+						throw 'Error counting the contributors';
+					});
+
+				resolve(count.length);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countDocuments(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository.count({ where: { corpus: corpus } }).catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countTexts(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository.count({ where: { corpus: corpus } }).catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 }

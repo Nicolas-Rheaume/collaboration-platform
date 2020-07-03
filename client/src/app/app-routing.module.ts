@@ -12,10 +12,10 @@ import { AdministrationComponent } from './pages/administration/administration.c
 import { AdminGuard } from './guards/admin.guard';
 import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 import { CorpusComponent } from './pages/corpus/corpus.component';
-import { ViewerComponent } from './components/viewer/viewer.component';
+import { ViewerComponent } from './pages/viewer/viewer.component';
 
 /* Left Side Nav */
-import { TableofcontentComponent } from './sidenavs/tableofcontent/tableofcontent.component'
+import { TableofcontentComponent } from './sidenavs/tableofcontent/tableofcontent.component';
 
 const routes: Routes = [
 	{ path: '', component: HomeComponent },
@@ -25,16 +25,19 @@ const routes: Routes = [
 	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 	{ path: 'administration', component: AdministrationComponent, canActivate: [AdminGuard] },
 	{ path: 'corpus/:title', component: CorpusComponent },
-	{ path: 'corpus/:title/view/:id', component: ViewerComponent },
+	{ path: 'corpus/:title/:id/view', component: ViewerComponent },
+	//{ path: 'corpus/:title/:id/edit', component: EditComponent },
 	{ path: 'viewer', component: ViewerComponent },
 	{ path: '**', component: PageNotFoundComponent },
 ];
 
 @NgModule({
-	imports: [RouterModule.forRoot(routes, {
-		anchorScrolling: 'enabled',
-		scrollPositionRestoration: 'enabled'
-	  })],
+	imports: [
+		RouterModule.forRoot(routes, {
+			anchorScrolling: 'enabled',
+			scrollPositionRestoration: 'enabled',
+		}),
+	],
 	exports: [RouterModule],
 	providers: [],
 })

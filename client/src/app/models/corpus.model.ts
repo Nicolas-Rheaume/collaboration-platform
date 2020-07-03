@@ -14,15 +14,17 @@ export class Corpus {
 	public title?: string;
 	public url?: string;
 
+	public documents?: number;
 	public contributors?: number;
 	public texts?: number;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
-	constructor(title: string = '', url: string = '', contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
+	constructor(title: string = '', url: string = '', documents: number = 0, contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
 		this.title = title;
 		this.url = url;
+		this.documents = documents;
 		this.contributors = contributors;
 		this.texts = texts;
 		this.createdAt = createdAt;
@@ -39,6 +41,7 @@ export class Corpus {
 			subject.url = data[index].url;
 			subject.createdAt = data[index].createdAt;
 			subject.updatedAt = data[index].updatedAt;
+			subject.documents = data[index].documents;
 			subject.contributors = data[index].contributors;
 			subject.texts = data[index].texts;
 
@@ -55,6 +58,7 @@ export class Corpus {
 		subject.url = data.url;
 		subject.createdAt = data.createdAt;
 		subject.updatedAt = data.updatedAt;
+		subject.documents = data.documents;
 		subject.contributors = data.contributors;
 		subject.texts = data.texts;
 

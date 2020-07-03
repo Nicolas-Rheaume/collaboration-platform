@@ -2,10 +2,17 @@
   <div class="mb-3"></div>
   <div class="row">
     <div class="col-sm-3">
-      <div class="card">
+
+      <!-- Corpus Information -->
+      <div class="card" *ngIf="corpus == null">
+        <div class="card-body" style="margin: auto;">
+          <mat-spinner></mat-spinner>
+        </div>
+      </div>
+      <div class="card" *ngIf="corpus != null">
 
         <div class="card-body">
-          <h4 class="card-title">Corpus title</h4>
+          <h4 class="card-title">{{corpus.title}}</h4>
           <h6 class="card-subtitle text-muted">subtitle</h6>
         </div>
 
@@ -18,8 +25,8 @@
         </ul>
 
         <ul>
-          <li>Created on : </li>
-          <li>Updated on : </li>
+          <li>Created on : {{corpus.createdAt | date}}</li>
+          <li>Updated on : {{corpus.updatedAt | date}}</li>
           <li>Create new document : </li>
           <li>Like : </li>
           <li>Dislike : </li>
@@ -37,9 +44,9 @@
           Loading tabs...
         </ng-container>
 
-        <!--Overview-->
+        <!-- Overview -->
         <mat-tab>
-          <ng-template class="navbar-label" mat-tab-label><span matBadge="4" matBadgeOverlap="false">Overview</span></ng-template>
+          <ng-template class="navbar-label" mat-tab-label><span matBadgeOverlap="false">Overview</span></ng-template>
           <ng-template matTabContent>
             <div class="container-fluid">
               <div class="row">
@@ -84,8 +91,9 @@
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;<span matBadge="{{count}}" matBadgeOverlap="false"
-              matBadgeColor="accent">Documents</span>
+            <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;
+              <span *ngIf="corpus == null">Documents</span>
+              <span *ngIf="corpus != null" matBadge="{{corpus.documents}}" matBadgeOverlap="false" matBadgeColor="accent">Documents</span>
           </ng-template>
           <ng-template matTabContent>
             <app-corpus-documents></app-corpus-documents>
@@ -93,7 +101,9 @@
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon>person</mat-icon> Collaborators
+            <mat-icon>person</mat-icon>&nbsp;&nbsp;
+            <span *ngIf="corpus == null">Collaborators</span>
+            <span *ngIf="corpus != null" matBadge="{{corpus.contributors}}" matBadgeOverlap="false" matBadgeColor="accent">Collaborators</span>
           </ng-template>
           <ng-template matTabContent>
 
@@ -101,7 +111,9 @@
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <mat-icon>text_snippet</mat-icon>&nbsp;&nbsp;Texts
+            <mat-icon>text_snippet</mat-icon>&nbsp;&nbsp;
+            <span *ngIf="corpus == null">Texts</span>
+            <span *ngIf="corpus != null" matBadge="{{corpus.texts}}" matBadgeOverlap="false" matBadgeColor="accent">Texts</span>
           </ng-template>
           <ng-template matTabContent>
 

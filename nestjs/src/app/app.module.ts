@@ -15,6 +15,7 @@ import { AuthenticateGateway } from './controllers/authenticate/authenticate.gat
 import { DashboardGateway } from './controllers/dashboard/dashboard.gateway';
 import { EditorGateway } from './controllers/editor/editor.gateway';
 import { ExplorerGateway } from './controllers/explorer/explorer.gateway';
+import { CorpusGateway } from './controllers/corpus/corpus.gateway';
 
 // Controllers
 import { AppController } from './app.controller';
@@ -22,6 +23,7 @@ import { AuthenticateController } from './controllers/authenticate/authenticate.
 import { DashboardController } from './controllers/dashboard/dashboard.controller';
 import { EditorController } from './controllers/editor/editor.controller';
 import { ExplorerController } from './controllers/explorer/explorer.controller';
+import { CorpusController } from './controllers/corpus/corpus.controller';
 
 // Modules
 import { UserModule } from './models/user/user.module';
@@ -99,12 +101,14 @@ if (process.env.NODE_ENV == 'development') {
 		DashboardGateway,
 		EditorGateway,
 		ExplorerGateway,
+		CorpusGateway,
 
 		// Controllers
 		AuthenticateController,
 		DashboardController,
 		EditorController,
 		ExplorerController,
+		CorpusController,
 	],
 })
 
