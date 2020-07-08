@@ -14,7 +14,16 @@ export class EditableComponent implements OnInit, OnDestroy {
 	 *  VARIABLES
 	 ****************************************************************************/
 	private toolbar;
-	private Editor = DecoupledEditor;
+  private Editor = DecoupledEditor;
+  private config: any = {
+    options: [
+      { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+      { model: 'heading1', view: 'h2', title: 'Heading 1', class: 'ck-heading_heading1' },
+      { model: 'heading2', view: 'h3', title: 'Heading 2', class: 'ck-heading_heading2' },
+      { model: 'heading3', view: 'h4', title: 'Heading 3', class: 'ck-heading_heading3' },
+      { model: 'heading4', view: 'h5', title: 'Heading 4', class: 'ck-heading_heading3' },
+  ]
+   };
 
 	@ViewChild('editable', { static: false }) elementRef;
 	@Input() index: number;
@@ -31,7 +40,8 @@ export class EditableComponent implements OnInit, OnDestroy {
 
 	constructor() {}
 
-	ngOnInit() {}
+	ngOnInit() {
+  }
 
 	ngOnDestroy() {
 		this.toolbar.remove();
@@ -47,7 +57,7 @@ export class EditableComponent implements OnInit, OnDestroy {
 
 	private onChange(event) {
 		this.textChange.emit(this.text);
-		this.update.emit();
+		this.update.emit(this.text);
 
 		// Split text if there's a new paragraph
 		if (this.text.includes('</p><p>')) {

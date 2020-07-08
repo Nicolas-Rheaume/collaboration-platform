@@ -2,10 +2,12 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
-import { Corpus, CorpusSort } from 'src/app/models/corpus.model';
+import { Concept, ConceptSort } from 'src/app/models/concept.model';
 import { UserService } from 'src/app/services/user.service';
 import { User } from 'src/app/models/user.model';
 import { SocketService } from 'src/app/services/socket.service';
+import { MatDialog } from '@angular/material';
+import { CreateConceptComponent } from './create-concept/create-concept.component';
 
 declare var $: any;
 
@@ -19,56 +21,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	 *  VARIABLES
 	 ****************************************************************************/
 	private sub: Subscription;
-
-	corpora: Corpus[] = [] as Corpus[];
+	concepts: Concept[] = [] as Concept[];
 
 	// Search
 	searchTitle: String = '';
-	searchSort: CorpusSort = CorpusSort.A_Z;
-	sortOptions: CorpusSort[] = [
-		CorpusSort.A_Z,
-		CorpusSort.Z_A,
-		CorpusSort.OLDEST,
-		CorpusSort.NEWEST,
-		CorpusSort.MOST_CONTRIBUTOR,
-		CorpusSort.LEAST_CONTRIBUTOR,
-		CorpusSort.MOST_TEXTS,
-		CorpusSort.LEAST_TEXTS,
+	searchSort: ConceptSort = ConceptSort.A_Z;
+	sortOptions: ConceptSort[] = [
+		ConceptSort.A_Z,
+		ConceptSort.Z_A,
+		ConceptSort.OLDEST,
+		ConceptSort.NEWEST,
+		ConceptSort.MOST_CONTRIBUTOR,
+		ConceptSort.LEAST_CONTRIBUTOR,
+		ConceptSort.MOST_TEXTS,
+		ConceptSort.LEAST_TEXTS,
 	];
 
-	// Create corpus
-	createCorpusTitle: string = '';
-	createCorpusError: string = '';
-	createCorpusInvalid: boolean = false;
-	/*
-  corpusCreated: boolean = true;
-  corpusCreatedMessage: string = "";
-  */
+	// Create concept
+	createConceptTitle: string = '';
+	createConceptError: string = '';
+	createConceptInvalid: boolean = false;
 
 	contributorUsername: string = '';
 
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private router: Router, private us: UserService, private socket: SocketService) {
+	constructor(
+		private router: Router, 
+		private us: UserService, 
+		private socket: SocketService,
+		private dialog: MatDialog
+	) {
 		// Get Pages
 
-		// Get the Corpora
-		this.sub = this.socket.response('dashboard/corpora').subscribe((corpora: Corpus[]) => {
-			this.corpora = Corpus.maps(corpora);
+		// Get the Concepts
+		this.sub = this.socket.response('dashboard/concepts').subscribe((concepts: Concept[]) => {
+			//this.concepts = Concept.maps(concepts);
+			console.log(concepts);
+			this.concepts = concepts;
 		});
 
-		// Corpus Error Message
+		// Concept Create Error Message
 		this.sub = this.socket.response('dashboard/create-error').subscribe(response => {
 			if (response.success === true) {
-				this.createCorpusTitle = '';
-				this.createCorpusError = '';
-				this.createCorpusInvalid = false;
-				$('#createCorpus').modal('hide');
+				this.createConceptTitle = '';
+				this.createConceptError = '';
+				this.createConceptInvalid = false;
+				$('#createConcept').modal('hide');
 			} else {
-				this.createCorpusError = response.message;
-				this.createCorpusInvalid = true;
+				this.createConceptError = response.message;
+				this.createConceptInvalid = true;
 			}
+		});
+
+		// Concept Error Message
+		this.sub = this.socket.response('dashboard/error').subscribe(error => {
+			console.log(error)
 		});
 
 		// Send Search Options
@@ -79,7 +88,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnInit() {
-		this.socket.request('dashboard/getCorpora', null);
+		this.socket.request('dashboard/findConcepts', null);
 	}
 
 	ngOnDestroy() {
@@ -89,40 +98,46 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  CREATE DIALOG
 	 ****************************************************************************/
-	openModal() {
-		$('#createCorpus').modal('show');
+
+	 openDialog() {
+		 this.dialog.open(CreateConceptComponent);
+	 }
+
+
+	// openModal() {
+	// 	$('#createConcept').modal('show');
+	// }
+
+	// closeModal() {
+	// 	this.createConceptInvalid = false;
+	// 	this.createConceptTitle = '';
+	// 	$('#createConcept').modal('hide');
+	// }
+
+	// createNewConcept() {
+	// 	console.log(this.createConceptTitle.replace(/\s\s+/g, ' '));
+	// 	console.log(this.createConceptTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
+	// 	this.socket.request('dashboard/createConcept', this.createConceptTitle);
+	// }
+
+	viewConcept(concept: Concept): void {
+		this.router.navigate(['/content', concept.url]);
 	}
 
-	closeModal() {
-		this.createCorpusInvalid = false;
-		this.createCorpusTitle = '';
-		$('#createCorpus').modal('hide');
+	modifyConcept(index: number): void {
+		$('#createConcept').modal('show');
+		//this.socket.request('dashboard/deleteConcept', this.concepts[index].title);
 	}
 
-	createNewCorpus() {
-		console.log(this.createCorpusTitle.replace(/\s\s+/g, ' '));
-		console.log(this.createCorpusTitle.match(/(?<!\?.+)(?<=\/)[\w-]+(?=[/\r\n?]|$)/g));
-		this.socket.request('dashboard/createCorpus', this.createCorpusTitle);
-	}
-
-	viewCorpus(corpus: Corpus): void {
-		this.router.navigate(['/content', corpus.url]);
-	}
-
-	modifyCorpus(index: number): void {
-		$('#createCorpus').modal('show');
-		//this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
-	}
-
-	removeCorpus(index: number): void {
-		this.socket.request('dashboard/deleteCorpus', this.corpora[index].title);
+	removeConcept(index: number): void {
+		this.socket.request('dashboard/deleteConcept', this.concepts[index].title);
 	}
 
 	/*****************************************************************************
 	 *  SEARCH SUBJECTS
 	 ****************************************************************************/
-	searchCorpora(): void {
-		this.socket.request('dashboard/searchCorpora', {
+	searchConcepts(): void {
+		this.socket.request('dashboard/searchConcepts', {
 			title: this.searchTitle,
 			sort: this.searchSort,
 		});

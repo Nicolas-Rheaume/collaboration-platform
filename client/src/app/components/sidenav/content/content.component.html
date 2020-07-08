@@ -1,0 +1,146 @@
+<div class="mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Display settings</h5>
+        <mat-radio-group
+            [(ngModel)]="cs.selectedDisplayState.value"
+            >
+            <div *ngFor="let state of cs.displayStates">
+                <mat-radio-button 
+                    [value]="state.value"
+                    (change)="cs.setDisplayState(state)">
+                    {{state.name}}
+                </mat-radio-button>
+            </div>
+        </mat-radio-group>
+    </div>
+
+    <div *ngIf="cs.selectedDisplayState.value != 1">
+        <hr class="hr-primary">
+        <div class="card-body">
+            <h5 class="card-title">Editor view</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li 
+                *ngFor="let state of cs.editorState; let i = index"
+                class="list-group-item list-group-item-click"
+                [ngClass]="{'active': state.value == cs.selectedEditorState.value}"
+                (click)="cs.setEditorState(state)"
+                >
+                <mat-icon>{{state.icon}}</mat-icon>&nbsp;&nbsp;
+                <span>{{state.name}}</span>
+            </li>
+        </ul>
+    </div>
+
+    <div *ngIf="cs.selectedDisplayState.value != 0">
+        <hr class="hr-primary">
+        <div class="card-body">
+            <h5 class="card-title">Explorer view</h5>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li 
+                *ngFor="let state of cs.explorerState; let i = index"
+                class="list-group-item list-group-item-click"
+                [ngClass]="{'active': state.value == cs.selectedExplorerState.value}"
+                (click)="cs.setExplorerState(state)"
+                >
+                <mat-icon>{{state.icon}}</mat-icon>&nbsp;&nbsp;
+                <span>{{state.name}}</span>
+            </li>
+        </ul>
+    </div>
+
+
+    <!-- <img style="height: 200px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22318%22%20height%3D%22180%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20318%20180%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_158bd1d28ef%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A16pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_158bd1d28ef%22%3E%3Crect%20width%3D%22318%22%20height%3D%22180%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22129.359375%22%20y%3D%2297.35%22%3EImage%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Card image" class="">
+    <div class="card-body">
+      <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    </div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">Cras justo odio</li>
+      <li class="list-group-item">Dapibus ac facilisis in</li>
+      <li class="list-group-item">Vestibulum at eros</li>
+    </ul>
+    <div class="card-body">
+      <a href="#" class="card-link">Card link</a>
+      <a href="#" class="card-link">Another link</a>
+    </div>
+    <div class="card-footer text-muted">
+      2 days ago
+    </div> -->
+</div>
+
+
+
+<!-- <h3 class="sidenav-header">Display settings:</h3>
+<legend class="content-legend"> Display settings:</legend>
+<mat-radio-group
+  aria-labelledby="example-radio-group-label"
+
+  [(ngModel)]="favoriteSeason">
+  <mat-radio-button class="example-radio-button" *ngFor="let season of seasons" [value]="season">
+    {{season}}
+  </mat-radio-button>
+</mat-radio-group>
+<div>Your favorite season is: {{favoriteSeason}}</div> -->
+
+<!-- <fieldset>
+    <legend class="content-legend"> Display settings:</legend>
+
+
+    
+
+
+    <div class="form-group">
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio1" name="customRadio" class="custom-control-input" checked="">
+        <label class="custom-control-label" for="customRadio1">Toggle this custom radio</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio2" name="customRadio" class="custom-control-input">
+        <label class="custom-control-label" for="customRadio2">Or toggle this other custom radio</label>
+      </div>
+      <div class="custom-control custom-radio">
+        <input type="radio" id="customRadio3" name="customRadio" class="custom-control-input" disabled="">
+        <label class="custom-control-label" for="customRadio3">Disabled custom radio</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="customCheck1" checked="">
+        <label class="custom-control-label" for="customCheck1">Check this custom checkbox</label>
+      </div>
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="customCheck2" disabled="">
+        <label class="custom-control-label" for="customCheck2">Disabled custom checkbox</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="customSwitch1" checked="">
+        <label class="custom-control-label" for="customSwitch1">Toggle this switch element</label>
+      </div>
+      <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" disabled="" id="customSwitch2">
+        <label class="custom-control-label" for="customSwitch2">Disabled switch element</label>
+      </div>
+    </div>
+    <div class="form-group">
+      <select class="custom-select">
+        <option selected="">Open this select menu</option>
+        <option value="1">One</option>
+        <option value="2">Two</option>
+        <option value="3">Three</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <div class="input-group mb-3">
+        <div class="custom-file">
+          <input type="file" class="custom-file-input" id="inputGroupFile02">
+          <label class="custom-file-label" for="inputGroupFile02">Choose file</label>
+        </div>
+        <div class="input-group-append">
+          <span class="input-group-text" id="">Upload</span>
+        </div>
+      </div>
+    </div>
+  </fieldset> -->

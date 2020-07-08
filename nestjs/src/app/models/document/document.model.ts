@@ -119,38 +119,38 @@ export class DocumentModel {
 	/*****************************************************************************
 	 *  UPSERT
 	 *****************************************************************************/
-	public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const document = await this.documentRepository
-					.findOne(
-						{
-							corpus: corpus,
-							author: author,
-						},
-						{ relations: ['corpus', 'author'] },
-					)
-					.catch(err => {
-						throw 'Error finding the document';
-					});
+	// public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
+	// 	return new Promise(async (resolve, reject) => {
+	// 		try {
+	// 			const document = await this.documentRepository
+	// 				.findOne(
+	// 					{
+	// 						corpus: corpus,
+	// 						author: author,
+	// 					},
+	// 					{ relations: ['corpus', 'author'] },
+	// 				)
+	// 				.catch(err => {
+	// 					throw 'Error finding the document';
+	// 				});
 
-				if (document != undefined || document != null) resolve(document);
-				else {
-					const newDocument = await this.documentRepository
-						.save({
-							corpus: corpus,
-							author: author,
-						})
-						.catch(err => {
-							throw 'Error finding the document';
-						});
-					resolve(newDocument);
-				}
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
+	// 			if (document != undefined || document != null) resolve(document);
+	// 			else {
+	// 				const newDocument = await this.documentRepository
+	// 					.save({
+	// 						corpus: corpus,
+	// 						author: author,
+	// 					})
+	// 					.catch(err => {
+	// 						throw 'Error finding the document';
+	// 					});
+	// 				resolve(newDocument);
+	// 			}
+	// 		} catch (err) {
+	// 			reject(err);
+	// 		}
+	// 	});
+	// }
 
 	/*****************************************************************************
 	 *  CREATE
@@ -169,6 +169,27 @@ export class DocumentModel {
 					.where('document.id = ' + document.id)
 					.orderBy('paragraphs.order', 'ASC')
 					.getMany()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByCorpusAndAuthorWithTexts(corpusID: number, authorID: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntity = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.corpus = ' + corpusID)
+					.andWhere('document.author = ' + authorID)
+					.orderBy('paragraphs.order', 'ASC')
+					.getOne()
 					.catch(err => {
 						throw 'Error finding the document';
 					});

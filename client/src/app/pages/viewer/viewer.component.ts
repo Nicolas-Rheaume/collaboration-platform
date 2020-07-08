@@ -16,6 +16,7 @@ export class ViewerComponent implements OnInit {
 	 ****************************************************************************/
 	private sub: Subscription;
 	private title: string;
+	private user: string;
 
 	private document: Document = null;
 	/*****************************************************************************
@@ -24,15 +25,17 @@ export class ViewerComponent implements OnInit {
 	constructor(public activeRouter: ActivatedRoute, public router: Router, private socket: SocketService) {
 		this.sub = this.activeRouter.params.subscribe(params => {
 			this.title = params.title;
+			this.user = params.user;
 
 			// Get Information
-			this.sub = this.socket.response('viewer/document').subscribe(document => {
+			this.sub = this.socket.response('document/document').subscribe(document => {
 				console.log(document);
 				this.document = document;
+				console.log(this.document);
 			});
 
 			// Request Corpus Information
-			this.socket.request('viewer/getDocument', [this.title]);
+			this.socket.request('document/getDocument', [this.title, this.user]);
 		});
 	}
 

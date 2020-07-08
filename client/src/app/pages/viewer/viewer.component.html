@@ -14,6 +14,39 @@
   </mat-tree-node>
 </mat-tree> -->
 
+<div class="container">
+  <div class="mb-3"></div>
+  <div class="row">
+    <div class="col-sm-12">
+      <mat-tab-group animationDuration="0ms">
+        <ng-container *ngIf="(asyncTabs | async) === null">
+          Loading tabs...
+        </ng-container>
+
+        <mat-tab>
+          <ng-template mat-tab-label>Overview</ng-template>
+          <ng-template matTabContent>
+
+          </ng-template>
+        </mat-tab>
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;
+            <span>Read</span>
+          </ng-template>
+          <ng-template matTabContent>
+            <div *ngFor="let text of document.texts">
+              <div [innerHTML]="text"></div>
+            </div>
+          </ng-template>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </div>
+</div>
+
+<br><br>
+
 
 
 

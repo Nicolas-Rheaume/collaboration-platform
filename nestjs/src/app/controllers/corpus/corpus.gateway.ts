@@ -31,33 +31,33 @@ export class CorpusGateway implements OnGatewayInit {
 	 *  CORPUS EVENTS
 	 *****************************************************************************/
 
-	// Information
-	@SubscribeMessage('corpus/getInformation')
-	public async information(client: Socket, [title]: [string]): Promise<WsResponse<Corpus>> {
-		try {
-			let corpus = await this.controller.information(client, title).catch(err => {
-				throw err;
-			});
-			return { event: 'corpus/information', data: corpus };
-		} catch (err) {
-			console.log(err);
-			return { event: 'corpus/error', data: err };
-		}
-	}
+	// // Information
+	// @SubscribeMessage('corpus/getInformation')
+	// public async information(client: Socket, [title]: [string]): Promise<WsResponse<Corpus>> {
+	// 	try {
+	// 		let corpus = await this.controller.information(client, title).catch(err => {
+	// 			throw err;
+	// 		});
+	// 		return { event: 'corpus/information', data: corpus };
+	// 	} catch (err) {
+	// 		console.log(err);
+	// 		return { event: 'corpus/error', data: err };
+	// 	}
+	// }
 
-	// Information
-	@SubscribeMessage('corpus/getDocuments')
-	public async documents(client: Socket, [title]: [string]): Promise<WsResponse<Document[]>> {
-		try {
-			const documents: Document[] = await this.controller.documents(client, title).catch(err => {
-				throw err;
-			});
-			return { event: 'corpus/documents', data: documents };
-		} catch (err) {
-			console.log(err);
-			return { event: 'corpus/error', data: err };
-		}
-	}
+	// // Information
+	// @SubscribeMessage('corpus/getDocuments')
+	// public async documents(client: Socket, [title]: [string]): Promise<WsResponse<Document[]>> {
+	// 	try {
+	// 		const documents: Document[] = await this.controller.documents(client, title).catch(err => {
+	// 			throw err;
+	// 		});
+	// 		return { event: 'corpus/documents', data: documents };
+	// 	} catch (err) {
+	// 		console.log(err);
+	// 		return { event: 'corpus/error', data: err };
+	// 	}
+	// }
 
 	// // Register
 	// @SubscribeMessage('authenticate/register')

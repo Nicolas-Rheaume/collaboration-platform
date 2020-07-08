@@ -2,6 +2,7 @@
 <ckeditor
   #editable
   [editor]="Editor" 
+  [config]="config"
   [(ngModel)]="text"
   (change)="onChange($event)"
   (ready)="onReady($event)" 

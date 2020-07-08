@@ -5,14 +5,24 @@
 export class Text {
 	// Variables
 	public text?: string;
+	public tag?: string;
+	public html?: string;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
 	// constructor
 
-	constructor(text: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(
+		text: string = '', 
+		tag: string = '', 
+		html: string = '', 
+		createdAt: Date = new Date(), 
+		updatedAt: Date = new Date()
+	) {
 		this.text = text;
+		this.tag = tag;
+		this.html = html;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -20,7 +30,20 @@ export class Text {
 	public async getEntity(): Promise<TextEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new TextEntity(0, this.text, null, null, 0, 0, 0, this.createdAt, this.updatedAt));
+				resolve(
+					new TextEntity(
+						0, 
+						this.text, 
+						this.tag, 
+						this.html, 
+						null, 
+						null, 
+						0, 
+						0, 
+						0, 
+						this.createdAt,
+						this.updatedAt
+						));
 			} catch (err) {
 				reject(err);
 			}
@@ -31,6 +54,8 @@ export class Text {
 		return new Promise(async (resolve, reject) => {
 			try {
 				this.text = textEntity.text;
+				this.tag = textEntity.tag;
+				this.html = textEntity.html;
 				this.createdAt = textEntity.createdAt;
 				this.updatedAt = textEntity.updatedAt;
 				resolve();
@@ -45,6 +70,8 @@ export class Text {
 			try {
 				resolve({
 					text: this.text,
+					tag: this.tag,
+					html: this.html,
 					createdAt: this.createdAt,
 					updatedAt: this.updatedAt,
 				});
@@ -58,6 +85,8 @@ export class Text {
 		return new Promise(async (resolve, reject) => {
 			try {
 				if (json.hasOwnProperty('text')) this.text = json.text;
+				if (json.hasOwnProperty('tag')) this.tag = json.tag;
+				if (json.hasOwnProperty('html')) this.html = json.html;
 				if (json.hasOwnProperty('createdAt')) this.createdAt = json.createdAt;
 				if (json.hasOwnProperty('updatedAt')) this.updatedAt = json.updatedAt;
 				resolve();
@@ -106,6 +135,12 @@ export class TextEntity {
 	@Column({ type: 'text' })
 	public text: string;
 
+	@Column({ type: 'text' })
+	public tag: string;
+
+	@Column({ type: 'text' })
+	public html: string;
+
 	@ManyToOne(
 		type => UserEntity,
 		user => user.texts,
@@ -142,6 +177,8 @@ export class TextEntity {
 	constructor(
 		id: number = 0,
 		text: string = '',
+		tag: string = '',
+		html: string = '',
 		author: UserEntity = null,
 		previousText: TextEntity = null,
 		depth: number = 0,
@@ -152,6 +189,8 @@ export class TextEntity {
 	) {
 		this.id = id;
 		this.text = text;
+		this.tag = tag;
+		this.html = html;
 		this.author = author;
 		this.previousText = previousText;
 		this.depth = depth;
@@ -164,7 +203,13 @@ export class TextEntity {
 	public async getText(): Promise<Text> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new Text(this.text, this.createdAt, this.updatedAt));
+				resolve(
+					new Text(
+						this.text, 
+						this.tag,
+						this.html,
+						this.createdAt, 
+						this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -176,6 +221,8 @@ export class TextEntity {
 			try {
 				this.id = 0;
 				this.text = text.text;
+				this.tag = text.tag;
+				this.html = text.html;
 				this.createdAt = text.createdAt;
 				this.updatedAt = text.updatedAt;
 				resolve();
@@ -191,6 +238,8 @@ export class TextEntity {
 				resolve({
 					id: this.id,
 					text: this.text,
+					tag: this.tag,
+					html: this.html,
 					author: this.author.getJSON(),
 					depth: this.depth,
 					pointer: this.pointer,
@@ -209,6 +258,8 @@ export class TextEntity {
 			try {
 				if (json.hasOwnProperty('id')) this.id = json.id;
 				if (json.hasOwnProperty('text')) this.text = json.text;
+				if (json.hasOwnProperty('tag')) this.tag = json.tag;
+				if (json.hasOwnProperty('html')) this.html = json.html;
 				if (json.hasOwnProperty('author')) this.author = json.author;
 				if (json.hasOwnProperty('depth')) this.depth = json.depth;
 				if (json.hasOwnProperty('pointer')) this.pointer = json.pointer;
@@ -230,6 +281,8 @@ export class TextEntity {
 					entities[i] = new TextEntity();
 					if (json[i].hasOwnProperty('id')) entities[i].id = json[i].id;
 					if (json[i].hasOwnProperty('text')) entities[i].text = json[i].text;
+					if (json[i].hasOwnProperty('tag')) entities[i].tag = json[i].tag;
+					if (json[i].hasOwnProperty('html')) entities[i].html = json[i].html;
 					if (json[i].hasOwnProperty('author')) entities[i].author = json[i].author;
 					if (json[i].hasOwnProperty('depth')) entities[i].depth = json[i].depth;
 					if (json[i].hasOwnProperty('pointer')) entities[i].pointer = json[i].pointer;

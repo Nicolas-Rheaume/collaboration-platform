@@ -10,16 +10,33 @@ export enum SideNavState {
 	DRAWER,
 }
 
+export enum SideNavComponent {
+	NONE,
+	TABLE_OF_CONTENT,
+	CONTENT_MENU,
+
+}
+
 @Injectable({
 	providedIn: 'root',
 })
 export class SideNavService {
+	/*****************************************************************************
+	 *  VARIABLES
+	 ****************************************************************************/
+	public leftOpened: boolean = true;
+	public rightOpened: boolean = true;
+
 	public leftSideNavState: SideNavState = SideNavState.NONE;
 	public rightSideNavState: SideNavState = SideNavState.NONE;
 
-	public leftOpened: boolean = false;
-	public rightOpened: boolean = false;
+	public leftSideNavComponent: SideNavComponent = SideNavComponent.NONE;
+	public rightSideNavComponent: SideNavComponent = SideNavComponent.NONE;
 
+
+	/*****************************************************************************
+	 *  MAIN
+	 ****************************************************************************/
 	constructor() {}
 
 	public getSideNavState(): number {
@@ -34,5 +51,33 @@ export class SideNavService {
 	public rightClick() {
 		this.rightSideNavState++;
 		if (this.rightSideNavState > 2) this.rightSideNavState = 0;
+	}
+
+	public setLeftNavState(state: SideNavState) {
+		this.leftSideNavState = state;
+	}
+
+	public setRightNavState(state: SideNavState) {
+		this.rightSideNavState = state;
+	}
+
+	public setLeftNavComponent(component: SideNavComponent) {
+		this.leftSideNavComponent = component;
+	}
+
+	public setRightNavComponent(component: SideNavComponent) {
+		this.rightSideNavComponent = component;
+	}
+
+	public routeLeftNav(component: string) {
+		if(component === "table of content" && this.leftSideNavComponent === SideNavComponent.TABLE_OF_CONTENT) return true;
+		else if(component === "content" && this.leftSideNavComponent === SideNavComponent.CONTENT_MENU) return true;
+		else return false;
+	}
+
+	public routeRightNav(component: string) {
+		if(component === "table of content" && this.rightSideNavComponent === SideNavComponent.TABLE_OF_CONTENT) return true;
+		else if(component === "content" && this.rightSideNavComponent === SideNavComponent.CONTENT_MENU) return true;
+		else return false;
 	}
 }

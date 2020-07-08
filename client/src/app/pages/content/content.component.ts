@@ -9,12 +9,12 @@ import { UserService } from 'src/app/services/user.service';
 import { Corpus } from '../../models/corpus.model';
 import { Text } from '../../models/text.model';
 import { SocketService } from 'src/app/services/socket.service';
+import { SideNavService, SideNavState, SideNavComponent } from 'src/app/services/sidenav.service';
 
 @Component({
 	selector: 'app-content',
 	templateUrl: './content.component.html',
 	styleUrls: ['./content.component.scss'],
-	providers: [ContentService],
 })
 export class ContentComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
@@ -31,14 +31,21 @@ export class ContentComponent implements OnInit, OnDestroy {
 	constructor(
 		public activeRouter: ActivatedRoute,
 		public router: Router,
-		public cs: ContentService /*,
-    private ss: SubjectService,
-    private cs: ContentService,
-    private us: UserService,
-    private socketService: SocketService*/,
-	) {}
+		public cs: ContentService,
+		private socket: SocketService,
+		private sidenav: SideNavService,  /*,
+		private ss: SubjectService,
+		private cs: ContentService,
+		private us: UserService,
+		private socketService: SocketService*/
+	) {
+		this.sidenav.leftOpened = true;
+		this.sidenav.setLeftNavState(SideNavState.DRAWER);
+		this.sidenav.setLeftNavComponent(SideNavComponent.CONTENT_MENU);
+	}
 
 	ngOnInit() {
+
 		// Get the Active Route parameter
 		/*
     this.sub = this.activeRouter.params.subscribe(params => {
@@ -66,6 +73,9 @@ export class ContentComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
+		this.sidenav.leftOpened = false;
+		this.sidenav.setLeftNavState(SideNavState.NONE);
+		this.sidenav.setLeftNavComponent(SideNavComponent.NONE);
 		//this.sub.unsubscribe();
 	}
 

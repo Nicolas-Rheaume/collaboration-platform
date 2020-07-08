@@ -8,12 +8,11 @@ import { take } from 'rxjs/operators';
 
 import { ChangeEvent, BlurEvent, FocusEvent } from '@ckeditor/ckeditor5-angular/ckeditor.component';
 
-import { ContentService } from '../../services/content.service';
-import { Text } from '../../models/text.model';
+import { ContentService } from '../../../services/content.service';
+import { Text } from '../../../models/text.model';
 
 //import { MultirootEditor, MultirootEditorUI, MultirootEditorUIView} from '../../ckeditor/multi-root-editor';
 import { EditableComponent } from './editable/editable.component';
-import { ToolbarComponent } from './toolbar/toolbar.component';
 import { ContenteditableDirective } from './editable/editable.directive';
 
 //import * as ClassicEditor from '@ckeditor/ckeditor5-build-classic';
@@ -27,99 +26,47 @@ import { style } from '@angular/animations';
 //import { MultiRootEditor } from '../../../tools/ckeditor/multirooteditor';
 
 @Component({
-	selector: 'app-editor',
-	templateUrl: './editor.component.html',
-	styleUrls: ['./editor.component.scss'],
+	selector: 'app-edit',
+	templateUrl: './edit.component.html',
+	styleUrls: ['./edit.component.scss'],
 })
-export class EditorComponent implements OnInit, OnDestroy {
+export class EditComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
+	sub: Subscription;
 	Editor = DecoupledEditor;
-	isDisabled = false;
+	isDisabled: boolean = false;
 	configData = { toolbar: false };
 	@ViewChildren('editable') editables: QueryList<any>;
 
-	/*
-  public editorConfiguration = {
-    toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'imageUpload', 'blockQuote',
-      'insertTable', 'mediaEmbed', 'undo', 'redo' ],
-    image: {
-      toolbar: [ 'imageTextAlternative', '|', 'imageStyle:alignLeft', 'imageStyle:full', 'imageStyle:alignRight' ],
-      styles: [ 'full', 'alignLeft', 'alignRight' ]
-    },
-    table: {
-      contentToolbar: [
-        'tableColumn',
-        'tableRow',
-        'mergeTableCells'
-      ]
-    },
-    placeholder: {
-      header: 'Header text goes here',
-      content: 'Type content here',
-      footerleft: 'Left footer content',
-      footerright: 'Right footer content'
-    }
-  };
-  */
+	activeText: number = 0;
+
 
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
 
-	// Variables
-	corpusTitle: string = '';
-	document: Document = new Document();
-	activeText: number = 0;
-
 	// Constructor
-	constructor(public socket: SocketService, public activeRouter: ActivatedRoute, public router: Router, public _ngZone: NgZone, public cs: ContentService, public elementRef: ElementRef) {
-		// Set the corpus to the client
-		this.sub = this.activeRouter.params.subscribe(async params => {
-			this.corpusTitle = params.title;
-			await this.socketResponse();
-		});
+	constructor(
+		public socket: SocketService, 
+		public activeRouter: ActivatedRoute, 
+		public router: Router, 
+		public _ngZone: NgZone, 
+		public cs: ContentService, 
+		public elementRef: ElementRef
+	) {
 	}
 
 	ngOnInit() {
-		this.Editor.style.add('my_styles', [
-			// Block-level styles.
-			{ name: 'Blue Title', element: 'h2', styles: { color: 'Blue' } },
-			{ name: 'Red Title', element: 'h3', styles: { color: 'Red' } },
-
-			// Inline styles.
-			{ name: 'CSS Style', element: 'span', attributes: { class: 'my_style' } },
-			{ name: 'Marker: Yellow', element: 'span', styles: { 'background-color': 'Yellow' } },
-		]);
 	}
 
 	ngOnDestroy() {
-		console.log('Editor Destroy');
 	}
 
 	/*****************************************************************************
 	 *  SOCKET
 	 ****************************************************************************/
-
-	// Variables
-	sub: Subscription;
-
-	// Socket Response
-	private async socketResponse(): Promise<void> {
-		// Editor Error Message
-		this.sub = this.socket.response('editor/error').subscribe(response => {
-			if (response.success === false) console.log(response.message);
-		});
-
-		// Editor Document
-		this.sub = this.socket.response('editor/document').subscribe((document: Document) => {
-			this.document = document;
-		});
-
-		// Initialize the Document
-		this.socket.request('editor/initialize', this.corpusTitle);
-	}
 
 	/*****************************************************************************
 	 *  EDITOR
@@ -141,29 +88,33 @@ export class EditorComponent implements OnInit, OnDestroy {
 
 	private onUpdate(event) {
 		const index: number = this.activeText;
-		const text: string = this.document.texts[this.activeText].text;
+		const text: string = this.cs.editorDocument.texts[this.activeText].text;
+
+		console.log(this.cs.editorDocument.texts[this.activeText]);
 		this.socket.request('editor/updateTextAtIndex', [index, text]);
 	}
 
 	// Split Event when a new line is entered
 	private onSplit(event) {
-		this.document.texts[event.index].text = event.first;
+		this.cs.editorDocument.texts[event.index].text = event.first;
 		const text = new Text(event.second);
-		this.document.texts.splice(event.index + 1, 0, text);
+		this.cs.editorDocument.texts.splice(event.index + 1, 0, text);
 		this.activeText++;
 		setTimeout(() => {
 			this.editables.last.elementRef.editorElement.focus();
 		}, 0);
+
+		console.log(this.cs.editorDocument);
 		this.socket.request('editor/splitTextAtIndex', [event.index, event.first, event.second]);
 	}
 
 	// Merge Event when a paragraphs is empty
 	private onMerge(event) {
-		if (this.document.texts.length > 0) {
+		if (this.cs.editorDocument.texts.length > 0) {
 			let promise = new Promise((resolve, reject) => {
 				this.editables.last.elementRef.editorElement.blur();
 				this.activeText--;
-				this.document.texts.splice(event.index, 1);
+				this.cs.editorDocument.texts.splice(event.index, 1);
 				resolve();
 			}).then(() => {
 				setTimeout(() => {

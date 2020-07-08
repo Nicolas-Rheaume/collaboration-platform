@@ -25,35 +25,35 @@ export class ExplorerController {
 		private readonly textModel: TextModel,
 	) {}
 
-	// Initialize Editor Texts
-	public async initialize(client: Socket, url: string): Promise<Text[]> {
-		return new Promise<any>(async (resolve, reject) => {
-			try {
-				const author: UserEntity = this.cs.getUserEntity(client);
-				const corpus: CorpusEntity = await this.corpusModel.findOneByTitle(url).catch(err => {
-					throw err;
-				});
-				const explorerTextEntities: TextEntity[] = await this.documentModel.findTextsByCorpusWithoutAuthor(corpus, author).catch(err => {
-					throw err;
-				});
-				this.cs.getConnection(client).explorerTexts = explorerTextEntities;
-				const explorerTexts = Text.parseEntities(explorerTextEntities);
-				resolve(explorerTexts);
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
+	// // Initialize Editor Texts
+	// public async initialize(client: Socket, url: string): Promise<Text[]> {
+	// 	return new Promise<any>(async (resolve, reject) => {
+	// 		try {
+	// 			const author: UserEntity = this.cs.getUserEntity(client);
+	// 			const corpus: CorpusEntity = await this.corpusModel.findOneByTitle(url).catch(err => {
+	// 				throw err;
+	// 			});
+	// 			const explorerTextEntities: TextEntity[] = await this.documentModel.findTextsByCorpusWithoutAuthor(corpus, author).catch(err => {
+	// 				throw err;
+	// 			});
+	// 			this.cs.getConnection(client).explorerTexts = explorerTextEntities;
+	// 			const explorerTexts = Text.parseEntities(explorerTextEntities);
+	// 			resolve(explorerTexts);
+	// 		} catch (err) {
+	// 			reject(err);
+	// 		}
+	// 	});
+	// }
 
-	// Merge a new text at index
-	public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
-		return new Promise<any>(async (resolve, reject) => {
-			try {
-				arrayMove.mutate(this.cs.getConnection(client).explorerTexts, from, to);
-				resolve(document);
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
+	// // Merge a new text at index
+	// public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
+	// 	return new Promise<any>(async (resolve, reject) => {
+	// 		try {
+	// 			arrayMove.mutate(this.cs.getConnection(client).explorerTexts, from, to);
+	// 			resolve(document);
+	// 		} catch (err) {
+	// 			reject(err);
+	// 		}
+	// 	});
+	// }
 }

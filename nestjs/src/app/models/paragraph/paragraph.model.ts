@@ -4,7 +4,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
-import { Corpus, CorpusEntity, CorpusSort, SORTMAP } from 'app/entities/corpus.entity';
 import { ParagraphEntity } from 'app/entities/paragraph.entity';
 import { DocumentEntity } from 'app/entities/document.entity';
 import { TextEntity } from 'app/entities/text.entity';

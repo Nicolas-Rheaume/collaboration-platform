@@ -1,4 +1,10 @@
 
+.invisible-tabs {
+  > .mat-tab-header {
+    display: none;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 10px;

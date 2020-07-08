@@ -12,6 +12,9 @@ import { Text } from '../models/text.model';
 import { SocketService } from './socket.service';
 
 import * as arrayMove from 'array-move';
+import { FormControl } from '@angular/forms';
+import { Document } from '../models/document.model';
+import { Concept } from '../models/concept.model';
 
 @Injectable({
 	providedIn: 'root',
@@ -20,102 +23,176 @@ export class ContentService {
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
-
+	private sub: Subscription;
 	private corpusTitle: string = '';
 
+	// To Change to :
+	public conceptTitle: string = '';
+	public editorCorpus: Corpus = null;
+	public explorerConcept: Concept = null;
+
+	public editorTexts: Text[] = [];
+
 	// TO DELETE
-	private apiURL = environment.api + '/content';
-	//private socket: SocketIOClient.Socket = io(this.apiURL);
-	private sub: Subscription;
+
 
 	private user: User = new User();
 
 	public corpus: Corpus = new Corpus();
-	public editorTexts: Text[] = [];
 	public explorerTexts: Text[] = [];
 	public editorCommands: boolean = false;
 
 	public useMockData: boolean = false;
 
-	public editorDocument: Document = null;
+	public editorDocument: Document = new Document();
 
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private socket: SocketService, private us: UserService, private activeRouter: ActivatedRoute) {
-		if (this.useMockData) {
-			//this.setMockData();
-		} else {
-			// Set the corpus to the client
-			this.sub = this.activeRouter.params.subscribe(params => {
-				this.corpusTitle = params.title;
+	constructor(
+		private socket: SocketService, 
+		private us: UserService, 
+	) {
 
-				// Editor Error Message
-				this.sub = this.socket.response('editor/error').subscribe(response => {
-					if (response.success === false) console.log(response.message);
-				});
+		// Editor Error Message
+		this.sub = this.socket.response('editor/error').subscribe(response => {
+			if (response.success === false) console.log(response.message);
+		});
 
-				// Editor Document
-				this.sub = this.socket.response('editor/document').subscribe(document => {
-					console.log(document);
-					this.editorDocument = document;
-					//this.editorTexts[index] = Text.map(text);
-				});
+		// Editor Document
+		this.sub = this.socket.response('editor/document').subscribe(document => {
+			this.editorDocument = document;
+			console.log(this.editorDocument)
+		});
 
-				// // Explorer Error Message
-				// this.sub = this.socket.response('explorer/error').subscribe(message => {
-				// 	console.log(message);
-				// });
 
-				// // Editor Texts
-				// this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
-				// 	console.log(editorTexts);
-				// 	this.editorTexts = Text.maps(editorTexts);
-				// });
 
-				// // Editor Texts - Create Text
-				// this.sub = this.socket.response('editor/create-text-response').subscribe(({ text, index }) => {
-				// 	this.editorTexts.splice(index, 0, Text.map(text));
-				// });
+		// if (this.useMockData) {
+		// 	//this.setMockData();
+		// } else {
+		// 	// Set the corpus to the client
+		// 	this.sub = this.activeRouter.params.subscribe(params => {
+		// 		this.corpusTitle = params.title;
 
-				// // Editor Texts - Delete Text
-				// this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
-				// 	this.editorTexts.splice(index, 1);
-				// });
+		// 		// Editor Error Message
+		// 		this.sub = this.socket.response('editor/error').subscribe(response => {
+		// 			if (response.success === false) console.log(response.message);
+		// 		});
 
-				// // Editor Texts - Error while moving text
-				// this.sub = this.socket.response('editor/move-text-error').subscribe(({ from, to }) => {
-				// 	arrayMove.mutate(this.editorTexts, from, to);
-				// });
+		// 		// Editor Document
+		// 		this.sub = this.socket.response('editor/document').subscribe(document => {
+		// 			this.editorDocument = document;
+		// 			console.log(this.editorDocument)
+		// 		});
 
-				// // Explorer Texts
-				// this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
-				// 	console.log(explorerTexts);
-				// 	this.explorerTexts = Text.maps(explorerTexts);
-				// });
+		// 		// // Explorer Error Message
+		// 		// this.sub = this.socket.response('explorer/error').subscribe(message => {
+		// 		// 	console.log(message);
+		// 		// });
 
-				// // Explorer Texts - Error while moving text
-				// this.sub = this.socket.response('explorer/move-text-error').subscribe(({ from, to }) => {
-				// 	arrayMove.mutate(this.explorerTexts, from, to);
-				// });
+		// 		// // Editor Texts
+		// 		// this.sub = this.socket.response('editor/texts').subscribe(editorTexts => {
+		// 		// 	console.log(editorTexts);
+		// 		// 	this.editorTexts = Text.maps(editorTexts);
+		// 		// });
 
-				// // Adopt explorer to editor
-				// this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({ from, to }) => {
-				// 	const text = this.editorTexts[from];
-				// 	this.editorTexts.splice(from, 0);
-				// 	this.explorerTexts.splice(to, 0, text);
-				// });
+		// 		// // Editor Texts - Create Text
+		// 		// this.sub = this.socket.response('editor/create-text-response').subscribe(({ text, index }) => {
+		// 		// 	this.editorTexts.splice(index, 0, Text.map(text));
+		// 		// });
 
-				// // Explorer Texts
-				// this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
-				// 	this.socket.request('explorer/refresh-texts', {});
-				// });
+		// 		// // Editor Texts - Delete Text
+		// 		// this.sub = this.socket.response('editor/delete-text-response').subscribe(index => {
+		// 		// 	this.editorTexts.splice(index, 1);
+		// 		// });
 
-				this.socket.request('editor/initialize', this.corpusTitle);
-				this.socket.request('explorer/initialize', this.corpusTitle);
-			});
+		// 		// // Editor Texts - Error while moving text
+		// 		// this.sub = this.socket.response('editor/move-text-error').subscribe(({ from, to }) => {
+		// 		// 	arrayMove.mutate(this.editorTexts, from, to);
+		// 		// });
+
+		// 		// // Explorer Texts
+		// 		// this.sub = this.socket.response('explorer/texts').subscribe(explorerTexts => {
+		// 		// 	console.log(explorerTexts);
+		// 		// 	this.explorerTexts = Text.maps(explorerTexts);
+		// 		// });
+
+		// 		// // Explorer Texts - Error while moving text
+		// 		// this.sub = this.socket.response('explorer/move-text-error').subscribe(({ from, to }) => {
+		// 		// 	arrayMove.mutate(this.explorerTexts, from, to);
+		// 		// });
+
+		// 		// // Adopt explorer to editor
+		// 		// this.sub = this.socket.response('explorer/adopt-text-error').subscribe(({ from, to }) => {
+		// 		// 	const text = this.editorTexts[from];
+		// 		// 	this.editorTexts.splice(from, 0);
+		// 		// 	this.explorerTexts.splice(to, 0, text);
+		// 		// });
+
+		// 		// // Explorer Texts
+		// 		// this.sub = this.socket.response('explorer/update').subscribe(explorerTexts => {
+		// 		// 	this.socket.request('explorer/refresh-texts', {});
+		// 		// });
+
+		// 		//this.socket.request('editor/initialize', this.corpusTitle);
+		// 		//this.socket.request('explorer/initialize', this.corpusTitle);
+		// 	});
+		// }
+	}
+
+	/*****************************************************************************
+	 *  DISPLAY SETTINGS
+	 ****************************************************************************/
+	// Variables
+	public selectedDisplayState: FormControl = new FormControl(0);
+	public displayStates = [
+		{value: 0, name: "Editor"},
+		{value: 1, name: "Explorer"},
+		{value: 2, name: "Split vertical"},
+		{value: 3, name: "Split horizontal"},
+	];
+
+	public setDisplayState(state) {
+		this.selectedDisplayState.setValue(state.value);
+	}
+
+	/*****************************************************************************
+	 *  EDITOR SETTINGS
+	 ****************************************************************************/
+	// Variables
+	public selectedEditorState: FormControl = new FormControl(0);
+	public editorState = [
+		{value: 0, name: "Overview", icon: "home"},
+		{value: 1, name: "Edit", icon: "edit"},
+		{value: 2, name: "History", icon: "menu_book"},
+	];
+
+	public setEditorState(state) {
+		this.selectedEditorState.setValue(state.value);
+	}
+
+	public initializeEditor(title: string): void {
+		if(title != this.corpusTitle) {
+			this.corpusTitle = title;
+			this.socket.request('editor/initialize', title);
 		}
 	}
+
+	/*****************************************************************************
+	 *  EXPLORER SETTINGS
+	 ****************************************************************************/
+	// Variables
+	public selectedExplorerState: FormControl = new FormControl(0);
+	public explorerState = [
+		{value: 0, name: "Overview", icon: "home"},
+		{value: 1, name: "Edit", icon: "edit"},
+		{value: 2, name: "History", icon: "menu_book"},
+	];
+
+	public setExplorerState(state) {
+		this.selectedEditorState.setValue(state.value);
+	}
+
 
 	/*****************************************************************************
 	 *  WEB SOCKETS REQUEST

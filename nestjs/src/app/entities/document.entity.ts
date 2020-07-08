@@ -4,17 +4,27 @@
 
 export class Document {
 	// Variables
-	public author?: string;
-	public corpus?: Corpus;
+	public title?: string;
+	public description?: string;
+	public tableOfContent?: string[];
 	public texts?: Text[];
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
 	// constructor
-	constructor(author: string = "", corpus: Corpus = null, texts: Text[] = [], createdAt: Date = null, updatedAt: Date = null) {
-		this.author = author;
-		this.corpus = corpus;
+	constructor(
+		title: string = '',
+		description: string = '',
+		tableOfContent: string[] = [],
+		texts: Text[] = [], 
+		
+		createdAt: Date = null, 
+		updatedAt: Date = null
+	) {
+		this.title = title;
+		this.description = description;
+		this.tableOfContent = tableOfContent;
 		this.texts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -121,19 +131,21 @@ export class DocumentEntity {
 	@PrimaryGeneratedColumn()
 	public id: number;
 
+	@Column('text')
+	public title: string;
+
+	@Column('text')
+	public description: string;
+
+	@Column({ type: 'int' })
+	public order: number;
+
 	@ManyToOne(
 		type => CorpusEntity,
 		corpus => corpus.documents,
 	)
 	@JoinColumn({ name: 'corpus' })
 	public corpus: CorpusEntity;
-
-	@ManyToOne(
-		type => UserEntity,
-		user => user.documents,
-	)
-	@JoinColumn({ name: 'author' })
-	public author: UserEntity;
 
 	@OneToMany(
 		type => ParagraphEntity,
@@ -148,10 +160,21 @@ export class DocumentEntity {
 	public updatedAt: Date;
 
 	// Constructor
-	constructor(id: number = 0, corpus: CorpusEntity = null, author: UserEntity = null, paragraphs: ParagraphEntity[] = null, createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(
+		id: number = 0, 
+		title: string = '', 
+		description: string = '', 
+		order: number = 0,
+		corpus: CorpusEntity = null, 
+		paragraphs: ParagraphEntity[] = null, 
+		createdAt: Date = new Date(), 
+		updatedAt: Date = new Date()
+	) {
 		this.id = id;
+		this.title = title;
+		this.description = description;
+		this.order = order;
 		this.corpus = corpus;
-		this.author = author;
 		this.paragraphs = paragraphs;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
@@ -164,7 +187,31 @@ export class DocumentEntity {
 				for (let i = 0; i < texts.length; i++) {
 					texts[i] = await this.paragraphs[i].text.getText();
 				}
-				resolve(new Document(await this.author.username, await this.corpus.getCorpus(), texts, this.createdAt, this.updatedAt));
+				resolve(
+					new Document(
+						this.title,
+						this.description,
+						null,
+						texts, 
+						this.createdAt, 
+						this.updatedAt)
+					);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public static async getDocuments(documentEntities: DocumentEntity[]): Promise<Document[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let documents = new Array(documentEntities.length);
+				for (let i = 0; i < documentEntities.length; i++) {
+					documents[i] = documentEntities[i].getDocument();
+				}
+				Promise.all(documents).then(values => {
+					resolve(values);
+				});
 			} catch (err) {
 				reject(err);
 			}

@@ -1,9 +1,60 @@
+<mat-tab-group 
+    class="invisible-tabs content-window content-main"  
+    [(selectedIndex)]="cs.selectedDisplayState.value"
+    (selectedIndexChange)="cs.selectedDisplayState.setValue($event)"
+    animationDuration="0ms">
+
+    <!-- Editor Panel-->
+    <mat-tab class="content-main">
+        <ng-template matTabContent>
+            <content-editor></content-editor>
+        </ng-template>
+    </mat-tab>
+
+    <!-- Explorer Panel-->
+    <mat-tab>
+        <ng-template matTabContent>
+            <content-explorer></content-explorer>
+        </ng-template>
+    </mat-tab>
+
+    <!-- Dual Horizontal Editor and Explorer Panel-->
+    <mat-tab class="content-main">
+        <ng-template matTabContent>
+            <as-split direction="horizontal">
+                <as-split-area size="50">
+                    <content-editor></content-editor>
+                </as-split-area>
+                <as-split-area size="50">
+                    <content-explorer></content-explorer>
+                </as-split-area>
+            </as-split>
+        </ng-template>
+    </mat-tab>
+
+    <!-- Dual Vertical Editor and Explorer Panel-->
+    <mat-tab  class="content-main">
+        <ng-template matTabContent>
+            <as-split direction="vertical">
+                <as-split-area size="50">
+                    <content-editor></content-editor>
+                </as-split-area>
+                <as-split-area size="50">
+                    <content-explorer></content-explorer>
+                </as-split-area>
+            </as-split>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>
+
+
+<br><br>
 
 <div class="content-window">
 
     <div
-    class="content-main"
-    cdkDropListGroup>
+        class="content-main"
+        cdkDropListGroup>
         <as-split>
             <as-split-area size="50">
 
@@ -37,7 +88,7 @@
                 </ul>
                  -->
 
-                 <ul class="nav nav-tabs navbar navbar-expand-lg navbar-dark bg-dark">
+                 <!-- <ul class="nav nav-tabs navbar navbar-expand-lg navbar-dark bg-dark">
                     <li class="nav-item">
                         <button class="nav-link" href="" class="btn btn-outline-success add-button" (click)="cs.createTextAtIndex(0)"><mat-icon>add</mat-icon></button>
                     </li>
@@ -59,7 +110,7 @@
                     <div class="tab-pane fade active show" id="richeditor">
                         <app-editor></app-editor>
                     </div>
-                </div>
+                </div> -->
          
                 
 

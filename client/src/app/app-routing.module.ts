@@ -14,9 +14,6 @@ import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.com
 import { CorpusComponent } from './pages/corpus/corpus.component';
 import { ViewerComponent } from './pages/viewer/viewer.component';
 
-/* Left Side Nav */
-import { TableofcontentComponent } from './sidenavs/tableofcontent/tableofcontent.component';
-
 const routes: Routes = [
 	{ path: '', component: HomeComponent },
 	{ path: 'register', component: RegisterComponent },
@@ -25,8 +22,10 @@ const routes: Routes = [
 	{ path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
 	{ path: 'administration', component: AdministrationComponent, canActivate: [AdminGuard] },
 	{ path: 'corpus/:title', component: CorpusComponent },
-	{ path: 'corpus/:title/:id/view', component: ViewerComponent },
+	{ path: 'corpus/:title/:user/view', component: ViewerComponent },
 	//{ path: 'corpus/:title/:id/edit', component: EditComponent },
+	//{ path: 'content/:user/:concept', component: EditComponent },
+	//{ path: 'content/:user/:concept/:document', component: EditComponent },
 	{ path: 'viewer', component: ViewerComponent },
 	{ path: '**', component: PageNotFoundComponent },
 ];

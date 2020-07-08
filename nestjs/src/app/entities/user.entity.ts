@@ -94,6 +94,7 @@ export class User {
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Repository, OneToMany } from 'typeorm';
 import { DocumentEntity } from './document.entity';
 import { TextEntity } from './text.entity';
+import { CorpusEntity } from './corpus.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -113,10 +114,10 @@ export class UserEntity {
 	public role: UserRole;
 
 	@OneToMany(
-		type => DocumentEntity,
-		documents => documents.author,
+		type => CorpusEntity,
+		corpus => corpus.author,
 	)
-	public documents: DocumentEntity[];
+	public corpora: CorpusEntity[];
 
 	@OneToMany(
 		type => TextEntity,
@@ -137,7 +138,7 @@ export class UserEntity {
 		email: string = '',
 		password: string = '',
 		role: UserRole = UserRole.VISITOR,
-		documents: DocumentEntity[] = null,
+		corpora: CorpusEntity[] = null,
 		texts: TextEntity[] = null,
 		createdAt: Date = new Date(),
 		updatedAt: Date = new Date(),
@@ -147,7 +148,7 @@ export class UserEntity {
 		this.email = email;
 		this.password = password;
 		this.role = role;
-		this.documents = documents;
+		this.corpora = corpora;
 		this.texts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
