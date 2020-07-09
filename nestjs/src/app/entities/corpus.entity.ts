@@ -221,7 +221,7 @@ export class CorpusEntity {
 	@JoinColumn({ name: 'concept' })
 	public concept: ConceptEntity;
 
-	@Column('text')
+	@Column({ type: 'text', default: null})
 	public description: string;
 
 	@OneToMany(

@@ -183,19 +183,32 @@ export class DocumentEntity {
 	public async getDocument(): Promise<Document> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let texts = new Array<Text>(this.paragraphs.length);
-				for (let i = 0; i < texts.length; i++) {
-					texts[i] = await this.paragraphs[i].text.getText();
-				}
-				resolve(
-					new Document(
+				if(this.paragraphs == null || this.paragraphs == undefined) {
+					resolve(new Document(
 						this.title,
 						this.description,
 						null,
-						texts, 
+						[], 
 						this.createdAt, 
-						this.updatedAt)
-					);
+						this.updatedAt
+						))
+				}
+				else{
+					let texts = new Array<Text>(this.paragraphs.length);
+					for (let i = 0; i < texts.length; i++) {
+						texts[i] = await this.paragraphs[i].text.getText();
+					}
+					resolve(
+						new Document(
+							this.title,
+							this.description,
+							null,
+							texts, 
+							this.createdAt, 
+							this.updatedAt
+							)
+						);
+				}
 			} catch (err) {
 				reject(err);
 			}

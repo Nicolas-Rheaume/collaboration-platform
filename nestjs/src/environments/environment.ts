@@ -4,7 +4,7 @@
 
 export const environment = {
 	production: false,
-	server_ip_address: '192.168.0.183',
+	server_ip_address: '192.168.10.104',
 	server_port: 3000,
 
 	database_ip_address: 'localhost',

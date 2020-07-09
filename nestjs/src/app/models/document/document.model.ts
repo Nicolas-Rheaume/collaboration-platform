@@ -117,8 +117,27 @@ export class DocumentModel {
 */
 
 	/*****************************************************************************
-	 *  UPSERT
+	 *  CREATE
 	 *****************************************************************************/
+	public async createByCorpusandOrder(corpus: CorpusEntity, order: number): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.documentRepository.insert({
+					title: '',
+					description: '',
+					corpus: corpus,
+					order: order
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+
 	// public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
 	// 	return new Promise(async (resolve, reject) => {
 	// 		try {
@@ -233,9 +252,9 @@ export class DocumentModel {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const documents: DocumentEntity[] = await this.documentRepository
-					.createQueryBuilder('document')
-					.leftJoinAndSelect('document.author', 'user')
-					.where(`document.corpus = ${corpusID}`)
+					.createQueryBuilder('documents')
+					.where(`documents.corpus = ${corpusID}`)
+					.orderBy('documents.order')
 					.getMany()
 					.catch(err => {
 						throw 'Error searching for documents';

@@ -60,12 +60,10 @@ export class ContentService {
 		});
 
 		// Editor Document
-		this.sub = this.socket.response('editor/document').subscribe(document => {
-			this.editorDocument = document;
-			console.log(this.editorDocument)
+		this.sub = this.socket.response('editor/corpus').subscribe(editorCorpus => {
+			this.editorCorpus = editorCorpus;
+			console.log(this.editorCorpus)
 		});
-
-
 
 		// if (this.useMockData) {
 		// 	//this.setMockData();

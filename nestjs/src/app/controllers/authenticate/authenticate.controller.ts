@@ -33,23 +33,26 @@ export class AuthenticateController {
 				const userEntity = await this.userModel.findOneByUsername(loginUsername).catch(err => {
 					throw err;
 				});
-				bcrypt.compare(loginPassword, userEntity.password, async (err: any, isMatch: boolean) => {
-					if (err) reject('Passwords do not match');
-					else if (isMatch) {
-						const token = jwt.sign({ username: userEntity.username }, environment.jwt_secret, {
-							expiresIn: 604800, // 1 week
-						});
+				if(userEntity == undefined) throw "User does not exists";
+				else {
+					bcrypt.compare(loginPassword, userEntity.password, async (err: any, isMatch: boolean) => {
+						if (err) reject('Passwords do not match');
+						else if (isMatch) {
+							const token = jwt.sign({ username: userEntity.username }, environment.jwt_secret, {
+								expiresIn: 604800, // 1 week
+							});
 
-						this.cs.setUserEntity(socket, userEntity);
-						resolve({
-							success: true,
-							token: 'JWT ' + token,
-							user: await userEntity.getUser(),
-						});
-					} else {
-						reject('Wrong password');
-					}
-				});
+							this.cs.setUserEntity(socket, userEntity);
+							resolve({
+								success: true,
+								token: 'JWT ' + token,
+								user: await userEntity.getUser(),
+							});
+						} else {
+							reject('Wrong password');
+						}
+					});
+				}
 			} catch (err) {
 				reject(err);
 			}

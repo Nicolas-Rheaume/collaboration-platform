@@ -29,39 +29,103 @@ export class EditorController {
 		private readonly textModel: TextModel,
 	) {}
 
-		// // Initialize Editor Texts
-		// public async initialize(client: Socket, url: string): Promise<Corpus> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			const author: UserEntity = this.cs.getUserEntity(client);
-		// 			const concept: ConceptEntity = await this.conceptModel.findOneByURL(url).catch(err => {
-		// 				throw err;
-		// 			});
-	
-		// 			let editorEntity: DocumentEntity = await this.documentModel.UpsertByAuthorAndCorpus(author, corpus).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			editorEntity.paragraphs = await this.paragraphModel.findByDocumentWithText(editorEntity).catch(err => {
-		// 				throw err;
-		// 			});
-	
-		// 			if (editorEntity.paragraphs.length === 0) {
-		// 				const newTextEntity = await this.textModel.create('', author).catch(err => {
-		// 					throw err;
-		// 				});
-		// 				const newParagraphEntity = await this.paragraphModel.create(editorEntity, newTextEntity, 0).catch(err => {
-		// 					throw err;
-		// 				});
-		// 				editorEntity.paragraphs = [newParagraphEntity];
-		// 			}
-		// 			this.cs.getConnection(client).editorEntity = editorEntity;
-		// 			const editor = await editorEntity.getDocument();
-		// 			resolve(editor);
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+		// Initialize Editor Corpus
+		public async initialize(client: Socket, url: string): Promise<Corpus> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const author: UserEntity = this.cs.getUserEntity(client);
+					const concept: ConceptEntity = await this.conceptModel.findOneByURL(url).catch(err => {
+						throw err;
+					});
+					this.cs.getConnection(client).conceptTitle = concept.title;
+					const editorCorpus: CorpusEntity = await this.corpusModel.findOneByConceptAndAuthorID(author.id, concept.id).catch(err => {
+						throw err;
+					});
+					if(editorCorpus == undefined) resolve(null);
+					else {
+						this.cs.getConnection(client).editorCorpus = editorCorpus;
+						const editor = await editorCorpus.getCorpus();
+						resolve(editor);
+					}
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
+
+		// Create Editor Corpus
+		public async createCorpus(client: Socket): Promise<Corpus> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const author: UserEntity = this.cs.getUserEntity(client);
+					const concept: ConceptEntity = await this.conceptModel.findOneByTitle(this.cs.getConnection(client).conceptTitle).catch(err => {
+						throw err;
+					});
+					const editorCorpus: CorpusEntity = await this.corpusModel.UpsertByAuthorAndConcept(author, concept).catch(err => {
+						throw err;
+					});
+					console.log(editorCorpus);
+					this.cs.getConnection(client).editorCorpus = editorCorpus;
+					const editor = await editorCorpus.getCorpus();
+					resolve(editor);
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
+
+		// Update Editor Corpus Description
+		public async updateCorpusDescription(client: Socket, description: string): Promise<void> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					this.cs.getConnection(client).editorCorpus.description = description;
+					await this.corpusModel
+						.updateDescriptionByID(
+							this.cs.getConnection(client).editorCorpus.id,
+							description
+						).catch(err => {
+						throw err;
+					});
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
+
+		// Create a new Document on the corpus
+		public async createDocument(client: Socket): Promise<Corpus> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+
+					console.log("before");
+					await this.documentModel.createByCorpusandOrder(
+						this.cs.getConnection(client).editorCorpus,
+						this.cs.getConnection(client).editorCorpus.documents.length
+					).catch(err => {
+						throw err;
+					});
+
+					const documentEntities: DocumentEntity[] = 
+						await this.documentModel
+							.findDocumentsByCorpusID(
+								this.cs.getConnection(client).editorCorpus.id
+							).catch(err => {
+						throw err;
+					});
+
+					console.log(documentEntities);
+					
+					this.cs.getConnection(client).editorCorpus.documents = documentEntities;
+					const editor = await this.cs.getConnection(client).editorCorpus.getCorpus();
+
+					
+					resolve(editor);
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
 	
 		// // Update a text at index
 		// public async updateTextAtIndex(client: Socket, index: number, text: string): Promise<Document> {

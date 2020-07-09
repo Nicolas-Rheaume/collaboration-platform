@@ -13,7 +13,8 @@ export class ContentEditor implements OnInit, OnDestroy {
   /*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
-	private sub: Subscription;
+  private sub: Subscription;
+  private contentTitle: string = '';
 
   constructor(
     private socket: SocketService, 
@@ -25,12 +26,17 @@ export class ContentEditor implements OnInit, OnDestroy {
   ngOnInit() {
     console.log("Editor Created");
     this.sub = this.activeRouter.params.subscribe(params => {
+      this.contentTitle = params.title;
       this.cs.initializeEditor(params.title);
     });
   }
 
   ngOnDestroy() {
     console.log("Editor Destroyed");
+  }
+
+  createCorpus() {
+    this.socket.request('editor/createCorpus', null);
   }
 
 }
