@@ -10,7 +10,7 @@ RUN mkdir -p /usr/src/collab/client
 # Create app directory where our app will be placed
 WORKDIR /usr/src/collab/client/
 
-RUN npm install -g @angular/cli@8.3.25
+RUN npm install -g @angular/cli
 
 # Copy dependency definitions
 #COPY package.json /usr/src/app
