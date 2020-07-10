@@ -3,13 +3,13 @@
 </div>
 <div *ngIf="cs.editorCorpus != null">
 
-    <label for="descriptionTextarea">Corpus description:</label>
+    <label for="descriptionTextarea">Corpus Description:</label>
     <textarea 
         id="descriptionTextarea"
         class="form-control description" 
         rows="3"
         [(ngModel)]="cs.editorCorpus.description"
-        (input)="descriptionChange()"
+        (input)="corpusDescriptionChange()"
         >
     </textarea>
 
@@ -19,21 +19,31 @@
         type="button" 
         class="btn btn-primary"
         (click)="createDocument()"
-        >Create a new Document</button>
+        >Create a New Document</button>
 
     <mat-accordion>
         <mat-expansion-panel
-            *ngFor="let document of cs.editorCorpus.documents; let i of index"
+            *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn"
         >
           <mat-expansion-panel-header>
             <mat-panel-title>
-              This is the expansion title
+                <span>{{i}}:</span>
+                <input type="text" class="form-control-plaintext" 
+                [(ngModel)]="document.title"
+                (input)="documentTitleChange(i)"
+            >
             </mat-panel-title>
             <mat-panel-description>
-              This is a summary of the content
+                <button type="button" class="btn btn-outline-warning" (click)="editDocument(i)">Edit</button>
+                <button type="button" class="btn btn-outline-danger">Delete</button>
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <p>This is the primary content of the panel.</p>
+          <textarea 
+            class="form-control description" 
+            rows="3"
+            [(ngModel)]="document.description"
+            (input)="documentDescriptionChange(i)"
+            ></textarea>
         </mat-expansion-panel>
       </mat-accordion>
 

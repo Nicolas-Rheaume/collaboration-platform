@@ -258,7 +258,7 @@ export class ConceptEntity {
 		return new Promise(async (resolve, reject) => {
 			try {
 
-				let corpora = null;
+				let corpora = [];
 
 				if(this.corpora != undefined && this.corpora != null) {
 					corpora = await CorpusEntity.getCorpora(this.corpora).catch(err => {

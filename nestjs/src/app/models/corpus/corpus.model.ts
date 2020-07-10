@@ -105,7 +105,6 @@ export class CorpusModel {
 						throw "Error finding the corpus' documents";
 					});
 				corpusEntity.documents = documentEntities;
-				console.log(corpusEntity);
 				resolve(corpusEntity);
 			} catch (err) {
 				reject(err);

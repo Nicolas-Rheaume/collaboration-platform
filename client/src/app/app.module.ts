@@ -72,6 +72,8 @@ import { EditableComponent } from './components/editor/edit/editable/editable.co
 import { ContenteditableDirective } from './components/editor/edit/editable/editable.directive';
 import { CreateConceptComponent } from './pages/dashboard/create-concept/create-concept.component';
 import { EditorOverviewComponent } from './components/editor/editor-overview/editor-overview.component';
+import { ReadComponent } from './components/explorer/read/read.component';
+import { ExplorerOverviewComponent } from './components/explorer/explorer-overview/explorer-overview.component';
 
 @NgModule({
 	declarations: [
@@ -106,7 +108,9 @@ import { EditorOverviewComponent } from './components/editor/editor-overview/edi
 		ContentExplorer,
 		ContentSideNav,
 		CreateConceptComponent,
-		EditorOverviewComponent
+		EditorOverviewComponent,
+		ReadComponent,
+		ExplorerOverviewComponent
 	],
 	imports: [
 		BrowserModule,

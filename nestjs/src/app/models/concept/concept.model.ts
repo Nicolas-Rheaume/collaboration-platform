@@ -5,6 +5,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
 import { Concept, ConceptEntity, ConceptSort, SORTMAP } from 'app/entities/concept.entity';
+import { UserEntity } from 'app/entities/user.entity';
 
 @Injectable()
 export class ConceptModel {
@@ -104,6 +105,26 @@ export class ConceptModel {
 				});
 				corpora.sort(SORTMAP.get(sort));
 				resolve(corpora);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByURLWithCorpusWithoutUser(url: string, author: UserEntity): Promise<ConceptEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const conceptEntity = await this.conceptRepository
+					.createQueryBuilder('concept')
+					.innerJoinAndSelect('concept.corpora', 'corpora')
+					.innerJoinAndSelect('corpora.author', 'author')
+					.innerJoinAndSelect('corpora.documents', 'documents')
+					//.where('corpora.author != ' + author.id)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the concept';
+					});
+				resolve(conceptEntity);
 			} catch (err) {
 				reject(err);
 			}

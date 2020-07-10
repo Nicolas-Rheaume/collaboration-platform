@@ -28,7 +28,11 @@ export class ContentService {
 
 	// To Change to :
 	public conceptTitle: string = '';
+	public editingDocumentIndex: number = 0;
 	public editorCorpus: Corpus = null;
+
+	public exploringCorpusIndex: number = 0;
+	public exploringDocumentIndex: number = 0;
 	public explorerConcept: Concept = null;
 
 	public editorTexts: Text[] = [];
@@ -59,10 +63,34 @@ export class ContentService {
 			if (response.success === false) console.log(response.message);
 		});
 
-		// Editor Document
+		// Editor Corpus
 		this.sub = this.socket.response('editor/corpus').subscribe(editorCorpus => {
+			console.log(editorCorpus);
 			this.editorCorpus = editorCorpus;
 			console.log(this.editorCorpus)
+		});
+
+		// Editor Document
+		this.sub = this.socket.response('editor/document').subscribe(([index, document]) => {
+			this.editorCorpus.documents[index] = document;
+		});
+
+		// Explorer Concept
+		this.sub = this.socket.response('explorer/concept').subscribe(explorerConcept => {
+			console.log(explorerConcept);
+			this.explorerConcept = explorerConcept;
+			console.log(this.explorerConcept)
+		});
+
+		// Explorer Document
+		this.sub = this.socket.response('explorer/document').subscribe(([corpusIndex, documentIndex, document]) => {
+			console.log(corpusIndex);
+			console.log(documentIndex);
+			console.log(document);
+			this.explorerConcept.corpora[corpusIndex].documents[documentIndex] = document;
+			// console.log(explorerConcept);
+			// this.explorerConcept = explorerConcept;
+			// console.log(this.explorerConcept)
 		});
 
 		// if (this.useMockData) {
@@ -188,9 +216,15 @@ export class ContentService {
 	];
 
 	public setExplorerState(state) {
-		this.selectedEditorState.setValue(state.value);
+		this.selectedExplorerState.setValue(state.value);
 	}
 
+	public initializeExplorer(title: string): void {
+		if(title != this.corpusTitle) {
+			this.corpusTitle = title;
+			this.socket.request('explorer/initialize', title);
+		}
+	}
 
 	/*****************************************************************************
 	 *  WEB SOCKETS REQUEST

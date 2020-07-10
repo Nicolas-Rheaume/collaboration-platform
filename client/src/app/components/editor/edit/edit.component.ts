@@ -88,40 +88,36 @@ export class EditComponent implements OnInit, OnDestroy {
 
 	private onUpdate(event) {
 		const index: number = this.activeText;
-		const text: string = this.cs.editorDocument.texts[this.activeText].text;
-
-		console.log(this.cs.editorDocument.texts[this.activeText]);
-		this.socket.request('editor/updateTextAtIndex', [index, text]);
+		const text: string = this.cs.editorCorpus.documents[this.cs.editingDocumentIndex].texts[this.activeText].text;
+		this.socket.request('editor/updateTextAtIndex', [this.cs.editingDocumentIndex, index, text]);
 	}
 
 	// Split Event when a new line is entered
 	private onSplit(event) {
-		this.cs.editorDocument.texts[event.index].text = event.first;
+		this.cs.editorCorpus.documents[this.cs.editingDocumentIndex].texts[event.index].text = event.first;
 		const text = new Text(event.second);
-		this.cs.editorDocument.texts.splice(event.index + 1, 0, text);
+		this.cs.editorCorpus.documents[this.cs.editingDocumentIndex].texts.splice(event.index + 1, 0, text);
 		this.activeText++;
 		setTimeout(() => {
 			this.editables.last.elementRef.editorElement.focus();
 		}, 0);
-
-		console.log(this.cs.editorDocument);
-		this.socket.request('editor/splitTextAtIndex', [event.index, event.first, event.second]);
+		this.socket.request('editor/splitTextAtIndex', [this.cs.editingDocumentIndex, event.index, event.first, event.second]);
 	}
 
 	// Merge Event when a paragraphs is empty
 	private onMerge(event) {
-		if (this.cs.editorDocument.texts.length > 0) {
+		if (this.cs.editorCorpus.documents[this.cs.editingDocumentIndex].texts.length > 0) {
 			let promise = new Promise((resolve, reject) => {
 				this.editables.last.elementRef.editorElement.blur();
 				this.activeText--;
-				this.cs.editorDocument.texts.splice(event.index, 1);
+				this.cs.editorCorpus.documents[this.cs.editingDocumentIndex].texts.splice(event.index, 1);
 				resolve();
 			}).then(() => {
 				setTimeout(() => {
 					this.editables.first.elementRef.editorElement.focus();
 					document.getSelection().collapse(this.editables.first.elementRef.editorElement, 1);
 				}, 0);
-				this.socket.request('editor/mergeTextAtIndex', [event.index]);
+				this.socket.request('editor/mergeTextAtIndex', [this.cs.editingDocumentIndex, event.index]);
 			});
 		}
 	}

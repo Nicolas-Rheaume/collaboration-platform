@@ -7,7 +7,7 @@ import { CorpusModel } from 'app/models/corpus/corpus.model';
 import { ParagraphModel } from 'app/models/paragraph/paragraph.model';
 import { UserEntity } from 'app/entities/user.entity';
 import { CorpusEntity, Corpus } from 'app/entities/corpus.entity';
-import { DocumentEntity } from 'app/entities/document.entity';
+import { DocumentEntity, Document } from 'app/entities/document.entity';
 import { TextEntity } from 'app/entities/text.entity';
 import { ParagraphEntity } from 'app/entities/paragraph.entity';
 import { TextModel } from 'app/models/text/text.model';
@@ -64,7 +64,6 @@ export class EditorController {
 					const editorCorpus: CorpusEntity = await this.corpusModel.UpsertByAuthorAndConcept(author, concept).catch(err => {
 						throw err;
 					});
-					console.log(editorCorpus);
 					this.cs.getConnection(client).editorCorpus = editorCorpus;
 					const editor = await editorCorpus.getCorpus();
 					resolve(editor);
@@ -93,15 +92,67 @@ export class EditorController {
 			});
 		}	
 
+		// Update Editor Corpus Description
+		public async updateDocumentTitle(client: Socket, index: number, title: string): Promise<void> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					this.cs.getConnection(client).editorCorpus.documents[index].title = title;
+					await this.documentModel
+						.updateTitleByID(
+							this.cs.getConnection(client).editorCorpus.documents[index].id,
+							title
+						).catch(err => {
+						throw err;
+					});
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
+
+		// Update Editor Corpus Description
+		public async updateDocumentDescription(client: Socket, index: number, description: string): Promise<void> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					this.cs.getConnection(client).editorCorpus.documents[index].description = description;
+					await this.documentModel
+						.updateDescriptionByID(
+							this.cs.getConnection(client).editorCorpus.documents[index].id,
+							description
+						).catch(err => {
+						throw err;
+					});
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
+
 		// Create a new Document on the corpus
 		public async createDocument(client: Socket): Promise<Corpus> {
 			return new Promise<any>(async (resolve, reject) => {
 				try {
 
-					console.log("before");
-					await this.documentModel.createByCorpusandOrder(
+					// Creating the document
+					const documentEntity: DocumentEntity = await this.documentModel.createByCorpusandOrder(
 						this.cs.getConnection(client).editorCorpus,
 						this.cs.getConnection(client).editorCorpus.documents.length
+					).catch(err => {
+						throw err;
+					});
+
+					// Creating the empty text
+					const textEntity: TextEntity = await this.textModel.createEmptyByAuthor(this.cs.getConnection(client).userEntity).catch(err => {
+						throw err;
+					});
+
+					// Creating the paragraph
+					const paragraphEntity: ParagraphEntity = await this.paragraphModel.create(
+						documentEntity,
+						textEntity,
+						0
 					).catch(err => {
 						throw err;
 					});
@@ -112,91 +163,108 @@ export class EditorController {
 								this.cs.getConnection(client).editorCorpus.id
 							).catch(err => {
 						throw err;
-					});
-
-					console.log(documentEntities);
-					
+					});					
 					this.cs.getConnection(client).editorCorpus.documents = documentEntities;
 					const editor = await this.cs.getConnection(client).editorCorpus.getCorpus();
-
-					
 					resolve(editor);
 				} catch (err) {
 					reject(err);
 				}
 			});
 		}	
+
+		// Update Editor Corpus Description
+		public async getDocument(client: Socket, index: number): Promise<Document> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const documentEntity: DocumentEntity = await this.documentModel
+						.findOneByCorpusIDAndOrderWithTexts(
+							this.cs.getConnection(client).editorCorpus.id,
+							index
+					).catch(err => {
+						throw err;
+					});
+					this.cs.getConnection(client).editorCorpus.documents[index] = documentEntity;
+					const document: Document = await documentEntity.getDocument().catch(err => {
+						throw err;
+					});
+					resolve(document);
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}	
 	
-		// // Update a text at index
-		// public async updateTextAtIndex(client: Socket, index: number, text: string): Promise<Document> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			const id = this.cs.getConnection(client).editorEntity.paragraphs[index].text.id;
-		// 			const textEntity = await this.textModel.updateByID(id, text).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			this.cs.getConnection(client).editorEntity.paragraphs[index].text = textEntity;
-		// 			resolve();
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+		// Update a text at index
+		public async updateTextAtIndex(client: Socket, documentIndex: number, textIndex: number, text: string): Promise<void> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const id = this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[textIndex].text.id;
+					const textEntity = await this.textModel.updateByID(id, text).catch(err => {
+						throw err;
+					});
+					this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[textIndex].text = textEntity;
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}
 	
-		// // Split Text at index
-		// public async splitTextAtIndex(client: Socket, index: number, firstText: string, secondText: string): Promise<Document> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			const firstID = this.cs.getConnection(client).editorEntity.paragraphs[index].text.id;
-		// 			const textEntity = await this.textModel.updateByID(firstID, firstText).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			this.cs.getConnection(client).editorEntity.paragraphs[index].text = textEntity;
+		// Split Text at index
+		public async splitTextAtIndex(client: Socket, documentIndex: number, textIndex: number, firstText: string, secondText: string): Promise<Document> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const firstID = this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[textIndex].text.id;
+					const textEntity = await this.textModel.updateByID(firstID, firstText).catch(err => {
+						throw err;
+					});
+					this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[textIndex].text = textEntity;
 	
-		// 			const author = this.cs.getUserEntity(client);
-		// 			const document = this.cs.getConnection(client).editorEntity;
-		// 			const newTextEntity = await this.textModel.create(secondText, author).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			let newParagraphEntity = await this.paragraphModel.create(document, newTextEntity, index + 1).catch(err => {
-		// 				throw err;
-		// 			});
+					const author = this.cs.getUserEntity(client);
+					const document = this.cs.getConnection(client).editorCorpus.documents[documentIndex];
+					const newTextEntity = await this.textModel.create(secondText, author).catch(err => {
+						throw err;
+					});
+					let newParagraphEntity = await this.paragraphModel.create(document, newTextEntity, textIndex + 1).catch(err => {
+						throw err;
+					});
 	
-		// 			newParagraphEntity.text = newTextEntity;
+					newParagraphEntity.text = newTextEntity;
 	
-		// 			this.cs.getConnection(client).editorEntity.paragraphs.splice(index + 1, 0, newParagraphEntity);
+					this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs.splice(textIndex + 1, 0, newParagraphEntity);
 	
-		// 			for (let i = index + 2; i < this.cs.getConnection(client).editorEntity.paragraphs.length; i++) {
-		// 				await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorEntity.paragraphs[i].id, i);
-		// 			}
+					for (let i = textIndex + 2; i < this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs.length; i++) {
+						await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[i].id, i);
+					}
 	
-		// 			resolve();
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+					resolve();
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}
 	
-		// // Merge a new text at index
-		// public async mergeTextAtIndex(client: Socket, index: number): Promise<Document> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			const paragraph = this.cs.getConnection(client).editorEntity.paragraphs[index];
-		// 			await this.paragraphModel.deleteByID(paragraph.id).catch(err => {
-		// 				throw err;
-		// 			});
+		// Merge a new text at index
+		public async mergeTextAtIndex(client: Socket, documentIndex: number, textIndex: number): Promise<Document> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const paragraph = this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[textIndex];
+					await this.paragraphModel.deleteByID(paragraph.id).catch(err => {
+						throw err;
+					});
 	
-		// 			this.cs.getConnection(client).editorEntity.paragraphs.splice(index, 1);
+					this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs.splice(textIndex, 1);
 	
-		// 			for (let i = index; i < this.cs.getConnection(client).editorEntity.paragraphs.length; i++) {
-		// 				await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorEntity.paragraphs[i].id, i);
-		// 			}
-		// 			resolve(document);
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+					for (let i = textIndex; i < this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs.length; i++) {
+						await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorCorpus.documents[documentIndex].paragraphs[i].id, i);
+					}
+					resolve(document);
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}
 	
 		// // Merge a new text at index
 		// public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {

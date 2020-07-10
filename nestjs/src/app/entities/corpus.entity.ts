@@ -258,11 +258,19 @@ export class CorpusEntity {
 	public async getCorpus(): Promise<Corpus> {
 		return new Promise(async (resolve, reject) => {
 			try {
+				let documents = [];
+
+				if(this.documents != undefined && this.documents != null) {
+					documents = await DocumentEntity.getDocuments(this.documents).catch(err => {
+						throw err;
+					});
+				}
+				
 				resolve(
 					new Corpus(
 						await this.author.getUser(), 
 						this.description,
-						await DocumentEntity.getDocuments(this.documents), 
+						documents, 
 						this.createdAt, 
 						this.updatedAt
 					)

@@ -28,10 +28,13 @@ export class TextModel {
 				const data = await this.textRepository
 					.insert({
 						text: text,
+						tag: '',
+						html: '',
+						author: author,
+						previousText: null,
 						depth: 0,
 						pointer: 0,
 						branches: 0,
-						author: author,
 					})
 					.catch(err => {
 						throw 'Error creating the corpus';
@@ -57,6 +60,34 @@ export class TextModel {
 						pointer: entity.pointer,
 						branches: entity.branches,
 						author: entity.author,
+					})
+					.catch(err => {
+						throw 'Error creating the corpus';
+					});
+
+				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(textEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async createEmptyByAuthor(author: UserEntity): Promise<TextEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.textRepository
+					.insert({
+						text: '',
+						tag: '',
+						html: '',
+						author: author,
+						previousText: null,
+						depth: 0,
+						pointer: 0,
+						branches: 0,
 					})
 					.catch(err => {
 						throw 'Error creating the corpus';
