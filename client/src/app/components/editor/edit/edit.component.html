@@ -20,6 +20,7 @@
         *ngFor="let text of cs.editorCorpus.documents[cs.editingDocumentIndex].texts; let i = index; trackBy: trackText"
         (mouseenter)="onMouseOver(i, true)"
         (mouseleave)="onMouseOver(i, false)"
+        [cdkDragData]="text"
         (cdkDragStarted)="started($event)"
         (cdkDragEnded)="ended($event)"
         cdkDrag
@@ -46,8 +47,8 @@
         [cdkDragDisabled]="true"
         style="height: 300px;"
     >
-        <p>This document was last edited on {{date}}</p>
-        <p>By : {{Nicolas}}</p>
+        <p>This document was last edited on {{cs.editorCorpus.updatedAt | date: 'medium'}}</p>
+        <p>By : {{cs.editorCorpus.author.username}}</p>
     </div>
 </div>
 <!-- OLD VERSION -->

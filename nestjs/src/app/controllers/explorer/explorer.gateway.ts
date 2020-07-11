@@ -43,27 +43,27 @@ export class ExplorerGateway {
 		}
 	}
 
-	// @SubscribeMessage('explorer/moveTextAtIndex')
-	// public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
-	// 	try {
-	// 		const document: Document = await this.explorerController.moveTextAtIndex(client, from, to).catch(err => {
-	// 			throw err;
-	// 		});
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: true,
-	// 				message: '',
-	// 			},
-	// 		};
-	// 	} catch (err) {
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: false,
-	// 				message: err,
-	// 			},
-	// 		};
-	// 	}
-	// }
+	@SubscribeMessage('explorer/moveTextAtIndex')
+	public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			const document: Document = await this.explorerController.moveTextAtIndex(client, from, to).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
 }

@@ -18,7 +18,11 @@ export class Connection {
 
 	conceptTitle?: string;
 	editorCorpus?: CorpusEntity;
+	editorDocumentIndex?: number;
+
 	explorerConcept?: ConceptEntity;
+	explorerCorpusIndex?: number;
+	explorerDocumentIndex?: number;
 
 	constructor(socket: Socket) {
 		this.socket = socket;

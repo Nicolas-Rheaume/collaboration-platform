@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SocketService } from 'src/app/services/socket.service';
 import { ContentService } from 'src/app/services/content.service';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-read',
@@ -21,13 +22,24 @@ export class ReadComponent implements OnInit {
 
   ngOnInit() {
   }
+  
+  /*****************************************************************************
+	 *  DRAGGABLE
+	 ****************************************************************************/
+	drop(event: CdkDragDrop<string[]>) {
+    console.log("explorer");
+    console.log(event);
+		if (event.previousContainer === event.container) {
+			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+			this.socket.request('explorer/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
+		} else {
+      console.log("transfering items");
+			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+		}
+	}
 
-  showHandle(index: number) {
-    this.showHandles[index] = true;
-  }
-
-  hideHandle(index: number) {
-    this.showHandles[index] = false;
-  }
+	noReturnPredicate() {
+		return false;
+	}
 
 }

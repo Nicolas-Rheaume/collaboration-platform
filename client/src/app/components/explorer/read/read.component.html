@@ -1,20 +1,19 @@
 <div class="container-fluid">
     <div
-        class="list-group"
+        class="explorer-list"
         cdkDropList
         [cdkDropListEnterPredicate]="noReturnPredicate"
-        [cdkDropListData]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex]"
+        [cdkDropListData]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts"
         (cdkDropListDropped)="drop($event)"
     >
         <div
             class="explorer-text"
             *ngFor="let text of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts; let i = index"
-            (mouseover)="showHandle(i)" (mouseout)="hideHandle(i)"
+            [cdkDragData]="text"
             cdkDrag
         >
             <div 
-                class="d-flex justify-content-end explorer-handle" 
-                *ngIf="showHandles[i]"
+                class="explorer-handle" 
                 cdkDragHandle
             ><mat-icon>control_camera</mat-icon></div>
             <div [innerHTML]="text.text"></div>

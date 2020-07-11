@@ -37,7 +37,7 @@ export class TextModel {
 						branches: 0,
 					})
 					.catch(err => {
-						throw 'Error creating the corpus';
+						throw 'Error creating the text';
 					});
 
 				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
@@ -60,9 +60,12 @@ export class TextModel {
 						pointer: entity.pointer,
 						branches: entity.branches,
 						author: entity.author,
+						tag: '',
+						html: '',
+						previousText: null,
 					})
 					.catch(err => {
-						throw 'Error creating the corpus';
+						throw 'Error creating the text';
 					});
 
 				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
@@ -90,7 +93,7 @@ export class TextModel {
 						branches: 0,
 					})
 					.catch(err => {
-						throw 'Error creating the corpus';
+						throw 'Error creating the text';
 					});
 
 				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {

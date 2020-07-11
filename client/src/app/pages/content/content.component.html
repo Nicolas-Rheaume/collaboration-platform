@@ -2,6 +2,7 @@
     class="invisible-tabs content-window content-main"  
     [(selectedIndex)]="cs.selectedDisplayState.value"
     (selectedIndexChange)="cs.selectedDisplayState.setValue($event)"
+    cdkDropListGroup
     animationDuration="0ms">
 
     <!-- Editor Panel-->

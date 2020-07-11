@@ -66,6 +66,8 @@ export class ExplorerController {
 				).catch(err => {
 					throw err;
 				});
+				this.cs.getConnection(client).explorerCorpusIndex = corpusIndex;
+				this.cs.getConnection(client).explorerDocumentIndex = documentIndex;
 				const document: Document = await documentEntity.getDocument();
 				resolve(document);
 			} catch (err) {
@@ -74,15 +76,15 @@ export class ExplorerController {
 		});
 	}
 
-	// // Merge a new text at index
-	// public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
-	// 	return new Promise<any>(async (resolve, reject) => {
-	// 		try {
-	// 			arrayMove.mutate(this.cs.getConnection(client).explorerTexts, from, to);
-	// 			resolve(document);
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
+	// Merge a new text at index
+	public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
+		return new Promise<any>(async (resolve, reject) => {
+			try {
+				arrayMove.mutate(this.cs.getExplorerDocument(client).paragraphs, from, to);
+				resolve(document);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 }

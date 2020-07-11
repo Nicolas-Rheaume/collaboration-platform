@@ -143,6 +143,8 @@ export class EditComponent implements OnInit, OnDestroy {
 	onMouseOver(index: number, value: boolean) {}
 
 	drop(event: CdkDragDrop<string[]>) {
+		console.log("editor");
+    	console.log(event);
 		if (event.previousContainer === event.container) {
 			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 			this.activeText = event.currentIndex;

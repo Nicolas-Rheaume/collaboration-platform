@@ -184,51 +184,51 @@ export class EditorGateway {
 		}
 	}
 
-	// @SubscribeMessage('editor/moveTextAtIndex')
-	// public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
-	// 	try {
-	// 		const document: Document = await this.editorController.moveTextAtIndex(client, from, to).catch(err => {
-	// 			throw err;
-	// 		});
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: true,
-	// 				message: '',
-	// 			},
-	// 		};
-	// 	} catch (err) {
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: false,
-	// 				message: err,
-	// 			},
-	// 		};
-	// 	}
-	// }
+	@SubscribeMessage('editor/moveTextAtIndex')
+	public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			const document: Document = await this.editorController.moveTextAtIndex(client, from, to).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
 
-	// @SubscribeMessage('editor/adoptTextAtIndex')
-	// public async adoptTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
-	// 	try {
-	// 		await this.editorController.adoptTextAtIndex(client, from, to).catch(err => {
-	// 			throw err;
-	// 		});
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: true,
-	// 				message: '',
-	// 			},
-	// 		};
-	// 	} catch (err) {
-	// 		return {
-	// 			event: 'editor/error',
-	// 			data: {
-	// 				success: false,
-	// 				message: err,
-	// 			},
-	// 		};
-	// 	}
-	// }
+	@SubscribeMessage('editor/adoptTextAtIndex')
+	public async adoptTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			await this.editorController.adoptTextAtIndex(client, from, to).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
 }

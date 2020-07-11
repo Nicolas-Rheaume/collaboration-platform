@@ -184,6 +184,7 @@ export class EditorController {
 					).catch(err => {
 						throw err;
 					});
+					this.cs.getConnection(client).editorDocumentIndex = index;
 					this.cs.getConnection(client).editorCorpus.documents[index] = documentEntity;
 					const document: Document = await documentEntity.getDocument().catch(err => {
 						throw err;
@@ -266,50 +267,56 @@ export class EditorController {
 			});
 		}
 	
-		// // Merge a new text at index
-		// public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			arrayMove.mutate(this.cs.getConnection(client).editorEntity.paragraphs, from, to);
-		// 			const min = Math.min(from, to);
-		// 			const max = Math.max(from, to);
+		// Merge a new text at index
+		public async moveTextAtIndex(client: Socket, from: number, to: number): Promise<Document> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					arrayMove.mutate(this.cs.getEditorDocument(client).paragraphs, from, to);
+					const min = Math.min(from, to);
+					const max = Math.max(from, to);
 	
-		// 			for (let i = min; i <= max; i++) {
-		// 				await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorEntity.paragraphs[i].id, i);
-		// 			}
-		// 			resolve(document);
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+					for (let i = min; i <= max; i++) {
+						await this.paragraphModel.updateOrderByID(this.cs.getEditorDocument(client).paragraphs[i].id, i);
+					}
+					resolve(document);
+				} catch (err) {
+					reject(err);
+				}
+			});
+		}
 	
-		// // Adopt Explorer Text
-		// public async adoptTextAtIndex(client: Socket, from: number, to: number): Promise<void> {
-		// 	return new Promise<any>(async (resolve, reject) => {
-		// 		try {
-		// 			const author: UserEntity = this.cs.getUserEntity(client);
-		// 			const connection: Connection = this.cs.getConnection(client);
-		// 			const text: TextEntity = await this.textModel.createByEntity(connection.explorerTexts[from]).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			let paragraph: ParagraphEntity = await this.paragraphModel.create(connection.editorEntity, text, to).catch(err => {
-		// 				throw err;
-		// 			});
-		// 			paragraph.text = text;
+		// Adopt Explorer Text
+		public async adoptTextAtIndex(client: Socket, from: number, to: number): Promise<void> {
+			return new Promise<any>(async (resolve, reject) => {
+				try {
+					const author: UserEntity = this.cs.getUserEntity(client);
+					const connection: Connection = this.cs.getConnection(client);
+					const explorerDocument: DocumentEntity = await this.documentModel.findOneByIDWithTexts(
+						this.cs.getExplorerDocument(client).id
+					).catch(err => {
+						throw err;
+					});
+					const text: TextEntity = await this.textModel.createByEntity(explorerDocument.paragraphs[from].text).catch(err => {
+						throw err;
+					});
+					let paragraph: ParagraphEntity = await this.paragraphModel.create(this.cs.getEditorDocument(client), text, to).catch(err => {
+						throw err;
+					});
+					paragraph.text = text;
 	
-		// 			this.cs.getConnection(client).editorEntity.paragraphs.splice(to, 0, paragraph);
+					this.cs.getEditorDocument(client).paragraphs.splice(to, 0, paragraph);
 	
-		// 			for (let i = to + 1; i < this.cs.getConnection(client).editorEntity.paragraphs.length; i++) {
-		// 				await this.paragraphModel.updateOrderByID(this.cs.getConnection(client).editorEntity.paragraphs[i].id, i);
-		// 			}
+					for (let i = to + 1; i < this.cs.getEditorDocument(client).paragraphs.length; i++) {
+						await this.paragraphModel.updateOrderByID(this.cs.getEditorDocument(client).paragraphs[i].id, i);
+					}
 	
-		// 			resolve();
-		// 		} catch (err) {
-		// 			reject(err);
-		// 		}
-		// 	});
-		// }
+					resolve();
+				} catch (err) {
+					console.log(err);
+					reject(err);
+				}
+			});
+		}
 
 	// // Initialize Editor Texts
 	// public async initialize(client: Socket, url: string): Promise<Document> {
