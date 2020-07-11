@@ -1,0 +1,50 @@
+<div *ngIf="cs.editorCorpus == null">
+    <button type="button" class="btn btn-primary" (click)="createCorpus()">Create your own corpus</button>
+</div>
+<div *ngIf="cs.editorCorpus != null">
+
+    <label for="descriptionTextarea">Corpus Description:</label>
+    <textarea 
+        id="descriptionTextarea"
+        class="form-control description" 
+        rows="3"
+        [(ngModel)]="cs.editorCorpus.description"
+        (input)="corpusDescriptionChange()"
+        >
+    </textarea>
+
+    <br><br>
+
+    <button 
+        type="button" 
+        class="btn btn-primary"
+        (click)="createDocument()"
+        >Create a New Document</button>
+
+    <mat-accordion>
+        <mat-expansion-panel
+            *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn"
+        >
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+                <span>{{i}}:</span>
+                <input type="text" class="form-control-plaintext" 
+                [(ngModel)]="document.title"
+                (input)="documentTitleChange(i)"
+            >
+            </mat-panel-title>
+            <mat-panel-description>
+                <button type="button" class="btn btn-outline-warning" (click)="editDocument(i)">Edit</button>
+                <button type="button" class="btn btn-outline-danger">Delete</button>
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+          <textarea 
+            class="form-control description" 
+            rows="3"
+            [(ngModel)]="document.description"
+            (input)="documentDescriptionChange(i)"
+            ></textarea>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+</div>

@@ -1,0 +1,47 @@
+<div class="container-fluid">
+    <div class="mb-3"></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <mat-tab-group 
+              class="invisible-tabs"
+              [(selectedIndex)]="cs.selectedEditorState.value"
+              (selectedIndexChange)="cs.selectedEditorState.setValue($event)"
+              animationDuration="0ms" 
+              mat-align-tabs="center"
+              >
+      
+              <!-- Overview -->
+              <mat-tab>
+                <ng-template class="navbar-label" mat-tab-label>
+                    <span matBadgeOverlap="false">Overview</span>
+                </ng-template>
+                <ng-template matTabContent>
+                  <app-editor-overview></app-editor-overview>
+                </ng-template>
+              </mat-tab>
+
+              <!-- Edit -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+                    <span>Edit</span>
+                </ng-template>
+                <ng-template matTabContent>
+                    <app-edit></app-edit>
+                 </ng-template>
+              </mat-tab>
+
+              <!-- History -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;
+                  <span>History</span>
+                </ng-template>
+                <ng-template matTabContent>
+                    <h1>History</h1>
+                </ng-template>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+    </div>
+</div>

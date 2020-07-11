@@ -14,7 +14,7 @@
 
                 <!-- User's content -->
                 <div class="input-group slate-group">
-                    <button type="button" class="btn btn-outline-success slate-top create-button" (click)="openModal()">Create new corpus</button>
+                    <button type="button" class="btn btn-outline-success slate-top create-button" (click)="openDialog()">Create new concept</button>
                     <!--
                     <button class="form-control list-group-item list-group-item-action slate-top-left">{{us.currentUser.username}}</button>
                     <div class="input-group-append">
@@ -25,16 +25,16 @@
 
                 <!-- Search Bar-->
                 <div class="input-group slate-group">
-                    <input class="form-control slate-search-name slate-middle" placeholder="Find a corpus..." type="text" [(ngModel)]="searchTitle">
+                    <input class="form-control slate-search-name slate-middle" placeholder="Find a concept..." type="text" [(ngModel)]="searchTitle">
                     <div class="input-group-append slate-search-button">
-                        <button type="submit" class="btn btn-outline-info slate-search-button slate-middle" (click)="searchCorpora()"><mat-icon>search</mat-icon></button>
+                        <button type="submit" class="btn btn-outline-info slate-search-button slate-middle" (click)="searchConcepts()"><mat-icon>search</mat-icon></button>
                     </div>
                 </div>
 
                 <!-- Sort By -->
                 <mat-form-field  class="list-group-item list-group-item-action">
                     <mat-label>Sort by:</mat-label>
-                    <mat-select [(ngModel)]="searchSort" (ngModelChange)="searchCorpora()">
+                    <mat-select [(ngModel)]="searchSort" (ngModelChange)="searchConcepts()">
                       <mat-option *ngFor="let sort of sortOptions" [value]="sort">
                         {{sort}}
                       </mat-option>
@@ -66,24 +66,24 @@
         <!-- All contents-->
         <div class="col-md-8">
 
-            <h2>{{corpora.length}} corpus found</h2>
+            <h2>{{concepts.length}} concept found</h2>
             <hr>
-            <div *ngFor="let corpus of corpora; let num = index">
+            <div *ngFor="let concept of concepts; let num = index">
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex w-100 justify-content-between">
-                            <a><h4 class="card-title slate-title" (click)="viewCorpus(corpus)" [routerLink]="['content', corpus.url]">{{corpus.title}}</h4></a>
+                            <a><h4 class="card-title slate-title" (click)="viewConcept(concept)" [routerLink]="['content', concept.url]">{{concept.title}}</h4></a>
                         </div>
                         <table>
                             <tr>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Created: {{corpus.createdAt | timeAgo }}</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{corpus.contributors}} Contributors</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-success" (click)="modifyCorpus(num)">Modify</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Created: {{concept.createdAt | timeAgo }}</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{concept.contributors}} Contributors</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-success" (click)="modifyConcept(num)">Modify</span></td>
                             </tr>
                             <tr>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Updated: {{corpus.updatedAt | timeAgo }}</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{corpus.texts}} Texts</span></td>
-                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-danger" (click)="removeCorpus(num)">Delete</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-light">Updated: {{concept.updatedAt | timeAgo }}</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-badge">{{concept.texts}} Texts</span></td>
+                                <td><span>&nbsp;&nbsp;&nbsp;</span><span class="badge badge-pill slate-danger" (click)="removeConcept(num)">Delete</span></td>
                             </tr>
                         </table>
 
@@ -105,24 +105,24 @@
         </div>
     </div>
 
-<!-- Create Corpus Modal -->
-<div class="modal fade" id="createCorpus" #createCorpus tabindex="-1" role="dialog" aria-hidden="true">
+<!-- Create Concept Modal -->
+<!-- <div class="modal fade" id="createConcept" #createConcept tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Create a new corpus</h5>
+          <h5 class="modal-title">Create a new concept</h5>
         </div>
         <div class="modal-body">
-            <input class="form-control slate-search-name" [ngClass]="createCorpusInvalid ? 'is-invalid' : ''" placeholder="Enter the corpus title..." type="text" [(ngModel)]="createCorpusTitle">
-            <div class="invalid-feedback">{{createCorpusError}}</div>
+            <input class="form-control slate-search-name" [ngClass]="createConceptInvalid ? 'is-invalid' : ''" placeholder="Enter the concept title..." type="text" [(ngModel)]="createConceptTitle">
+            <div class="invalid-feedback">{{createConceptError}}</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewCorpus()">Create</button>
+          <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewConcept()">Create</button>
           <button type="button" class="btn btn-outline-danger btn-outline-danger-border" (click)="closeModal()">Close</button>
         </div>
       </div>
     </div>
-</div>
+</div> -->
 
 
     <!--

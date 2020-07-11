@@ -61,4 +61,14 @@ export class ConnectionService {
 	public setUserEntity(socket: Socket, userEntity: UserEntity): void {
 		this.connections[this.getIndex(socket)].userEntity = userEntity;
 	}
+
+	public getEditorDocument(socket: Socket) {
+		const connection: Connection = this.getConnection(socket);
+		return connection.editorCorpus.documents[connection.editorDocumentIndex];
+	}
+
+	public getExplorerDocument(socket: Socket) {
+		const connection: Connection = this.getConnection(socket);
+		return connection.explorerConcept.corpora[connection.explorerCorpusIndex].documents[connection.explorerDocumentIndex];
+	}
 }

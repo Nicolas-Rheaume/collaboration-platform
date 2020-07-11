@@ -1,0 +1,23 @@
+.header-spacer {
+    overflow: auto;
+    position: fixed;
+    top: 54px;
+    height: calc(100% - 54px);
+    width: 100%;
+}
+
+.collab-navbar {
+    width: 250px;
+    background-color: #32383E;
+    // overflow: auto;
+}
+
+.main-content {
+    background-color: #272B30;
+    overflow: hidden;
+    transition: overflow 0.3s;
+}
+
+.main-content:hover {
+    overflow-y: auto;
+}

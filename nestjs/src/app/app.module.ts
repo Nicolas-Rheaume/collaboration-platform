@@ -15,6 +15,8 @@ import { AuthenticateGateway } from './controllers/authenticate/authenticate.gat
 import { DashboardGateway } from './controllers/dashboard/dashboard.gateway';
 import { EditorGateway } from './controllers/editor/editor.gateway';
 import { ExplorerGateway } from './controllers/explorer/explorer.gateway';
+import { CorpusGateway } from './controllers/corpus/corpus.gateway';
+import { DocumentGateway } from './controllers/document/document.gateway';
 
 // Controllers
 import { AppController } from './app.controller';
@@ -22,9 +24,12 @@ import { AuthenticateController } from './controllers/authenticate/authenticate.
 import { DashboardController } from './controllers/dashboard/dashboard.controller';
 import { EditorController } from './controllers/editor/editor.controller';
 import { ExplorerController } from './controllers/explorer/explorer.controller';
+import { CorpusController } from './controllers/corpus/corpus.controller';
+import { DocumentController } from './controllers/document/document.controller';
 
 // Modules
 import { UserModule } from './models/user/user.module';
+import { ConceptModule } from './models/concept/concept.module';
 import { CorpusModule } from './models/corpus/corpus.module';
 import { DocumentModule } from './models/document/document.module';
 import { ParagraphModule } from './models/paragraph/paragraph.module';
@@ -32,6 +37,7 @@ import { TextModule } from './models/text/text.module';
 
 // Entities
 import { UserEntity } from './entities/user.entity';
+import { ConceptEntity } from './entities/concept.entity';
 import { CorpusEntity } from './entities/corpus.entity';
 import { DocumentEntity } from './entities/document.entity';
 import { ParagraphEntity } from './entities/paragraph.entity';
@@ -72,6 +78,7 @@ if (process.env.NODE_ENV == 'development') {
 @Module({
 	imports: [
 		UserModule,
+		ConceptModule,
 		CorpusModule,
 		DocumentModule,
 		ParagraphModule,
@@ -83,7 +90,14 @@ if (process.env.NODE_ENV == 'development') {
 			username: username,
 			password: password,
 			database: name,
-			entities: [UserEntity, CorpusEntity, DocumentEntity, ParagraphEntity, TextEntity],
+			entities: [
+				UserEntity, 
+				ConceptEntity, 
+				CorpusEntity, 
+				DocumentEntity, 
+				ParagraphEntity, 
+				TextEntity
+			],
 			synchronize: true,
 			logging: false,
 		}),
@@ -99,12 +113,16 @@ if (process.env.NODE_ENV == 'development') {
 		DashboardGateway,
 		EditorGateway,
 		ExplorerGateway,
+		CorpusGateway,
+		DocumentGateway,
 
 		// Controllers
 		AuthenticateController,
 		DashboardController,
 		EditorController,
 		ExplorerController,
+		CorpusController,
+		DocumentController,
 	],
 })
 

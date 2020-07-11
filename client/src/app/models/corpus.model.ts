@@ -1,3 +1,6 @@
+import { User } from './user.model';
+import { Document } from './document.model'
+
 export enum CorpusSort {
 	A_Z = 'A - Z',
 	Z_A = 'Z - A',
@@ -11,8 +14,9 @@ export enum CorpusSort {
 
 export class Corpus {
 	// Variables
-	public title?: string;
-	public url?: string;
+	public author: User;
+	public description?: string;
+	public documents?: Document[];
 
 	public contributors?: number;
 	public texts?: number;
@@ -20,9 +24,18 @@ export class Corpus {
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
-	constructor(title: string = '', url: string = '', contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
-		this.title = title;
-		this.url = url;
+	constructor(
+		author: User = new User(), 
+		description: string = '', 
+		documents: Document[] = [], 
+		contributors: number = 0,
+		texts: number = 0,
+		createdAt: Date = null, 
+		updatedAt: Date = null
+	) {
+		this.author = author;
+		this.description = description;
+		this.documents = documents;
 		this.contributors = contributors;
 		this.texts = texts;
 		this.createdAt = createdAt;
@@ -35,10 +48,9 @@ export class Corpus {
 		for (let index = 0; index < data.length; index++) {
 			let subject = new Corpus();
 
-			subject.title = data[index].title;
-			subject.url = data[index].url;
 			subject.createdAt = data[index].createdAt;
 			subject.updatedAt = data[index].updatedAt;
+			subject.documents = data[index].documents;
 			subject.contributors = data[index].contributors;
 			subject.texts = data[index].texts;
 
@@ -50,11 +62,9 @@ export class Corpus {
 
 	public static map(data): Corpus {
 		let subject: Corpus = new Corpus();
-
-		subject.title = data.title;
-		subject.url = data.url;
 		subject.createdAt = data.createdAt;
 		subject.updatedAt = data.updatedAt;
+		subject.documents = data.documents;
 		subject.contributors = data.contributors;
 		subject.texts = data.texts;
 

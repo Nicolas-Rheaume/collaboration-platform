@@ -117,48 +117,109 @@ export class DocumentModel {
 */
 
 	/*****************************************************************************
-	 *  UPSERT
+	 *  CREATE
 	 *****************************************************************************/
-	public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
+	public async createByCorpusandOrder(corpus: CorpusEntity, order: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const document = await this.documentRepository
-					.findOne(
-						{
-							corpus: corpus,
-							author: author,
-						},
-						{ relations: ['corpus', 'author'] },
-					)
-					.catch(err => {
-						throw 'Error finding the document';
-					});
+				const data = await this.documentRepository.insert({
+					title: '',
+					description: '',
+					corpus: corpus,
+					order: order
+				}).catch(err => {
+						throw 'error creating the document';
+				});
 
-				if (document != undefined || document != null) resolve(document);
-				else {
-					const newDocument = await this.documentRepository
-						.save({
-							corpus: corpus,
-							author: author,
-						})
-						.catch(err => {
-							throw 'Error finding the document';
-						});
-					resolve(newDocument);
-				}
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
 			}
 		});
 	}
 
-	/*****************************************************************************
-	 *  CREATE
-	 *****************************************************************************/
 
+	// public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
+	// 	return new Promise(async (resolve, reject) => {
+	// 		try {
+	// 			const document = await this.documentRepository
+	// 				.findOne(
+	// 					{
+	// 						corpus: corpus,
+	// 						author: author,
+	// 					},
+	// 					{ relations: ['corpus', 'author'] },
+	// 				)
+	// 				.catch(err => {
+	// 					throw 'Error finding the document';
+	// 				});
+
+	// 			if (document != undefined || document != null) resolve(document);
+	// 			else {
+	// 				const newDocument = await this.documentRepository
+	// 					.save({
+	// 						corpus: corpus,
+	// 						author: author,
+	// 					})
+	// 					.catch(err => {
+	// 						throw 'Error finding the document';
+	// 					});
+	// 				resolve(newDocument);
+	// 			}
+	// 		} catch (err) {
+	// 			reject(err);
+	// 		}
+	// 	});
+	// }
 	/*****************************************************************************
 	 *  FIND
 	 *****************************************************************************/
+
+	public async findOneByIDWithTexts(id: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntity = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.id = ' + id)
+					.orderBy('paragraphs.order', 'ASC')
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByCorpusIDAndOrderWithTexts(corpusID: number, order: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntity = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.corpus = ' + corpusID)
+					.andWhere('document.order = ' + order)
+					.orderBy('paragraphs.order', 'ASC')
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+
 	public async findOneByDocumentWithTexts(document: DocumentEntity): Promise<DocumentEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -169,6 +230,27 @@ export class DocumentModel {
 					.where('document.id = ' + document.id)
 					.orderBy('paragraphs.order', 'ASC')
 					.getMany()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByCorpusAndAuthorWithTexts(corpusID: number, authorID: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntity = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.corpus = ' + corpusID)
+					.andWhere('document.author = ' + authorID)
+					.orderBy('paragraphs.order', 'ASC')
+					.getOne()
 					.catch(err => {
 						throw 'Error finding the document';
 					});
@@ -202,6 +284,24 @@ export class DocumentModel {
 					});
 				const texts: TextEntity[] = await TextEntity.parseJSONs(result);
 				resolve(texts);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findDocumentsByCorpusID(corpusID: number): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documents: DocumentEntity[] = await this.documentRepository
+					.createQueryBuilder('documents')
+					.where(`documents.corpus = ${corpusID}`)
+					.orderBy('documents.order')
+					.getMany()
+					.catch(err => {
+						throw 'Error searching for documents';
+					});
+				resolve(documents);
 			} catch (err) {
 				reject(err);
 			}
@@ -253,6 +353,41 @@ export class DocumentModel {
 	}
 
 	/*****************************************************************************
+	 *  UPDATE
+	 *****************************************************************************/
+	public async updateTitleByID(documentID: number, title: string): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.documentRepository.update(
+					{ id: documentID }, 
+					{ title: title }
+				).catch(err => {
+					throw 'Error updating the title of the document';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+	
+	 public async updateDescriptionByID(documentID: number, description: string): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.documentRepository.update(
+					{ id: documentID }, 
+					{ description: description }
+				).catch(err => {
+					throw 'Error updating the description of the document';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
 	 *  CHECK
 	 *****************************************************************************/
 	/*
@@ -277,4 +412,52 @@ export class DocumentModel {
 	/*****************************************************************************
 	 *  DELETE
 	 *****************************************************************************/
+
+	/*****************************************************************************
+	 *  COUNT
+	 *****************************************************************************/
+	public async countContributors(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository
+					.createQueryBuilder('document')
+					.where(`document.corpus = ${corpus}`)
+					.groupBy('document.author')
+					.getManyAndCount()
+					.catch(err => {
+						throw 'Error counting the contributors';
+					});
+
+				resolve(count.length);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countDocuments(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository.count({ where: { corpus: corpus } }).catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countTexts(corpus: number): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.documentRepository.count({ where: { corpus: corpus } }).catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 }

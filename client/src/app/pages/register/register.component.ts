@@ -41,6 +41,7 @@ export class RegisterComponent implements OnInit {
 
 		// Login Warning Message
 		this.socket.response('authenticate/login-error').subscribe(message => {
+			console.log(message);
 			this.loginWarning = message;
 		});
 

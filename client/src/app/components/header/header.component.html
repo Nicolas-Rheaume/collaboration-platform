@@ -1,6 +1,7 @@
 <div class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
   <div class="container">
-    
+
+    <button mat-button (click)="sidenav.leftClick()"><mat-icon>menu</mat-icon></button>
     <a class="navbar-brand"  [routerLink]="['/']">Collab</a>
 
     <!--Collapse toggler-->
@@ -23,6 +24,8 @@
           <a class="nav-link"  [routerLink]="['/administration']">Administration</a>
         </li>
 
+        <!-- <a [routerLink]="['/viewer']">Viewer</a> -->
+
         <!--Breadcrumnbs-->
         <!--
         <li class="nav-item dropdown">
@@ -37,6 +40,13 @@
 
       </ul>
       <ul class="nav navbar-nav navbar-right">
+
+        <!-- Search Bar -->
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control form-control-sm" type="text" placeholder="Search">
+          <button class="btn btn-secondary  btn-sm" type="submit" (click)="search()">Search</button>
+        </form>
+
         <!--If not connected-->
         <li class="nav-item" *ngIf="!us.isConnected()" [routerLinkActive]="['active']" [routerLinkActiveOptions]="{exact:true}">
           <a class="nav-link"  [routerLink]="['/register']">Register</a>
@@ -52,8 +62,9 @@
           </div>
         </li>
       </ul>
+      <button mat-button (click)="sidenav.rightClick()"><mat-icon>menu</mat-icon></button>
     </div>
   </div>
 </div>
 
-<div class="header-spacer"></div>
+<!-- <div class="header-spacer"></div> -->

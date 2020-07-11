@@ -6,5 +6,5 @@
   "useTabs": true,
   "semi": true,
   "bracketSpacing": true,
-  "arrowParens": "avoid",
+  "arrowParens": "avoid"
 }

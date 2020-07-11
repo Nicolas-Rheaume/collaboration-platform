@@ -1,0 +1,40 @@
+<div class="container-fluid">
+    <div
+        class="explorer-list"
+        cdkDropList
+        [cdkDropListEnterPredicate]="noReturnPredicate"
+        [cdkDropListData]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts"
+        (cdkDropListDropped)="drop($event)"
+    >
+        <div
+            class="explorer-text"
+            *ngFor="let text of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts; let i = index"
+            [cdkDragData]="text"
+            cdkDrag
+        >
+            <div 
+                class="explorer-handle" 
+                cdkDragHandle
+            ><mat-icon>control_camera</mat-icon></div>
+            <div [innerHTML]="text.text"></div>
+        </div>
+        <!-- <div
+            class="list-group-item justify-content-between align-items-center editor-textbox"
+            *ngFor="let text of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts; let i = index"
+            cdkDrag
+        >
+        <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+        <div [innerHTML]="text.text"></div> -->
+        <!--
+            <div class="d-flex justify-content-end editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+            <ckeditor [editor]="Editor" [(ngModel)]="cs.explorerTexts[i].text" [disabled]="true" [config]="{toolbar: false}"></ckeditor>
+            <footer class="blockquote-footer text-right">{{text.branches}} branches  -  Author: {{text.author}}  -  Updated: {{cs.explorerTexts[i].updatedAt | timeAgo }}</footer>
+            <div *cdkDragPreview>
+                <div class="editor-preview editor-textbox align-items-center justify-content-between">{{cs.explorerTexts[i].text | slice:0:100}}</div>
+            </div>
+        -->
+
+            <!--<div [innerHTML]="text.text"></div>-->
+    </div>
+
+</div>

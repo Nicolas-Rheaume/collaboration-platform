@@ -1,0 +1,120 @@
+
+<ckeditor
+  #editable
+  [editor]="Editor" 
+  [config]="config"
+  [(ngModel)]="text"
+  (change)="onChange($event)"
+  (ready)="onReady($event)" 
+  (focus)="onFocus($event)" 
+  (blur)="onBlur($event)"
+></ckeditor>
+
+
+<!--
+<p [innerHTML]="text"></p>
+
+<p>{{text}}</p>
+-->
+
+<!-- IMPORTANT VERSION
+<div 
+  class="editable"
+  contenteditable="true" 
+  [(ngModel)]="text"
+  [disabled]="enabled"
+  (input)="onChange($event.target, $event.target.innerText, $event.target.innerHTML, $event.target.textContent)"
+>
+</div>
+<p [innerHTML]="text"></p>
+-->
+
+<!--
+<ckeditor [editor]="Editor" [(ngModel)]="text"></ckeditor>
+
+<ckeditor   
+    [editor]="Editor" 
+    [(ngModel)]="text" 
+    (ready)="onReady($event)" 
+    [config]="configData"  
+    (change)="onChange($event)" 
+    (blur)="onBlur($event)" 
+    (focus)="onFocus($event)">
+</ckeditor>
+-->
+<!--
+<div
+    data-inline-inject="true" 
+    contenteditable="true"
+
+    [innerHTML]="text"
+    (input)="onChange($event.target, $event.target.innerText, $event.target.innerHTML, $event.target.textContent)"
+
+>
+</div>
+-->
+<!--
+<div
+    contenteditable="true"
+    (onchange)="onChange('$event')"
+
+>
+    {{text}}
+</div>
+
+
+
+  <div
+    id="editable"
+    data-inline-inject="true" 
+    contenteditable="true"
+
+    [innerHTML]="text"
+    (input)="onChange($event.target, $event.target.innerText, $event.target.innerHTML, $event.target.textContent)"
+  >
+</div>
+
+-->
+
+<!--
+<div class="container">
+    <h1>Contenteditable div</h1>
+    <div class="content"
+         [attr.contenteditable]="contenteditable"
+         [(contenteditableModel)]="contenteditableModel"
+         [contenteditableHtml]="contenteditableHtml">
+      Initial content
+    </div>
+    <pre>{{text}}</pre>
+  
+    <h1>Configuration</h1>
+    <table>
+      <tr>
+        <td class="attrLabel">contenteditable</td>
+        <td class="attrContent">
+          <input [(ngModel)]="contenteditable" type="checkbox">
+        </td>
+        <td class="attrDescription">contenteditable attribute</td>
+      </tr>
+      <tr>
+        <td class="attrLabel">contenteditableModel</td>
+        <td class="attrContent">
+          <input [(ngModel)]="contenteditableModel" type="input">
+        </td>
+        <td class="attrDescription">actual model for content</td>
+      </tr>
+      <tr>
+        <td class="attrLabel">contenteditableHtml</td>
+        <td class="attrContent">
+          <input [(ngModel)]="contenteditableHtml" type="checkbox">
+        </td>
+        <td class="attrDescription">if true, content is interpreted as html (and sanitized)</td>
+      </tr>
+    </table>
+</div>
+-->
+
+  
+
+
+

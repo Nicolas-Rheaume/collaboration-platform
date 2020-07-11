@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ExplorerController } from './explorer.controller';
 import { Text } from 'app/entities/text.entity';
+import { Concept } from 'app/entities/concept.entity';
+import { Document } from 'app/entities/document.entity';
 
 @WebSocketGateway()
 export class ExplorerGateway {
@@ -18,27 +20,26 @@ export class ExplorerGateway {
 	}
 
 	@SubscribeMessage('explorer/initialize')
-	public async initialize(client: Socket, url: string): Promise<WsResponse<{ success: boolean; message: string }>> {
+	public async initialize(client: Socket, url: string): Promise<WsResponse<Concept>> {
 		try {
-			const texts: Text[] = await this.explorerController.initialize(client, url).catch(err => {
+			const explorerConcept: Concept = await this.explorerController.initialize(client, url).catch(err => {
 				throw err;
 			});
-			client.emit('explorer/texts', texts);
-			return {
-				event: 'explorer/error',
-				data: {
-					success: true,
-					message: '',
-				},
-			};
+			return { event: 'explorer/concept', data: explorerConcept };
 		} catch (err) {
-			return {
-				event: 'explorer/error',
-				data: {
-					success: false,
-					message: err,
-				},
-			};
+			return { event: 'explorer/error', data: err };
+		}
+	}
+
+	@SubscribeMessage('explorer/getDocument')
+	public async getDocument(client: Socket, [corpusIndex, documentIndex]: [number, number]): Promise<WsResponse<any>> {
+		try {
+			const document: Document = await this.explorerController.getDocument(client, corpusIndex, documentIndex).catch(err => {
+				throw err;
+			});
+			return { event: 'explorer/document', data: [corpusIndex, documentIndex, document ]};
+		} catch (err) {
+			return { event: 'explorer/error', data: err };
 		}
 	}
 

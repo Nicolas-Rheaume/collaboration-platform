@@ -1,0 +1,31 @@
+<!-- <div class="modal fade" id="createConcept" #createConcept tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Create a new concept</h5>
+        </div>
+        <div class="modal-body">
+            <input class="form-control slate-search-name" [ngClass]="createConceptInvalid ? 'is-invalid' : ''" placeholder="Enter the concept title..." type="text" [(ngModel)]="createConceptTitle">
+            <div class="invalid-feedback">{{createConceptError}}</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewConcept()">Create</button>
+          <button type="button" class="btn btn-outline-danger btn-outline-danger-border" (click)="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+</div> -->
+
+<div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Create a new concept</h5>
+    </div>
+    <div class="modal-body">
+        <input class="form-control slate-search-name" [ngClass]="conceptInvalid ? 'is-invalid' : ''" placeholder="Enter the concept title..." type="text" [(ngModel)]="conceptTitle">
+        <div class="invalid-feedback">{{conceptError}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-success btn-outline-success-border" (click)="createNewConcept()">Create</button>
+      <button type="button" class="btn btn-outline-danger btn-outline-danger-border" mat-dialog-close>Close</button>
+    </div>
+  </div>
