@@ -20,6 +20,10 @@ export class EditorOverviewComponent implements OnInit {
   ngOnInit() {
   }
 
+  createCorpus() {
+    this.socket.request('editor/createCorpus', null);
+  }
+
   corpusDescriptionChange() {
     this.socket.request('editor/updateCorpusDescription', this.cs.editorCorpus.description);
   }

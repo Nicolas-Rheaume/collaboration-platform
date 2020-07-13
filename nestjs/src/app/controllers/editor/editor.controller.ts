@@ -38,7 +38,7 @@ export class EditorController {
 						throw err;
 					});
 					this.cs.getConnection(client).conceptTitle = concept.title;
-					const editorCorpus: CorpusEntity = await this.corpusModel.findOneByConceptAndAuthorID(author.id, concept.id).catch(err => {
+					const editorCorpus: CorpusEntity = await this.corpusModel.findOneByConceptAndAuthorID(concept.id, author.id).catch(err => {
 						throw err;
 					});
 					if(editorCorpus == undefined) resolve(null);
@@ -61,13 +61,26 @@ export class EditorController {
 					const concept: ConceptEntity = await this.conceptModel.findOneByTitle(this.cs.getConnection(client).conceptTitle).catch(err => {
 						throw err;
 					});
-					const editorCorpus: CorpusEntity = await this.corpusModel.UpsertByAuthorAndConcept(author, concept).catch(err => {
+					const editorCorpus: CorpusEntity = await this.corpusModel.findOneByConceptAndAuthorID(concept.id, author.id).catch(err => {
 						throw err;
 					});
-					this.cs.getConnection(client).editorCorpus = editorCorpus;
-					const editor = await editorCorpus.getCorpus();
-					resolve(editor);
+					if(editorCorpus != undefined) {
+						this.cs.getConnection(client).editorCorpus = editorCorpus;
+						const editor = await editorCorpus.getCorpus();
+						resolve(editor);
+					} else {
+						const createEditorCorpus: CorpusEntity = await this.corpusModel.createByConceptAndAuthor(concept, author).catch(err => {
+							throw err;
+						});
+						const newEditorCorpus: CorpusEntity = await this.corpusModel.findOneByConceptAndAuthorID(concept.id, author.id).catch(err => {
+							throw err;
+						}); 
+						this.cs.getConnection(client).editorCorpus = newEditorCorpus;
+						const editor = await newEditorCorpus.getCorpus();
+						resolve(editor);
+					}
 				} catch (err) {
+					console.log(err);
 					reject(err);
 				}
 			});

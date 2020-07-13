@@ -99,13 +99,16 @@ export class CorpusModel {
 						throw 'Error finding the corpus';
 					});
 
-				const documentEntities = await this.documentModel
-					.findDocumentsByCorpusID(corpusEntity.id)
-					.catch(err => {
-						throw "Error finding the corpus' documents";
-					});
-				corpusEntity.documents = documentEntities;
-				resolve(corpusEntity);
+				if(corpusEntity === undefined) resolve(undefined);
+				else {
+					const documentEntities = await this.documentModel
+						.findDocumentsByCorpusID(corpusEntity.id)
+						.catch(err => {
+							throw "Error finding the corpus' documents";
+						});
+					corpusEntity.documents = documentEntities;
+					resolve(corpusEntity);
+				}
 			} catch (err) {
 				reject(err);
 			}

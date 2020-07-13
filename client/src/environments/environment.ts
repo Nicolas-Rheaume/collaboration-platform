@@ -4,7 +4,7 @@
 // import { writeFile } from 'fs';
 // dotenv.config({ path: '../.env'});
 
-const host_ip_address = '192.168.10.104';
+const host_ip_address = '192.168.0.183';
 const server_port = 3000;
 
 export const environment = {
