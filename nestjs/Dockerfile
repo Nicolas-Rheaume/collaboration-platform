@@ -10,7 +10,7 @@ FROM node:current
 # RUN mkdir -p /usr/src/collab/server
 
 # Create app directory
-WORKDIR /usr/src/server/
+WORKDIR /usr/src/collab/server/
 
 # Copy over the package.js file
 COPY package.json ./
