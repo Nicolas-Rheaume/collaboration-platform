@@ -4,15 +4,17 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
-import { ParagraphEntity } from 'app/entities/paragraph.entity';
-import { DocumentEntity } from 'app/entities/document.entity';
-import { TextEntity } from 'app/entities/text.entity';
+import { ParagraphEntity } from 'app/models/paragraph/paragraph.entity';
+import { DocumentEntity } from 'app/models/document/document.entity';
+import { TextEntity } from 'app/models/text/text.entity';
+import { TextModel } from '../text/text.model';
 
 @Injectable()
 export class ParagraphModel {
 	constructor(
 		@InjectRepository(ParagraphEntity)
 		private paragraphRepository: Repository<ParagraphEntity>,
+		private textModel: TextModel
 	) {}
 
 	/*****************************************************************************
@@ -35,6 +37,81 @@ export class ParagraphModel {
 					throw err;
 				});
 				resolve(paragraphEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  COPY
+	 *****************************************************************************/
+
+	public async copyOneToDocument(paragraph: ParagraphEntity, document: DocumentEntity): Promise<ParagraphEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.paragraphRepository.insert({
+					document: document,
+					text: paragraph.text,
+					order: paragraph.order
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(paragraphEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyOneByIDToDocument(paragraphID: number, document: DocumentEntity): Promise<ParagraphEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const paragraph = await this.paragraphRepository
+					.createQueryBuilder('paragraph')
+					.innerJoinAndSelect('paragraph.document', 'document')
+					.innerJoinAndSelect('paragraph.text', 'text')
+					.where('paragraph.id = ' + paragraphID)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the paragraph';
+					});
+
+				const data = await this.paragraphRepository.insert({
+					document: document,
+					text: paragraph.text,
+					order: paragraph.order
+				}).catch(err => {
+						throw 'error creating the paragraph';
+				});
+				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(paragraphEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+
+	public async copyManyToDocument(paragraphs: ParagraphEntity[], document: DocumentEntity): Promise<ParagraphEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(paragraphs.length);
+				paragraphs.forEach(async (paragraph, i) => {
+					promises[i] = this.copyOneByIDToDocument(paragraph.id, document).catch(err => {
+						throw err;
+					});
+				});
+				Promise.all(promises).then((paragraphEntities: ParagraphEntity[]) => {
+					resolve(paragraphEntities);
+				}).catch(err => {
+					throw err;
+				}); 
 			} catch (err) {
 				reject(err);
 			}

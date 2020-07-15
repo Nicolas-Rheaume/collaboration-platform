@@ -5,7 +5,7 @@ import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository } from 'typeorm';
 
-import { User, UserRole, UserEntity } from 'app/entities/user.entity';
+import { User, UserRole, UserEntity } from 'app/models/user/user.entity';
 
 @Injectable()
 export class UserModel {

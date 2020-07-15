@@ -119,10 +119,10 @@ export class Document {
  *  DOCUMENT ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, ManyToOne, ManyToMany, JoinColumn, JoinTable, OneToMany } from 'typeorm';
-import { CorpusEntity, Corpus } from './corpus.entity';
-import { UserEntity, User } from './user.entity';
-import { Text, TextEntity } from './text.entity';
-import { ParagraphEntity } from './paragraph.entity';
+import { CorpusEntity, Corpus } from '../corpus/corpus.entity';
+import { UserEntity, User } from '../user/user.entity';
+import { Text, TextEntity } from '../text/text.entity';
+import { ParagraphEntity } from '../paragraph/paragraph.entity';
 
 @Entity('documents')
 export class DocumentEntity {

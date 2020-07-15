@@ -2,7 +2,7 @@ import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection,
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { DashboardController } from 'app/controllers/dashboard/dashboard.controller';
-import { Concept } from 'app/entities/concept.entity';
+import { Concept } from 'app/models/concept/concept.entity';
 
 @WebSocketGateway()
 export class DashboardGateway implements OnGatewayInit {

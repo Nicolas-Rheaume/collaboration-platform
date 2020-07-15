@@ -7,7 +7,7 @@ import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
 // Services
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { ConnectionService } from 'app/models/connection/connection.service';
 
 /*****************************************************************************
  *  APP GATEWAY

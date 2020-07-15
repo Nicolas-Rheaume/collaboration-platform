@@ -7,12 +7,12 @@ import { Socket, Server } from 'socket.io';
 import { environment } from 'environments/environment';
 
 // Services
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { ConnectionService } from 'app/models/connection/connection.service';
 import { CorpusModel } from 'app/models/corpus/corpus.model';
-import { Corpus, CorpusEntity } from 'app/entities/corpus.entity';
+import { Corpus, CorpusEntity } from 'app/models/corpus/corpus.entity';
 import { DocumentModel } from 'app/models/document/document.model';
-import { Document } from 'app/entities/document.entity';
-import { User } from 'app/entities/user.entity';
+import { Document } from 'app/models/document/document.entity';
+import { User } from 'app/models/user/user.entity';
 import { UserModel } from 'app/models/user/user.model';
 
 /*****************************************************************************

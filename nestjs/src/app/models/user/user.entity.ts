@@ -92,9 +92,9 @@ export class User {
  *  USER ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Repository, OneToMany } from 'typeorm';
-import { DocumentEntity } from './document.entity';
-import { TextEntity } from './text.entity';
-import { CorpusEntity } from './corpus.entity';
+import { DocumentEntity } from '../document/document.entity';
+import { TextEntity } from '../text/text.entity';
+import { CorpusEntity } from '../corpus/corpus.entity';
 
 @Entity('users')
 export class UserEntity {

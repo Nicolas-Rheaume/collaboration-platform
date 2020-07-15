@@ -4,117 +4,28 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository } from 'typeorm';
-import { DocumentEntity } from 'app/entities/document.entity';
-import { UserEntity } from 'app/entities/user.entity';
-import { CorpusEntity } from 'app/entities/corpus.entity';
-import { ParagraphEntity } from 'app/entities/paragraph.entity';
-import { TextEntity } from 'app/entities/text.entity';
+import { DocumentEntity } from 'app/models/document/document.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { CorpusEntity } from 'app/models/corpus/corpus.entity';
+import { ParagraphEntity } from 'app/models/paragraph/paragraph.entity';
+import { TextEntity } from 'app/models/text/text.entity';
 import { CorpusModel } from '../corpus/corpus.model';
+import { ParagraphModel } from '../paragraph/paragraph.model';
+import { TextModel } from '../text/text.model';
+import { UserModel } from '../user/user.model';
+import { ConceptModel } from '../concept/concept.model';
 
 @Injectable()
 export class DocumentModel {
 	constructor(
 		@InjectRepository(DocumentEntity)
 		private documentRepository: Repository<DocumentEntity>,
-
-		@InjectRepository(UserEntity)
-		private userRepository: Repository<UserEntity>,
-
-		@InjectRepository(CorpusEntity)
-		private corpusRepository: Repository<CorpusEntity>,
-
-		@InjectRepository(ParagraphEntity)
-		private paragraphRepository: Repository<ParagraphEntity>,
-
-		@InjectRepository(TextEntity)
-		private textRepository: Repository<TextEntity>,
+		private paragraphModel: ParagraphModel,
+		private textModel: TextModel,
+		private userModel: UserModel,
 	) {
-		// let user:UserEntity = await this.userRepository.findOne(1);
-		// let corpus = await this.corpusRepository.findOne({id: 2});
-		// let document = await this.documentRepository.findOne({id: 2});
-		// let paragraphs = new Array<ParagraphEntity>(3);
-		// paragraphs[0] = await this.paragraphRepository.findOne({id: 1});
-		// paragraphs[1] = await this.paragraphRepository.findOne({id: 2});
-		// paragraphs[2] = await this.paragraphRepository.findOne({id: 3});
-		// let texts = new Array<TextEntity>(3);
-		// texts[0] = await this.textRepository.findOne({id: 1});
-		// texts[1] = await this.textRepository.findOne({id: 2});
-		// texts[2] = await this.textRepository.findOne({id: 3});
-		// document.author = Promise.resolve(user);
-		// document.corpus = Promise.resolve(corpus);
-		// document.paragraphs = Promise.resolve(paragraphs);
-		// paragraphs[0].text = Promise.resolve(texts[0]);
-		// paragraphs[1].text = Promise.resolve(texts[1]);
-		// paragraphs[2].text = Promise.resolve(texts[2]);
-		// texts[0].author = Promise.resolve(user);
-		// texts[1].author = Promise.resolve(user);
-		// texts[2].author = Promise.resolve(user);
-		// paragraphs[0].document = Promise.resolve(document);
-		// paragraphs[1].document = Promise.resolve(document);
-		// paragraphs[2].document = Promise.resolve(document);
-		// await this.userRepository.save(user);
-		// await this.corpusRepository.save(corpus);
-		// await this.documentRepository.save(document);
-		// await this.paragraphRepository.save(paragraphs);
-		// await this.textRepository.save(texts);
-		// const document = await this.documentRepository.findOne({id: 4}, { relations: ["corpus", "author", "paragraphs"] });
-		// const document = await this.documentRepository.findOne({id: 4});
-		// const paragraphs = await document.paragraphs;
-		// console.log(user);
-		// console.log(corpus);
-		// let nick = await this.userRepository.findOne(1, {relations: ["documents", "texts"]});
-		// let newDocument = await this.documentRepository.createQueryBuilder("document")
-		// 					.innerJoinAndSelect("document.paragraphs", "paragraphs")
-		// 					.innerJoinAndSelect("paragraphs.text", "text")
-		// 					.getMany();
-		// console.log(newDocument);
-		// newDocument[0].paragraphs.forEach((paragraph, i) => {
-		// 	console.log(paragraph);
-		// });
-		// let myDocuments = await nick.documents;
-		// console.log(myDocuments);
-		// let paragraphsss = await newDocument.paragraphs;
-		// let text = await paragraphs[0].text;
-		// console.log(newDocument.paragraphs);
-		// console.log(paragraphs);
-		// console.log(text);
-		// console.log(corpus);
-		// console.log(document);
-		// console.log(paragraphs);
-		// let newDocument = new DocumentEntity();
-		// newDocument.corpus = Promise.resolve(corpus);
-		// newDocument.author = Promise.resolve(user);
-		// newDocument.createdAt = new Date();
-		// newDocument.updatedAt = new Date();
-		// const texts: TextEntity[] = [
-		// 	new TextEntity(1, "text: " + 1, user, null, 0,0,0,new Date(), new Date()),
-		// 	new TextEntity(2, "text: " + 2, user, null, 0,0,0,new Date(), new Date()),
-		// 	new TextEntity(3, "text: " + 3, user, null, 0,0,0,new Date(), new Date()),
-		// ];
-		// const paragraphs: ParagraphEntity[] = [
-		// 	new ParagraphEntity(1, document, texts[0], 0, new Date(), new Date()),
-		// 	new ParagraphEntity(2, document, texts[1], 1, new Date(), new Date()),
-		// 	new ParagraphEntity(3, document, texts[2], 2, new Date(), new Date()),
-		// ]
-	}
 
-	/*
-	userRepository.find({
-		select: ["firstName", "lastName"],
-		relations: ["profile", "photos", "videos"],
-		where: {
-			firstName: "Timber",
-			lastName: "Saw"
-		},
-		order: {
-			name: "ASC",
-			id: "DESC"
-		},
-		skip: 5,
-		take: 10,
-		cache: true
-	});
-*/
+	}
 
 	/*****************************************************************************
 	 *  CREATE
@@ -135,6 +46,142 @@ export class DocumentModel {
 					throw err;
 				});
 				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  COPY
+	 *****************************************************************************/
+
+	public async copyOneToCorpus(document: DocumentEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.documentRepository.insert({
+					title: document.title,
+					description: document.description,
+					corpus: corpus,
+					order: document.order
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				this.paragraphModel.copyManyToDocument(document.paragraphs, documentEntity).catch(err => {
+					throw err;
+				});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyOneToCorpusAtIndex(document: DocumentEntity, corpus: CorpusEntity, index: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.documentRepository.insert({
+					title: document.title,
+					description: document.description,
+					corpus: corpus,
+					order: index
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				this.paragraphModel.copyManyToDocument(document.paragraphs, documentEntity).catch(err => {
+					throw err;
+				});
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyOneByIDToCorpus(documentID: number, corpus: CorpusEntity): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const document = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.where('document.id = ' + documentID)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+
+				const data = await this.documentRepository.insert({
+					title: document.title,
+					description: document.description,
+					corpus: corpus,
+					order: document.order
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				this.paragraphModel.copyManyToDocument(document.paragraphs, documentEntity).catch(err => {
+					throw err;
+				});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyOneByIDToCorpusAtIndex(documentID: number, corpus: CorpusEntity, index: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const document = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.where('document.id = ' + documentID)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+
+				const data = await this.documentRepository.insert({
+					title: document.title,
+					description: document.description,
+					corpus: corpus,
+					order: index
+				}).catch(err => {
+						throw 'error creating the document';
+				});
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				this.paragraphModel.copyManyToDocument(document.paragraphs, documentEntity).catch(err => {
+					throw err;
+				});
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyManyToCorpus(documents: DocumentEntity[], corpus: CorpusEntity): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(documents.length);
+				documents.forEach(async (document, i) => {
+					promises[i] = this.copyOneByIDToCorpus(document.id, corpus).catch(err => {
+						throw err;
+					});
+				});
+				Promise.all(promises).then((documentEntities: DocumentEntity[]) => {
+					resolve(documentEntities);
+				}).catch(err => {
+					throw err;
+				}); 
 			} catch (err) {
 				reject(err);
 			}
@@ -174,6 +221,29 @@ export class DocumentModel {
 	// 		}
 	// 	});
 	// }
+
+	/*****************************************************************************
+	 *  INSERT
+	 *****************************************************************************/
+	public async insertCopyAtIndex(corpus: CorpusEntity, document: DocumentEntity, index: number): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.updateOrdersAtIndex(corpus.documents.splice(index), index + 1).catch(err => {
+					throw err;
+				});
+				await this.copyOneToCorpusAtIndex(document, corpus, index).catch(err => {
+					throw err;
+				});
+				const documentEntities: DocumentEntity[] = await this.findManyByCorpusIDWithTexts(corpus.id).catch(err => {
+					throw err;
+				});
+				resolve(documentEntities);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	/*****************************************************************************
 	 *  FIND
 	 *****************************************************************************/
@@ -220,7 +290,7 @@ export class DocumentModel {
 	}
 
 
-	public async findOneByDocumentWithTexts(document: DocumentEntity): Promise<DocumentEntity[]> {
+	public async findOneByDocumentWithTexts(document: DocumentEntity): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const documentEntity = await this.documentRepository
@@ -229,7 +299,7 @@ export class DocumentModel {
 					.innerJoinAndSelect('paragraphs.text', 'text')
 					.where('document.id = ' + document.id)
 					.orderBy('paragraphs.order', 'ASC')
-					.getMany()
+					.getOne()
 					.catch(err => {
 						throw 'Error finding the document';
 					});
@@ -302,6 +372,47 @@ export class DocumentModel {
 						throw 'Error searching for documents';
 					});
 				resolve(documents);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findManyByCorpusAndAuthorWithTexts(corpusID: number, authorID: number): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntities = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.corpus = ' + corpusID)
+					.andWhere('document.author = ' + authorID)
+					.orderBy('paragraphs.order', 'ASC')
+					.getMany()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntities);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findManyByCorpusIDWithTexts(corpusID: number): Promise<DocumentEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntities = await this.documentRepository
+					.createQueryBuilder('document')
+					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('document.corpus = ' + corpusID)
+					.orderBy('paragraphs.order', 'ASC')
+					.getMany()
+					.catch(err => {
+						throw 'Error finding the document';
+					});
+				resolve(documentEntities);
 			} catch (err) {
 				reject(err);
 			}
@@ -381,6 +492,52 @@ export class DocumentModel {
 					throw 'Error updating the description of the document';
 				});
 				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async updateOrders(documents: DocumentEntity[]): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(documents.length);
+				documents.forEach(async (document, i) => {
+					promises[i] = await this.documentRepository.update(
+						{id: document.id},
+						{order: i}
+					).catch(err => {
+						throw 'Error updating the order of the document';
+					});
+				});
+				Promise.all(promises).then(() => {
+					resolve();
+				}).catch(err => {
+					throw err;
+				}); 
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async updateOrdersAtIndex(documents: DocumentEntity[], index: number): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(documents.length);
+				documents.forEach(async (document, i) => {
+					promises[i] = await this.documentRepository.update(
+						{id: document.id},
+						{order: index + i}
+					).catch(err => {
+						throw 'Error updating the order of the document';
+					});
+				});
+				Promise.all(promises).then(() => {
+					resolve();
+				}).catch(err => {
+					throw err;
+				}); 
 			} catch (err) {
 				reject(err);
 			}

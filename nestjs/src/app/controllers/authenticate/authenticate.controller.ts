@@ -9,9 +9,9 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 
 // Services
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { ConnectionService } from 'app/models/connection/connection.service';
 import { UserModel } from 'app/models/user/user.model';
-import { User, UserRole, UserEntity } from 'app/entities/user.entity';
+import { User, UserRole, UserEntity } from 'app/models/user/user.entity';
 
 /*****************************************************************************
  *  AUTHENTICATE CONTROLLER

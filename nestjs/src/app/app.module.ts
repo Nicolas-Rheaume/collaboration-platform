@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 
 // Services
-import { ConnectionService } from './services/connection/connection.service';
+import { ConnectionService } from './models/connection/connection.service';
 
 // Gateways
 import { AppGateway } from './app.gateway';
@@ -36,12 +36,12 @@ import { ParagraphModule } from './models/paragraph/paragraph.module';
 import { TextModule } from './models/text/text.module';
 
 // Entities
-import { UserEntity } from './entities/user.entity';
-import { ConceptEntity } from './entities/concept.entity';
-import { CorpusEntity } from './entities/corpus.entity';
-import { DocumentEntity } from './entities/document.entity';
-import { ParagraphEntity } from './entities/paragraph.entity';
-import { TextEntity } from './entities/text.entity';
+import { UserEntity } from './models/user/user.entity';
+import { ConceptEntity } from './models/concept/concept.entity';
+import { CorpusEntity } from './models/corpus/corpus.entity';
+import { DocumentEntity } from './models/document/document.entity';
+import { ParagraphEntity } from './models/paragraph/paragraph.entity';
+import { TextEntity } from './models/text/text.entity';
 
 // Configuration
 import * as dotenv from 'dotenv';
@@ -78,11 +78,11 @@ if (process.env.NODE_ENV == 'development') {
 @Module({
 	imports: [
 		UserModule,
-		ConceptModule,
 		CorpusModule,
 		DocumentModule,
 		ParagraphModule,
 		TextModule,
+		ConceptModule,
 		TypeOrmModule.forRoot({
 			type: 'mysql',
 			host: host,
@@ -92,11 +92,11 @@ if (process.env.NODE_ENV == 'development') {
 			database: name,
 			entities: [
 				UserEntity, 
-				ConceptEntity, 
 				CorpusEntity, 
 				DocumentEntity, 
 				ParagraphEntity, 
-				TextEntity
+				TextEntity,
+				ConceptEntity
 			],
 			synchronize: true,
 			logging: false,

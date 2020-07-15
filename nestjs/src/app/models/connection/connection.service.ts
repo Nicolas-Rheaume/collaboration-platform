@@ -1,11 +1,38 @@
 /*****************************************************************************
- *  IMPORTS
+ *  CONNECTION
  *****************************************************************************/
 // Dependencies
 import { Injectable, Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { User, UserEntity } from 'app/entities/user.entity';
-import { Connection } from 'app/entities/connection.entity';
+import { User, UserEntity } from 'app/models/user/user.entity';
+import { ConceptSort, ConceptEntity } from 'app/models/concept/concept.entity';
+import { CorpusEntity } from '../corpus/corpus.entity';
+
+// Class definition
+export class Connection {
+	socket?: Socket;
+	path?: string;
+	userEntity?: UserEntity;
+	dashboardSearch?: { search: string; sort: ConceptSort };
+
+	conceptTitle?: string;
+	editorCorpus?: CorpusEntity;
+	editorDocumentIndex?: number;
+
+	explorerConcept?: ConceptEntity;
+	explorerCorpusIndex?: number;
+	explorerDocumentIndex?: number;
+
+	constructor(socket: Socket) {
+		this.socket = socket;
+		this.path = '';
+		this.userEntity = new UserEntity();
+		this.dashboardSearch = { search: '', sort: ConceptSort.A_Z };
+		this.editorCorpus = null;
+		this.explorerConcept = null;
+	}
+}
+
 
 /*****************************************************************************
  *  CONNECTION SERVICE

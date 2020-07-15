@@ -71,6 +71,16 @@ export const SORTMAP = new Map([
 	],
 ]);
 
+export const ConceptSortMap = new Map()
+	.set(ConceptSort.A_Z, 				{ title: "ASC"})
+	.set(ConceptSort.Z_A, 				{ title: "DESC"})
+	.set(ConceptSort.OLDEST, 			{ createdAt: "ASC"})
+	.set(ConceptSort.NEWEST, 			{ createdAt: "DESC"})
+	.set(ConceptSort.MOST_CONTRIBUTOR, 	{ nbContributors: "DESC"})
+	.set(ConceptSort.LEAST_CONTRIBUTOR, { nbContributors: "ASC"})
+	.set(ConceptSort.MOST_TEXTS, 		{ texts: "DESC"})
+	.set(ConceptSort.LEAST_TEXTS, 		{ texts: "ASC"});
+
 /*****************************************************************************
  *  CONCEPT TYPE FOR THE CLIENT SIDE
  *****************************************************************************/
@@ -92,7 +102,6 @@ export class Concept {
 	constructor(
         title: string = '', 
         url: string = '', 
-        corpora: Corpus[] = [],
         contributors: number = 0, 
         documents: number = 0, 
         texts: number = 0, 
@@ -101,96 +110,11 @@ export class Concept {
     ) {
 		this.title = title;
         this.url = url;
-        this.corpora = corpora;
 		this.nbContributors = contributors;
 		this.nbDocuments = documents;
 		this.nbTexts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
-	}
-
-	// public async getEntity(): Promise<ConceptEntity> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			resolve(new ConceptEntity(0, this.title, this.url, this.contributors, null, this.texts, this.createdAt, this.updatedAt));
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
-
-	// public async setEntity(corpus: ConceptEntity): Promise<void> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			this.title = corpus.title;
-	// 			this.url = corpus.url;
-	// 			this.contributors = corpus.contributors;
-	// 			this.documents = corpus.documents.length;
-	// 			this.texts = corpus.texts;
-	// 			this.createdAt = corpus.createdAt;
-	// 			this.updatedAt = corpus.updatedAt;
-	// 			resolve();
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
-
-	// public async getJSON(): Promise<any> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			resolve({
-	// 				title: this.title,
-	// 				url: this.url,
-	// 				contributors: this.contributors,
-	// 				documents: this.documents,
-	// 				texts: this.texts,
-	// 				createdAt: this.createdAt,
-	// 				updatedAt: this.updatedAt,
-	// 			});
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
-
-	// public async setJSON(json: any): Promise<void> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			if (json.hasOwnProperty('title')) this.title = json.title;
-	// 			if (json.hasOwnProperty('url')) this.url = json.url;
-	// 			if (json.hasOwnProperty('contributors')) this.contributors = json.contributors;
-	// 			if (json.hasOwnProperty('documents')) this.documents = json.documents;
-	// 			if (json.hasOwnProperty('texts')) this.texts = json.texts;
-	// 			if (json.hasOwnProperty('createdAt')) this.createdAt = json.createdAt;
-	// 			if (json.hasOwnProperty('updatedAt')) this.updatedAt = json.updatedAt;
-	// 			resolve();
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
-
-	public static async parseEntities(entities: ConceptEntity[]): Promise<Concept[]> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				let promises = new Array(entities.length);
-				entities.forEach(async (entity, i) => {
-					promises[i] = entity.getConcept().catch(err => {
-						throw err;
-					});
-				});
-				Promise.all(promises)
-					.then((values: Concept[]) => {
-						resolve(values);
-					})
-					.catch(err => {
-						throw err;
-					});
-			} catch (err) {
-				reject(err);
-			}
-		});
 	}
 }
 
@@ -198,7 +122,7 @@ export class Concept {
  *  CONCEPT ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { Corpus, CorpusEntity } from './corpus.entity';
+import { Corpus, CorpusEntity } from '../corpus/corpus.entity';
 
 @Entity('concepts')
 export class ConceptEntity {
@@ -247,7 +171,9 @@ export class ConceptEntity {
 		this.title = title;
         this.url = url;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+		this.updatedAt = updatedAt;
+
+		//this.corpora = corpora;
         
 		this.nbContributors = nbContributors;
 		this.nbDocuments = nbDocuments;
@@ -257,27 +183,45 @@ export class ConceptEntity {
 	public async getConcept(): Promise<Concept> {
 		return new Promise(async (resolve, reject) => {
 			try {
-
 				let corpora = [];
-
 				if(this.corpora != undefined && this.corpora != null) {
 					corpora = await CorpusEntity.getCorpora(this.corpora).catch(err => {
 						throw err;
 					});
 				}
-				
-				resolve(
-                    new Concept(
-                        this.title, 
-                        this.url,
-                        corpora,
-                        this.nbContributors, 
-                        this.nbDocuments, 
-                        this.nbTexts, 
-                        this.createdAt, 
-                        this.updatedAt
-                    )
-                );
+				let concept = new Concept(
+					this.title, 
+					this.url,
+					this.nbContributors, 
+					this.nbDocuments, 
+					this.nbTexts, 
+					this.createdAt, 
+					this.updatedAt
+				);
+				concept.corpora = corpora;
+				resolve(concept);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public static async getConcepts(entities: ConceptEntity[]): Promise<Concept[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(entities.length);
+				entities.forEach(async (entity, i) => {
+					promises[i] = entity.getConcept().catch(err => {
+						throw err;
+					});
+				});
+				Promise.all(promises)
+					.then((values: Concept[]) => {
+						resolve(values);
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}

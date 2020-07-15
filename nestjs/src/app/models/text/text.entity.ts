@@ -34,6 +34,7 @@ export class Text {
 					new TextEntity(
 						0, 
 						this.text, 
+						this.text,
 						this.tag, 
 						this.html, 
 						null, 
@@ -123,8 +124,8 @@ export class Text {
  *  TEXT ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, OneToMany, ManyToOne } from 'typeorm';
-import { User, UserEntity } from './user.entity';
-import { ParagraphEntity } from './paragraph.entity';
+import { User, UserEntity } from '../user/user.entity';
+import { ParagraphEntity } from '../paragraph/paragraph.entity';
 
 @Entity('texts')
 export class TextEntity {
@@ -173,10 +174,13 @@ export class TextEntity {
 	@UpdateDateColumn()
 	public updatedAt: Date;
 
+	public newText: string;
+
 	// Constructor
 	constructor(
 		id: number = 0,
 		text: string = '',
+		newText: string = '',
 		tag: string = '',
 		html: string = '',
 		author: UserEntity = null,
@@ -189,6 +193,7 @@ export class TextEntity {
 	) {
 		this.id = id;
 		this.text = text;
+		this.newText = newText;
 		this.tag = tag;
 		this.html = html;
 		this.author = author;

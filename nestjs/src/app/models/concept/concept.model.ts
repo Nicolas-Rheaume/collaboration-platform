@@ -3,21 +3,37 @@
  *****************************************************************************/
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
-import { Concept, ConceptEntity, ConceptSort, SORTMAP } from 'app/entities/concept.entity';
-import { UserEntity } from 'app/entities/user.entity';
+import { Connection, getConnection, getManager, Repository, Like, createQueryBuilder, SelectQueryBuilder } from 'typeorm';
+
+import { Concept, ConceptEntity, ConceptSort, SORTMAP, ConceptSortMap } from 'app/models/concept/concept.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { CorpusModel } from '../corpus/corpus.model';
+import { DocumentModel } from '../document/document.model';
+import { ParagraphModel } from '../paragraph/paragraph.model';
+import { TextModel } from '../text/text.model';
+import { UserModel } from '../user/user.model';
+import { CorpusEntity, CorpusSort } from '../corpus/corpus.entity';
 
 @Injectable()
 export class ConceptModel {
 	constructor(
 		@InjectRepository(ConceptEntity)
 		private conceptRepository: Repository<ConceptEntity>,
-	) {}
+		@InjectRepository(CorpusEntity)
+		private corpusRepository: Repository<CorpusEntity>,
+		private corpusModel: CorpusModel,
+		private documentModel: DocumentModel,
+		private paragraphModel: ParagraphModel,
+		private textModel: TextModel,
+		private userModel: UserModel,
+	) {
+		this.search("", ConceptSort.A_Z, 1, 10, CorpusSort.NEWEST, 2);
+	}
 
 	/*****************************************************************************
 	 *  CREATE
 	 *****************************************************************************/
-	public async create(title: string, url: string): Promise<ConceptEntity> {
+	public async createByTitleAndURL(title: string, url: string): Promise<ConceptEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
 				const data = await this.conceptRepository
@@ -83,34 +99,6 @@ export class ConceptModel {
 		});
 	}
 
-	public async findAll(search: string, sort: ConceptSort): Promise<ConceptEntity[]> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				let corpora: ConceptEntity[] = await this.conceptRepository.find().catch(err => {
-					throw 'Error searching for the corpora';
-				});
-				resolve(corpora);
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
-
-	public async findBySearch(search: string, sort: ConceptSort): Promise<ConceptEntity[]> {
-		return new Promise(async (resolve, reject) => {
-			try {
-				let title = '%' + search + '%';
-				let corpora: ConceptEntity[] = await this.conceptRepository.find({ title: Like(title) }).catch(err => {
-					throw 'Error searching for the corpora';
-				});
-				corpora.sort(SORTMAP.get(sort));
-				resolve(corpora);
-			} catch (err) {
-				reject(err);
-			}
-		});
-	}
-
 	public async findOneByURLWithCorpusWithoutUser(url: string, author: UserEntity): Promise<ConceptEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -125,6 +113,73 @@ export class ConceptModel {
 						throw 'Error finding the concept';
 					});
 				resolve(conceptEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByURLWithCorpusWithoutUserID(url: string, authorID: number): Promise<ConceptEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let conceptEntity = await this.findOneByURL(url).catch(err => {
+					throw 'Error finding the concept';
+				});
+				const corpusEntities = await this.corpusModel.findManyByConceptIDWithoutAuthorID(conceptEntity.id, authorID).catch(err => {
+					throw 'Error finding the concept';
+				});
+				conceptEntity.corpora = corpusEntities;
+				resolve(conceptEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findManyBySearch(search: string, sort: ConceptSort): Promise<ConceptEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let title = '%' + search + '%';
+				let corpora: ConceptEntity[] = await this.conceptRepository.find({ title: Like(title) }).catch(err => {
+					throw 'Error searching for the corpora';
+				});
+				corpora.sort(SORTMAP.get(sort));
+				resolve(corpora);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  SEARCH
+	 *****************************************************************************/
+	public async search(search: string, conceptSort: ConceptSort, pageNumber: number, amountOfConcept: number, corpusSort: CorpusSort, amountOfCorpus: number): Promise<ConceptEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let conceptEntities: ConceptEntity[] = await this.conceptRepository.find({
+					where: { title: Like('%' + search + '%') },
+					order:   ConceptSortMap.get(conceptSort),
+					skip: (pageNumber - 1)*amountOfConcept,
+					take: amountOfConcept
+				}).catch(err => {
+					throw 'Error searching for the concepts';
+				});
+
+				let promises = new Array(conceptEntities.length);
+				conceptEntities.forEach(async (entity, i) => {
+					promises[i] = this.corpusModel.search(entity.id, corpusSort, amountOfCorpus).catch(err => {
+						throw err;
+					});
+				});
+				Promise.all(promises).then((values: any) => {
+					conceptEntities.forEach((entity, i) => {
+						conceptEntities[i].corpora = values[i]
+					});
+					resolve(conceptEntities);
+				}).catch(err => {
+					throw err;
+				}); 
 			} catch (err) {
 				reject(err);
 			}
@@ -150,7 +205,6 @@ export class ConceptModel {
 	/*****************************************************************************
 	 *  DELETE
 	 *****************************************************************************/
-
 	public async deleteByTitle(title: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -175,6 +229,36 @@ export class ConceptModel {
 				});
 				if (count > 0) throw 'Concept title already exists';
 				else resolve(true);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  COUNT
+	 *****************************************************************************/
+	public async countAll(): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.conceptRepository.count().catch(err => {
+					throw 'Error counting the concepts';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countBySearch(search: string): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const title = '%' + search + '%';
+				const count = await this.conceptRepository.count({ title: Like(title) }).catch(err => {
+					throw 'Error counting the concepts';
+				});
+				resolve(count);
 			} catch (err) {
 				reject(err);
 			}

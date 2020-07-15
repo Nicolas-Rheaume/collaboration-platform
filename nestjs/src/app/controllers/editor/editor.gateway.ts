@@ -2,8 +2,8 @@ import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection,
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { EditorController } from './editor.controller';
-import { Corpus } from 'app/entities/corpus.entity';
-import { Document } from 'app/entities/document.entity';
+import { Corpus } from 'app/models/corpus/corpus.entity';
+import { Document } from 'app/models/document/document.entity';
 
 @WebSocketGateway()
 export class EditorGateway {

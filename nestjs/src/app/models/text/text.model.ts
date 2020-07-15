@@ -4,19 +4,18 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
-import { TextEntity } from 'app/entities/text.entity';
-import { UserEntity } from 'app/entities/user.entity';
-import { DocumentEntity } from 'app/entities/document.entity';
-import { ParagraphEntity } from 'app/entities/paragraph.entity';
+import { TextEntity } from 'app/models/text/text.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { DocumentEntity } from 'app/models/document/document.entity';
+import { ParagraphEntity } from 'app/models/paragraph/paragraph.entity';
+import { UserModel } from '../user/user.model';
 
 @Injectable()
 export class TextModel {
 	constructor(
 		@InjectRepository(TextEntity)
 		private textRepository: Repository<TextEntity>,
-
-		@InjectRepository(ParagraphEntity)
-		private paragraphRepository: Repository<ParagraphEntity>,
+		private userModel: UserModel
 	) {}
 
 	/*****************************************************************************

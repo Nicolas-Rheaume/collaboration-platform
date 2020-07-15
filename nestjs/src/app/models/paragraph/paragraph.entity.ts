@@ -2,10 +2,10 @@
  *  PARAGRAPH ENTITY FOR THE SERVER SIDE
  *****************************************************************************/
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToOne, ManyToOne, ManyToMany, JoinColumn, JoinTable } from 'typeorm';
-import { CorpusEntity, Corpus } from './corpus.entity';
-import { UserEntity, User } from './user.entity';
-import { TextEntity } from './text.entity';
-import { DocumentEntity } from './document.entity';
+import { CorpusEntity, Corpus } from '../corpus/corpus.entity';
+import { UserEntity, User } from '../user/user.entity';
+import { TextEntity } from '../text/text.entity';
+import { DocumentEntity } from '../document/document.entity';
 
 @Entity('paragraphs')
 export class ParagraphEntity {

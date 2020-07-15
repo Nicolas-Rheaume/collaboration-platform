@@ -5,11 +5,11 @@
 import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WsResponse, WebSocketServer } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { Corpus } from 'app/entities/corpus.entity';
+import { Corpus } from 'app/models/corpus/corpus.entity';
 
 // Controllers
 import { DocumentController } from 'app/controllers/document/document.controller';
-import { Document } from 'app/entities/document.entity';
+import { Document } from 'app/models/document/document.entity';
 
 /*****************************************************************************
  *  AUTHENTICATE GATEWAY

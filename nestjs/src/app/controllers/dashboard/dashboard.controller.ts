@@ -2,13 +2,13 @@ import { Controller } from '@nestjs/common';
 import express, { Application } from 'express';
 import { Socket, Server } from 'socket.io';
 
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { ConnectionService } from 'app/models/connection/connection.service';
 
 import { CorpusModel } from 'app/models/corpus/corpus.model';
 //import { Corpus, CorpusEntity, CorpusSort } from 'app/entities/corpus.entity';
 //import { environment } from 'environments/environment';
 import { ConceptModel } from 'app/models/concept/concept.model';
-import { Concept, ConceptSort } from 'app/entities/concept.entity';
+import { Concept, ConceptSort, ConceptEntity } from 'app/models/concept/concept.entity';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -29,15 +29,15 @@ export class DashboardController {
 				await this.conceptModel.checkTitleDoesntExists(cleanedTitle).catch(err => {
 					throw err;
 				});
-				await this.conceptModel.create(cleanedTitle, url).catch(err => {
+				await this.conceptModel.createByTitleAndURL(cleanedTitle, url).catch(err => {
 					throw err;
 				});
 
 				const search = this.cs.getConnection(client).dashboardSearch;
-				const concepts = await this.conceptModel.findBySearch(search.search, search.sort).catch(err => {
+				const concepts = await this.conceptModel.findManyBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
-				resolve(await Concept.parseEntities(concepts));
+				resolve(await ConceptEntity.getConcepts(concepts));
 			} catch (err) {
 				reject(err);
 			}
@@ -52,10 +52,10 @@ export class DashboardController {
 					throw err;
 				});
 				const search = this.cs.getConnection(client).dashboardSearch;
-				const concepts = await this.conceptModel.findBySearch(search.search, search.sort).catch(err => {
+				const concepts = await this.conceptModel.findManyBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
-				resolve(await Concept.parseEntities(concepts));
+				resolve(await ConceptEntity.getConcepts(concepts));
 			} catch (err) {
 				reject(err);
 			}
@@ -70,10 +70,10 @@ export class DashboardController {
 					throw err;
 				});
 				const search = this.cs.getConnection(client).dashboardSearch;
-				const concepts = await this.conceptModel.findBySearch(search.search, search.sort).catch(err => {
+				const concepts = await this.conceptModel.findManyBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
-				resolve(await Concept.parseEntities(concepts));
+				resolve(await ConceptEntity.getConcepts(concepts));
 			} catch (err) {
 				reject(err);
 			}
@@ -105,10 +105,10 @@ export class DashboardController {
 		return new Promise<any>(async (resolve, reject) => {
 			try {
 				const search = this.cs.getConnection(client).dashboardSearch;
-				const conceptEntities = await this.conceptModel.findBySearch(search.search, search.sort).catch(err => {
+				const conceptEntities = await this.conceptModel.findManyBySearch(search.search, search.sort).catch(err => {
 					throw err;
 				});
-				const concepts = await Concept.parseEntities(conceptEntities);
+				const concepts = await ConceptEntity.getConcepts(conceptEntities);
 				resolve([concepts, search.search, search.sort]);
 			} catch (err) {
 				reject(err);
@@ -123,10 +123,10 @@ export class DashboardController {
 				this.cs.getConnection(client).dashboardSearch.search = search;
 				this.cs.getConnection(client).dashboardSearch.sort = sort;
 
-				const concepts = await this.conceptModel.findBySearch(search, sort).catch(err => {
+				const concepts = await this.conceptModel.findManyBySearch(search, sort).catch(err => {
 					throw err;
 				});
-				resolve(await Concept.parseEntities(concepts));
+				resolve(await ConceptEntity.getConcepts(concepts));
 			} catch (err) {
 				reject(err);
 			}

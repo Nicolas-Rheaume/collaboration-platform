@@ -1,19 +1,19 @@
 import { Controller } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { ConnectionService } from 'app/models/connection/connection.service';
 import { DocumentModel } from 'app/models/document/document.model';
 import { CorpusModel } from 'app/models/corpus/corpus.model';
 import { ParagraphModel } from 'app/models/paragraph/paragraph.model';
-import { UserEntity } from 'app/entities/user.entity';
-import { CorpusEntity } from 'app/entities/corpus.entity';
-import { DocumentEntity, Document } from 'app/entities/document.entity';
-import { TextEntity, Text } from 'app/entities/text.entity';
-import { ParagraphEntity } from 'app/entities/paragraph.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { CorpusEntity } from 'app/models/corpus/corpus.entity';
+import { DocumentEntity, Document } from 'app/models/document/document.entity';
+import { TextEntity, Text } from 'app/models/text/text.entity';
+import { ParagraphEntity } from 'app/models/paragraph/paragraph.entity';
 import { TextModel } from 'app/models/text/text.model';
 
 import * as arrayMove from 'array-move';
-import { ConceptEntity, Concept } from 'app/entities/concept.entity';
+import { ConceptEntity, Concept } from 'app/models/concept/concept.entity';
 import { ConceptModel } from 'app/models/concept/concept.model';
 
 @Controller('explorer')

@@ -4,11 +4,16 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Connection, getConnection, getManager, Repository, Like } from 'typeorm';
-import { Corpus, CorpusEntity } from 'app/entities/corpus.entity';
-import { ConceptEntity } from 'app/entities/concept.entity';
-import { UserEntity } from 'app/entities/user.entity';
-import { DocumentEntity } from 'app/entities/document.entity';
+import { Corpus, CorpusEntity, CorpusSort, CorpusSortMap } from 'app/models/corpus/corpus.entity';
+import { ConceptEntity } from 'app/models/concept/concept.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { DocumentEntity } from 'app/models/document/document.entity';
 import { DocumentModel } from 'app/models/document/document.model'
+import { ConceptModel } from '../concept/concept.model';
+import { UserModel } from '../user/user.model';
+import { TextModel } from '../text/text.model';
+import { ParagraphModel } from '../paragraph/paragraph.model';
+import { Query } from 'typeorm/driver/Query';
 
 @Injectable()
 export class CorpusModel {
@@ -16,6 +21,9 @@ export class CorpusModel {
 		@InjectRepository(CorpusEntity)
 		private corpusRepository: Repository<CorpusEntity>,
 		private documentModel: DocumentModel,
+		private paragraphModel: ParagraphModel,
+		private textModel: TextModel,
+		private userModel: UserModel,
 	) {}
 
 	/*****************************************************************************
@@ -33,6 +41,30 @@ export class CorpusModel {
 						throw 'Error creating the corpus';
 					});
 
+				const corpusEntity = await this.corpusRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(corpusEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async createByConceptAndAuthorID(concept: ConceptEntity, authorID: number): Promise<CorpusEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const author = await this.userModel.findOneByID(authorID).catch(err => {
+					throw err;
+				});
+				const data = await this.corpusRepository
+					.insert({
+						concept: concept,
+						author: author,
+					})
+					.catch(err => {
+						throw 'Error creating the corpus';
+					});
 				const corpusEntity = await this.corpusRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -64,6 +96,47 @@ export class CorpusModel {
 					});
 					resolve(newCorpusEntity);
 				}
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  COPY
+	 *****************************************************************************/
+
+	public async copyOneByIDToAuthor(corpusID: number, authorID: number): Promise<CorpusEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const oldCorpus = await this.corpusRepository
+					.createQueryBuilder('corpus')
+					.innerJoinAndSelect('corpus.author', 'author')
+					.innerJoinAndSelect('corpus.concept', 'concept')
+					.innerJoinAndSelect('corpus.documents', 'documents')
+					.where('corpus.id = ' + corpusID)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the corpus';
+					});
+
+				const data = await this.corpusRepository.insert({
+					description: oldCorpus.description,
+					author: oldCorpus.author,
+					concept: oldCorpus.concept
+				}).catch(err => {
+						throw 'error creating the corpus';
+				});
+
+				let newCorpus = await this.corpusRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+
+				newCorpus.documents = await this.documentModel.copyManyToCorpus(oldCorpus.documents, newCorpus).catch(err => {
+					throw err;
+				});
+
+				resolve(newCorpus);
 			} catch (err) {
 				reject(err);
 			}
@@ -115,48 +188,89 @@ export class CorpusModel {
 		});
 	}
 
-	// public async findOneByURL(url: string): Promise<CorpusEntity> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			const corpusEntity = await this.corpusRepository
-	// 				.findOne({ url: url })
-	// 				.catch(err => {
-	// 					throw 'Error finding the corpus';
-	// 				});
-	// 			resolve(corpusEntity);
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
+	public async findOneByIDWithText(corpusID: number): Promise<CorpusEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let corpusEntity = await this.corpusRepository
+					.createQueryBuilder('corpus')
+					.innerJoinAndSelect('corpus.author', 'author')
+					.innerJoinAndSelect('corpus.documents', 'documents')
+					.innerJoinAndSelect('documents.paragraphs', 'paragraphs')
+					.innerJoinAndSelect('paragraphs.text', 'text')
+					.where('corpus.id = ' + corpusID)
+					.getOne()
+					.catch(err => {
+						throw 'Error finding the corpus';
+					});
+				resolve(corpusEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 
-	// public async findAll(search: string, sort: CorpusSort): Promise<CorpusEntity[]> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			const corpora: CorpusEntity[] = await this.corpusRepository.find().catch(err => {
-	// 				throw 'Error searching for the corpora';
-	// 			});
-	// 			resolve(corpora);
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
+	public async findManyByConceptIDWithoutAuthorID(conceptID: number, authorID: number): Promise<CorpusEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const corpusEntities = await this.corpusRepository
+					.createQueryBuilder('corpus')
+					.innerJoinAndSelect('corpus.author', 'author')
+					.where('corpus.concept = ' + conceptID)
+					.andWhere('corpus.author != ' + authorID)
+					.getMany()
+					.catch(err => {
+						throw 'Error finding the corpus';
+					});
 
-	// public async findBySearch(search: string, sort: CorpusSort): Promise<CorpusEntity[]> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			let title = '%' + search + '%';
-	// 			let corpora: CorpusEntity[] = await this.corpusRepository.find({ title: Like(title) }).catch(err => {
-	// 				throw 'Error searching for the corpora';
-	// 			});
-	// 			corpora.sort(SORTMAP.get(sort));
-	// 			resolve(corpora);
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
+				if(corpusEntities === undefined) resolve([]);
+				else resolve(corpusEntities);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findManyByDescription(description: string): Promise<CorpusEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const search = '%' + description + '%';
+				const corpusEntities = await this.corpusRepository
+					.createQueryBuilder('corpus')
+					.innerJoinAndSelect('corpus.author', 'author')
+					.where('corpus.description = ' + search)
+					.getMany()
+					.catch(err => {
+						throw 'Error finding the corpus';
+					});
+
+				if(corpusEntities === undefined) resolve([]);
+				else resolve(corpusEntities);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	/*****************************************************************************
+	 *  SEARCH
+	 *****************************************************************************/
+	public async search(conceptID: number, corpusSort: CorpusSort, amountOfCorpus: number): Promise<CorpusEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const corpusEntities: CorpusEntity[] = await this.corpusRepository.find({
+					where: { concept: conceptID },
+					order:   CorpusSortMap.get(corpusSort),
+					take: amountOfCorpus
+				}).catch(err => {
+					throw 'Error searching for the concepts';
+				});
+				if(corpusEntities === undefined) resolve([]);
+				else resolve(corpusEntities);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 
 	/*****************************************************************************
 	 *  UPDATE
@@ -176,37 +290,24 @@ export class CorpusModel {
 			}
 		});
 	}
-	
-	
-	// public async updateTitle(title: string): Promise<void> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			await this.corpusRepository.update({ title: title }, { title: title }).catch(err => {
-	// 				throw 'Error updating the user';
-	// 			});
-	// 			resolve();
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
 
 	/*****************************************************************************
 	 *  DELETE
 	 *****************************************************************************/
-
-	// public async deleteByTitle(title: string): Promise<void> {
-	// 	return new Promise(async (resolve, reject) => {
-	// 		try {
-	// 			await this.corpusRepository.delete({ title: title }).catch(err => {
-	// 				throw 'Error deleting the user';
-	// 			});
-	// 			resolve();
-	// 		} catch (err) {
-	// 			reject(err);
-	// 		}
-	// 	});
-	// }
+	public async deleteByConceptAndAuthorID(conceptID: number, authorID: number): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.corpusRepository
+					.createQueryBuilder("corpus")
+					.where(`corpus.author = ${authorID}`)
+					.andWhere(`corpus.concept = ${conceptID}`)
+					.delete()
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 
 	/*****************************************************************************
 	 *  CHECK
@@ -224,4 +325,34 @@ export class CorpusModel {
 	// 		}
 	// 	});
 	// }
+
+	/*****************************************************************************
+	 *  COUNT
+	 *****************************************************************************/
+	public async countAll(): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const count = await this.corpusRepository.count().catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async countBySearch(search: string): Promise<number> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const description = '%' + search + '%';
+				const count = await this.corpusRepository.count({ description: Like(description) }).catch(err => {
+					throw 'Error counting the corpora';
+				});
+				resolve(count);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
 }

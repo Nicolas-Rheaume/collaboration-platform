@@ -1,20 +1,19 @@
 import { Controller } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 
-import { ConnectionService } from 'app/services/connection/connection.service';
+import { Connection, ConnectionService } from 'app/models/connection/connection.service';
 import { DocumentModel } from 'app/models/document/document.model';
 import { CorpusModel } from 'app/models/corpus/corpus.model';
 import { ParagraphModel } from 'app/models/paragraph/paragraph.model';
-import { UserEntity } from 'app/entities/user.entity';
-import { CorpusEntity, Corpus } from 'app/entities/corpus.entity';
-import { DocumentEntity, Document } from 'app/entities/document.entity';
-import { TextEntity } from 'app/entities/text.entity';
-import { ParagraphEntity } from 'app/entities/paragraph.entity';
+import { UserEntity } from 'app/models/user/user.entity';
+import { CorpusEntity, Corpus } from 'app/models/corpus/corpus.entity';
+import { DocumentEntity, Document } from 'app/models/document/document.entity';
+import { TextEntity } from 'app/models/text/text.entity';
+import { ParagraphEntity } from 'app/models/paragraph/paragraph.entity';
 import { TextModel } from 'app/models/text/text.model';
 
 import * as arrayMove from 'array-move';
-import { Connection } from 'app/entities/connection.entity';
-import { ConceptEntity } from 'app/entities/concept.entity';
+import { ConceptEntity } from 'app/models/concept/concept.entity';
 import { ConceptModel } from 'app/models/concept/concept.model';
 
 @Controller('editor')

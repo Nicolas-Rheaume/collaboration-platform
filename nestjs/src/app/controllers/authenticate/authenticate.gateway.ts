@@ -5,7 +5,7 @@
 import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect, WsResponse, WebSocketServer } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
-import { User } from 'app/entities/user.entity';
+import { User } from 'app/models/user/user.entity';
 
 // Controllers
 import { AuthenticateController } from 'app/controllers/authenticate/authenticate.controller';

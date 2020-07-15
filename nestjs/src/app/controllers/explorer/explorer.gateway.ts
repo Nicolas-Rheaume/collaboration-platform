@@ -2,9 +2,9 @@ import { SubscribeMessage, WebSocketGateway, OnGatewayInit, OnGatewayConnection,
 import { Logger } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { ExplorerController } from './explorer.controller';
-import { Text } from 'app/entities/text.entity';
-import { Concept } from 'app/entities/concept.entity';
-import { Document } from 'app/entities/document.entity';
+import { Text } from 'app/models/text/text.entity';
+import { Concept } from 'app/models/concept/concept.entity';
+import { Document } from 'app/models/document/document.entity';
 
 @WebSocketGateway()
 export class ExplorerGateway {
