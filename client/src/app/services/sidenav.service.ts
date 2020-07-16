@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 
 export const NONE_WIDTH = 0;
-export const RAIL_WIDTH = 50;
-export const DRAWER_WIDTH = 250;
+export const RAIL_WIDTH = 72;
+export const DRAWER_WIDTH = 240;
 
 export enum SideNavState {
 	NONE,

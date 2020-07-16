@@ -74,6 +74,13 @@ import { CreateConceptComponent } from './pages/dashboard/create-concept/create-
 import { EditorOverviewComponent } from './components/editor/editor-overview/editor-overview.component';
 import { ReadComponent } from './components/explorer/read/read.component';
 import { ExplorerOverviewComponent } from './components/explorer/explorer-overview/explorer-overview.component';
+import { EditorNavbarComponent } from './components/editor/editor-navbar/editor-navbar.component';
+import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/explorer-navbar.component';
+import { ContentEditorComponent } from './pages/content/content-editor/content-editor.component';
+import { ContentExplorerComponent } from './pages/content/content-explorer/content-explorer.component';
+import { ContentLeftnavComponent } from './pages/content/content-leftnav/content-leftnav.component';
+import { ContentRightnavComponent } from './pages/content/content-rightnav/content-rightnav.component';
+import { ContentEditorOverviewComponent } from './pages/content/content-editor/content-editor-overview/content-editor-overview.component';
 
 @NgModule({
 	declarations: [
@@ -110,7 +117,14 @@ import { ExplorerOverviewComponent } from './components/explorer/explorer-overvi
 		CreateConceptComponent,
 		EditorOverviewComponent,
 		ReadComponent,
-		ExplorerOverviewComponent
+		ExplorerOverviewComponent,
+		EditorNavbarComponent,
+		ExplorerNavbarComponent,
+		ContentEditorComponent,
+		ContentExplorerComponent,
+		ContentLeftnavComponent,
+		ContentRightnavComponent,
+		ContentEditorOverviewComponent
 	],
 	imports: [
 		BrowserModule,

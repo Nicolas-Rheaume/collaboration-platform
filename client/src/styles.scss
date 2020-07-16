@@ -111,6 +111,22 @@
   to   { opacity: 1; }
 }
 
+.bg-third {
+  background-color: #1C1E22;
+}
+
+.content-window{
+  // height: calc(100% - 56px);
+  height: 100%;
+}
+
+.content-main{
+  height: 100%;
+  width: 100%;
+  //flex: 1 1 calc(100% - 500px);
+}
+
+
 /*!
  * Bootswatch v4.4.1
  * Homepage: https://bootswatch.com

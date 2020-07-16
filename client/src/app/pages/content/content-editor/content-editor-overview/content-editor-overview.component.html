@@ -1,0 +1,95 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-top">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor02">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active">Data</li>
+        </ol>
+         <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+            </li>
+        </ul> 
+    </div> -->
+    <div class="navbar-nav mr-auto">
+    </div>
+    <div class="navbar-nav">
+        <button type="button" class="btn btn-outline-primary"><mat-icon>arrow_back_ios</mat-icon></button>
+    </div>
+</nav>
+
+
+<!-- Content -->
+<div class="container-fluid content-window">
+    <div class="mb-3"></div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div *ngIf="cs.editorCorpus == null">
+                <button type="button" class="btn btn-primary" (click)="createCorpus()">Create your own corpus</button>
+            </div>
+            <div *ngIf="cs.editorCorpus != null">
+
+                <label for="descriptionTextarea">Corpus Description:</label>
+                <textarea 
+                    id="descriptionTextarea"
+                    class="form-control description" 
+                    rows="3"
+                    [(ngModel)]="cs.editorCorpus.description"
+                    (input)="corpusDescriptionChange()"
+                    >
+                </textarea>
+
+                <br><br>
+
+                <button 
+                    type="button" 
+                    class="btn btn-primary"
+                    (click)="createDocument()"
+                    >Create a New Document</button>
+
+                <mat-accordion>
+                    <mat-expansion-panel
+                        *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn"
+                    >
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <span>{{i}}:</span>
+                            <input type="text" class="form-control-plaintext" 
+                            [(ngModel)]="document.title"
+                            (input)="documentTitleChange(i)"
+                        >
+                        </mat-panel-title>
+                        <mat-panel-description>
+                            <button type="button" class="btn btn-outline-warning" (click)="editDocument(i)">Edit</button>
+                            <button type="button" class="btn btn-outline-danger">Delete</button>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <textarea 
+                        class="form-control description" 
+                        rows="3"
+                        [(ngModel)]="document.description"
+                        (input)="documentDescriptionChange(i)"
+                        ></textarea>
+                    </mat-expansion-panel>
+                </mat-accordion>
+
+            </div>
+        </div>
+    </div>
+</div>
