@@ -16,10 +16,10 @@ export class Document {
 		title: string = '',
 		description: string = '',
 		tableOfContent: string[] = [],
-		texts: Text[] = [], 
-		
-		createdAt: Date = null, 
-		updatedAt: Date = null
+		texts: Text[] = [],
+
+		createdAt: Date = null,
+		updatedAt: Date = null,
 	) {
 		this.title = title;
 		this.description = description;
@@ -160,14 +160,14 @@ export class DocumentEntity {
 
 	// Constructor
 	constructor(
-		id: number = 0, 
-		title: string = '', 
-		description: string = '', 
+		id: number = 0,
+		title: string = '',
+		description: string = '',
 		order: number = 0,
-		corpus: CorpusEntity = null, 
-		paragraphs: ParagraphEntity[] = null, 
-		createdAt: Date = new Date(), 
-		updatedAt: Date = new Date()
+		corpus: CorpusEntity = null,
+		paragraphs: ParagraphEntity[] = null,
+		createdAt: Date = new Date(),
+		updatedAt: Date = new Date(),
 	) {
 		this.id = id;
 		this.title = title;
@@ -182,31 +182,14 @@ export class DocumentEntity {
 	public async getDocument(): Promise<Document> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				if(this.paragraphs == null || this.paragraphs == undefined) {
-					resolve(new Document(
-						this.title,
-						this.description,
-						null,
-						[], 
-						this.createdAt, 
-						this.updatedAt
-						))
-				}
-				else{
+				if (this.paragraphs == null || this.paragraphs == undefined) {
+					resolve(new Document(this.title, this.description, null, [], this.createdAt, this.updatedAt));
+				} else {
 					let texts = new Array<Text>(this.paragraphs.length);
 					for (let i = 0; i < texts.length; i++) {
 						texts[i] = await this.paragraphs[i].text.getText();
 					}
-					resolve(
-						new Document(
-							this.title,
-							this.description,
-							null,
-							texts, 
-							this.createdAt, 
-							this.updatedAt
-							)
-						);
+					resolve(new Document(this.title, this.description, null, texts, this.createdAt, this.updatedAt));
 				}
 			} catch (err) {
 				reject(err);

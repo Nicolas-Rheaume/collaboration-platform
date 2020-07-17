@@ -15,7 +15,7 @@ export class TextModel {
 	constructor(
 		@InjectRepository(TextEntity)
 		private textRepository: Repository<TextEntity>,
-		private userModel: UserModel
+		private userModel: UserModel,
 	) {}
 
 	/*****************************************************************************

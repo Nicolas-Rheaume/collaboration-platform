@@ -1,0 +1,69 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-top">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor02">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active">Data</li>
+        </ol>
+         <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+            </li>
+        </ul> 
+    </div> -->
+    <div class="navbar-nav mr-auto">
+    </div>
+    <div class="navbar-nav">
+        <button type="button" class="btn btn-outline-primary"><mat-icon>arrow_back_ios</mat-icon></button>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="mb-3"></div>
+    <div class="row">
+        <div class="col-sm-12">
+            
+            <div *ngIf="cs.explorerConcept == null">
+                <mat-progress-spinner></mat-progress-spinner>
+            </div>
+            <div *ngIf="cs.explorerConcept != null">
+
+                <mat-accordion>
+                    <mat-expansion-panel
+                        *ngFor="let corpus of cs.explorerConcept.corpora; index as i; trackBy: trackByFn"
+                    >
+                    <mat-expansion-panel-header>
+                        <mat-panel-title>
+                            <span>{{i}}: {{corpus.author.username}}</span>
+                        </mat-panel-title>
+                        <mat-panel-description>
+                        </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <p>{{corpus.description}}</p>
+
+                    <p 
+                        *ngFor="let document of corpus.documents; index as j; trackBy: trackByFn"
+                    ><a (click)="readDocument(i, j)">{{j}} : {{document.title}}</a></p>
+                    </mat-expansion-panel>
+                </mat-accordion>
+            </div>
+
+        </div>
+    </div>
+</div>

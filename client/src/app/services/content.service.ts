@@ -39,7 +39,6 @@ export class ContentService {
 
 	// TO DELETE
 
-
 	private user: User = new User();
 
 	public corpus: Corpus = new Corpus();
@@ -53,11 +52,7 @@ export class ContentService {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(
-		private socket: SocketService, 
-		private us: UserService, 
-	) {
-
+	constructor(private socket: SocketService, private us: UserService) {
 		// Editor Error Message
 		this.sub = this.socket.response('editor/error').subscribe(response => {
 			if (response.success === false) console.log(response.message);
@@ -67,7 +62,7 @@ export class ContentService {
 		this.sub = this.socket.response('editor/corpus').subscribe(editorCorpus => {
 			console.log(editorCorpus);
 			this.editorCorpus = editorCorpus;
-			console.log(this.editorCorpus)
+			console.log(this.editorCorpus);
 		});
 
 		// Editor Document
@@ -79,7 +74,12 @@ export class ContentService {
 		this.sub = this.socket.response('explorer/concept').subscribe(explorerConcept => {
 			console.log(explorerConcept);
 			this.explorerConcept = explorerConcept;
-			console.log(this.explorerConcept)
+			console.log(this.explorerConcept);
+		});
+
+		// Explorer Concept
+		this.sub = this.socket.response('explorer/error').subscribe(msg => {
+			console.log(msg);
 		});
 
 		// Explorer Document
@@ -172,10 +172,10 @@ export class ContentService {
 	// Variables
 	public selectedDisplayState: FormControl = new FormControl(0);
 	public displayStates = [
-		{value: 0, name: "Editor"},
-		{value: 1, name: "Explorer"},
-		{value: 2, name: "Split vertical"},
-		{value: 3, name: "Split horizontal"},
+		{ value: 0, name: 'Editor' },
+		{ value: 1, name: 'Explorer' },
+		{ value: 2, name: 'Split vertical' },
+		{ value: 3, name: 'Split horizontal' },
 	];
 
 	public setDisplayState(state) {
@@ -188,9 +188,9 @@ export class ContentService {
 	// Variables
 	public selectedEditorState: FormControl = new FormControl(0);
 	public editorState = [
-		{value: 0, name: "Overview", icon: "home"},
-		{value: 1, name: "Edit", icon: "edit"},
-		{value: 2, name: "History", icon: "menu_book"},
+		{ value: 0, name: 'Overview', icon: 'home' },
+		{ value: 1, name: 'Edit', icon: 'edit' },
+		{ value: 2, name: 'History', icon: 'menu_book' },
 	];
 
 	public setEditorState(state) {
@@ -198,7 +198,7 @@ export class ContentService {
 	}
 
 	public initializeEditor(title: string): void {
-		if(title != this.corpusTitle) {
+		if (title != this.corpusTitle) {
 			this.corpusTitle = title;
 			this.socket.request('editor/initialize', title);
 		}
@@ -210,9 +210,9 @@ export class ContentService {
 	// Variables
 	public selectedExplorerState: FormControl = new FormControl(0);
 	public explorerState = [
-		{value: 0, name: "Overview", icon: "home"},
-		{value: 1, name: "Edit", icon: "edit"},
-		{value: 2, name: "History", icon: "menu_book"},
+		{ value: 0, name: 'Overview', icon: 'home' },
+		{ value: 1, name: 'Edit', icon: 'edit' },
+		{ value: 2, name: 'History', icon: 'menu_book' },
 	];
 
 	public setExplorerState(state) {
@@ -220,10 +220,12 @@ export class ContentService {
 	}
 
 	public initializeExplorer(title: string): void {
-		if(title != this.corpusTitle) {
-			this.corpusTitle = title;
-			this.socket.request('explorer/initialize', title);
-		}
+		this.corpusTitle = title;
+		this.socket.request('explorer/initialize', title);
+		// if (title != this.corpusTitle) {
+		// 	this.corpusTitle = title;
+		// 	this.socket.request('explorer/initialize', title);
+		// }
 	}
 
 	/*****************************************************************************

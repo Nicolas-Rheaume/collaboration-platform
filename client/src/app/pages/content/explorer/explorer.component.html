@@ -1,7 +1,7 @@
-<div class="container-fluid">
+<!-- <div class="container-fluid">
     <div class="mb-3"></div>
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12"> -->
             <mat-tab-group 
               class="invisible-tabs"
               [(selectedIndex)]="cs.selectedExplorerState.value"
@@ -16,7 +16,8 @@
                     <span matBadgeOverlap="false">Overview</span>
                 </ng-template>
                 <ng-template matTabContent>
-                  <app-explorer-overview></app-explorer-overview>
+                  <app-content-explorer-overview></app-content-explorer-overview>
+                  <!-- <app-explorer-overview></app-explorer-overview> -->
                 </ng-template>
               </mat-tab>
 
@@ -27,7 +28,7 @@
                     <span>Edit</span>
                 </ng-template>
                 <ng-template matTabContent>
-                    <app-read></app-read>
+                  <app-content-explorer-read></app-content-explorer-read>
                  </ng-template>
               </mat-tab>
 
@@ -42,6 +43,6 @@
                 </ng-template>
               </mat-tab>
             </mat-tab-group>
-          </div>
+          <!-- </div>
     </div>
-</div>
+</div> -->

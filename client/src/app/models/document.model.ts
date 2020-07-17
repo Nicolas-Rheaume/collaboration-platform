@@ -36,10 +36,10 @@ export class Document {
 		title: string = '',
 		description: string = '',
 		tableOfContent: string[] = [],
-		texts: Text[] = [], 
-		
-		createdAt: Date = null, 
-		updatedAt: Date = null
+		texts: Text[] = [],
+
+		createdAt: Date = null,
+		updatedAt: Date = null,
 	) {
 		this.title = title;
 		this.description = description;

@@ -26,30 +26,9 @@ import { UserEntity } from '../user/user.entity';
 import { UserModel } from '../user/user.model';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([
-		ConceptEntity,
-		CorpusEntity,
-		DocumentEntity,
-		ParagraphEntity,
-		TextEntity,
-		UserEntity, 
-	])],
-	providers: [
-		ConceptModel,
-		CorpusModel, 
-		DocumentModel,
-		ParagraphModel,
-		TextModel,
-		UserModel
-	],
+	imports: [TypeOrmModule.forFeature([ConceptEntity, CorpusEntity, DocumentEntity, ParagraphEntity, TextEntity, UserEntity])],
+	providers: [ConceptModel, CorpusModel, DocumentModel, ParagraphModel, TextModel, UserModel],
 	controllers: [],
-	exports: [
-		ConceptModel,
-		CorpusModel, 
-		DocumentModel,
-		ParagraphModel,
-		TextModel,
-		UserModel
-	],
+	exports: [ConceptModel, CorpusModel, DocumentModel, ParagraphModel, TextModel, UserModel],
 })
 export class CorpusModule {}

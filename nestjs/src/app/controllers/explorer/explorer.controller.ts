@@ -41,7 +41,6 @@ export class ExplorerController {
 				const concept = await conceptEntity.getConcept();
 				resolve(concept);
 
-
 				// const corpus: CorpusEntity = await this.corpusModel.findOneByTitle(url).catch(err => {
 				// 	throw err;
 				// });
@@ -61,11 +60,11 @@ export class ExplorerController {
 	public async getDocument(client: Socket, corpusIndex: number, documentIndex: number): Promise<Document> {
 		return new Promise<any>(async (resolve, reject) => {
 			try {
-				const documentEntity: DocumentEntity = await this.documentModel.findOneByIDWithTexts(
-					this.cs.getConnection(client).explorerConcept.corpora[corpusIndex].documents[documentIndex].id
-				).catch(err => {
-					throw err;
-				});
+				const documentEntity: DocumentEntity = await this.documentModel
+					.findOneByIDWithTexts(this.cs.getConnection(client).explorerConcept.corpora[corpusIndex].documents[documentIndex].id)
+					.catch(err => {
+						throw err;
+					});
 				this.cs.getConnection(client).explorerCorpusIndex = corpusIndex;
 				this.cs.getConnection(client).explorerDocumentIndex = documentIndex;
 				const document: Document = await documentEntity.getDocument();

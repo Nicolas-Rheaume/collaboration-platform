@@ -72,44 +72,35 @@ export const SORTMAP = new Map([
 ]);
 
 export const ConceptSortMap = new Map()
-	.set(ConceptSort.A_Z, 				{ title: "ASC"})
-	.set(ConceptSort.Z_A, 				{ title: "DESC"})
-	.set(ConceptSort.OLDEST, 			{ createdAt: "ASC"})
-	.set(ConceptSort.NEWEST, 			{ createdAt: "DESC"})
-	.set(ConceptSort.MOST_CONTRIBUTOR, 	{ nbContributors: "DESC"})
-	.set(ConceptSort.LEAST_CONTRIBUTOR, { nbContributors: "ASC"})
-	.set(ConceptSort.MOST_TEXTS, 		{ texts: "DESC"})
-	.set(ConceptSort.LEAST_TEXTS, 		{ texts: "ASC"});
+	.set(ConceptSort.A_Z, { title: 'ASC' })
+	.set(ConceptSort.Z_A, { title: 'DESC' })
+	.set(ConceptSort.OLDEST, { createdAt: 'ASC' })
+	.set(ConceptSort.NEWEST, { createdAt: 'DESC' })
+	.set(ConceptSort.MOST_CONTRIBUTOR, { nbContributors: 'DESC' })
+	.set(ConceptSort.LEAST_CONTRIBUTOR, { nbContributors: 'ASC' })
+	.set(ConceptSort.MOST_TEXTS, { texts: 'DESC' })
+	.set(ConceptSort.LEAST_TEXTS, { texts: 'ASC' });
 
 /*****************************************************************************
  *  CONCEPT TYPE FOR THE CLIENT SIDE
  *****************************************************************************/
 export class Concept {
-    
 	// Variables
 	public title: string;
-    public url: string;
-    public createdAt: Date;
-    public updatedAt: Date;
-    
-    public corpora?: Corpus[];
+	public url: string;
+	public createdAt: Date;
+	public updatedAt: Date;
+
+	public corpora?: Corpus[];
 
 	public nbContributors?: number;
 	public nbDocuments?: number;
 	public nbTexts?: number;
 
 	// constructor
-	constructor(
-        title: string = '', 
-        url: string = '', 
-        contributors: number = 0, 
-        documents: number = 0, 
-        texts: number = 0, 
-        createdAt: Date = null, 
-        updatedAt: Date = null
-    ) {
+	constructor(title: string = '', url: string = '', contributors: number = 0, documents: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
 		this.title = title;
-        this.url = url;
+		this.url = url;
 		this.nbContributors = contributors;
 		this.nbDocuments = documents;
 		this.nbTexts = texts;
@@ -148,33 +139,32 @@ export class ConceptEntity {
 	@UpdateDateColumn()
 	public updatedAt: Date;
 
-    public nbContributors?: number;
-    public nbDocuments?: number;
+	public nbContributors?: number;
+	public nbDocuments?: number;
 	public nbTexts?: number;
 
 	// Constructor
 	constructor(
 		id: number = 0,
 		title: string = '',
-        url: string = '',
-        createdAt: Date = new Date(),
+		url: string = '',
+		createdAt: Date = new Date(),
 		updatedAt: Date = new Date(),
-        
-        corpora: CorpusEntity[] = [],
+
+		corpora: CorpusEntity[] = [],
 
 		nbContributors: number = 0,
 		nbDocuments: number = 0,
 		nbTexts: number = 0,
-
 	) {
 		this.id = id;
 		this.title = title;
-        this.url = url;
-        this.createdAt = createdAt;
+		this.url = url;
+		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 
 		//this.corpora = corpora;
-        
+
 		this.nbContributors = nbContributors;
 		this.nbDocuments = nbDocuments;
 		this.nbTexts = nbTexts;
@@ -184,20 +174,12 @@ export class ConceptEntity {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let corpora = [];
-				if(this.corpora != undefined && this.corpora != null) {
+				if (this.corpora != undefined && this.corpora != null) {
 					corpora = await CorpusEntity.getCorpora(this.corpora).catch(err => {
 						throw err;
 					});
 				}
-				let concept = new Concept(
-					this.title, 
-					this.url,
-					this.nbContributors, 
-					this.nbDocuments, 
-					this.nbTexts, 
-					this.createdAt, 
-					this.updatedAt
-				);
+				let concept = new Concept(this.title, this.url, this.nbContributors, this.nbDocuments, this.nbTexts, this.createdAt, this.updatedAt);
 				concept.corpora = corpora;
 				resolve(concept);
 			} catch (err) {
@@ -233,8 +215,8 @@ export class ConceptEntity {
 			try {
 				this.id = 0;
 				this.title = concept.title;
-                this.url = concept.url;
-                this.nbContributors = concept.nbContributors;
+				this.url = concept.url;
+				this.nbContributors = concept.nbContributors;
 				this.nbDocuments = concept.nbDocuments;
 				this.nbTexts = concept.nbTexts;
 				this.createdAt = concept.createdAt;

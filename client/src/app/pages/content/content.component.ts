@@ -119,24 +119,17 @@ export class ContentComponent implements OnInit, OnDestroy {
 	 *  MAIN
 	 ****************************************************************************/
 
-	constructor(
-		public activeRouter: ActivatedRoute,
-		public router: Router,
-		public cs: ContentService,
-		private socket: SocketService,
-		private sidenav: SideNavService,  /*,
-		private ss: SubjectService,
-		private cs: ContentService,
-		private us: UserService,
-		private socketService: SocketService*/
-	) {
+	constructor(public activeRouter: ActivatedRoute, public router: Router, public cs: ContentService, private socket: SocketService, private sidenav: SideNavService) {
 		this.sidenav.leftOpened = true;
 		this.sidenav.setLeftNavState(SideNavState.DRAWER);
 		this.sidenav.setLeftNavComponent(SideNavComponent.CONTENT_MENU);
+
+		this.sidenav.rightOpened = true;
+		this.sidenav.setRightNavState(SideNavState.DRAWER);
+		this.sidenav.setRightNavComponent(SideNavComponent.CONTENT_MENU);
 	}
 
 	ngOnInit() {
-
 		// Get the Active Route parameter
 		/*
     this.sub = this.activeRouter.params.subscribe(params => {

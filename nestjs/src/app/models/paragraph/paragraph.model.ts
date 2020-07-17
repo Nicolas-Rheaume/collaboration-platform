@@ -14,7 +14,7 @@ export class ParagraphModel {
 	constructor(
 		@InjectRepository(ParagraphEntity)
 		private paragraphRepository: Repository<ParagraphEntity>,
-		private textModel: TextModel
+		private textModel: TextModel,
 	) {}
 
 	/*****************************************************************************
@@ -50,13 +50,15 @@ export class ParagraphModel {
 	public async copyOneToDocument(paragraph: ParagraphEntity, document: DocumentEntity): Promise<ParagraphEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.paragraphRepository.insert({
-					document: document,
-					text: paragraph.text,
-					order: paragraph.order
-				}).catch(err => {
+				const data = await this.paragraphRepository
+					.insert({
+						document: document,
+						text: paragraph.text,
+						order: paragraph.order,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -80,13 +82,15 @@ export class ParagraphModel {
 						throw 'Error finding the paragraph';
 					});
 
-				const data = await this.paragraphRepository.insert({
-					document: document,
-					text: paragraph.text,
-					order: paragraph.order
-				}).catch(err => {
+				const data = await this.paragraphRepository
+					.insert({
+						document: document,
+						text: paragraph.text,
+						order: paragraph.order,
+					})
+					.catch(err => {
 						throw 'error creating the paragraph';
-				});
+					});
 				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -97,7 +101,6 @@ export class ParagraphModel {
 		});
 	}
 
-
 	public async copyManyToDocument(paragraphs: ParagraphEntity[], document: DocumentEntity): Promise<ParagraphEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -107,11 +110,13 @@ export class ParagraphModel {
 						throw err;
 					});
 				});
-				Promise.all(promises).then((paragraphEntities: ParagraphEntity[]) => {
-					resolve(paragraphEntities);
-				}).catch(err => {
-					throw err;
-				}); 
+				Promise.all(promises)
+					.then((paragraphEntities: ParagraphEntity[]) => {
+						resolve(paragraphEntities);
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}

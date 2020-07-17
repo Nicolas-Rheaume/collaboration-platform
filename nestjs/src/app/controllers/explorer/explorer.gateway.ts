@@ -37,7 +37,7 @@ export class ExplorerGateway {
 			const document: Document = await this.explorerController.getDocument(client, corpusIndex, documentIndex).catch(err => {
 				throw err;
 			});
-			return { event: 'explorer/document', data: [corpusIndex, documentIndex, document ]};
+			return { event: 'explorer/document', data: [corpusIndex, documentIndex, document] };
 		} catch (err) {
 			return { event: 'explorer/error', data: err };
 		}

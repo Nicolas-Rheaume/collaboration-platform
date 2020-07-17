@@ -5,38 +5,32 @@ import { Subscription } from 'rxjs';
 import { ContentService } from 'src/app/services/content.service';
 
 @Component({
-  selector: 'content-editor',
-  templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss']
+	selector: 'app-content-editor',
+	templateUrl: './editor.component.html',
+	styleUrls: ['./editor.component.scss'],
 })
-export class ContentEditor implements OnInit, OnDestroy {
-  /*****************************************************************************
+export class ContentEditorComponent implements OnInit, OnDestroy {
+	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
-  private sub: Subscription;
-  private contentTitle: string = '';
+	private sub: Subscription;
+	private contentTitle: string = '';
 
-  constructor(
-    private socket: SocketService, 
-    private activeRouter: ActivatedRoute,
-    private cs: ContentService
-  ) { 
-  }
+	constructor(private socket: SocketService, private activeRouter: ActivatedRoute, private cs: ContentService) {}
 
-  ngOnInit() {
-    console.log("Editor Created");
-    this.sub = this.activeRouter.params.subscribe(params => {
-      this.contentTitle = params.title;
-      this.cs.initializeEditor(params.title);
-    });
-  }
+	ngOnInit() {
+		console.log('Editor Created');
+		this.sub = this.activeRouter.params.subscribe(params => {
+			this.contentTitle = params.title;
+			this.cs.initializeEditor(params.title);
+		});
+	}
 
-  ngOnDestroy() {
-    console.log("Editor Destroyed");
-  }
+	ngOnDestroy() {
+		console.log('Editor Destroyed');
+	}
 
-  createCorpus() {
-    this.socket.request('editor/createCorpus', null);
-  }
-
+	createCorpus() {
+		this.socket.request('editor/createCorpus', null);
+	}
 }

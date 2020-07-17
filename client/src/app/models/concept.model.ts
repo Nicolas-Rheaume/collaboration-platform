@@ -11,39 +11,28 @@ export enum ConceptSort {
 	LEAST_TEXTS = 'Least Texts',
 }
 
-
 export class Concept {
-    
 	// Variables
 	public title: string;
-    public url: string;
-    public createdAt: Date;
-    public updatedAt: Date;
-    
-    public corpora?: Corpus[];
+	public url: string;
+	public createdAt: Date;
+	public updatedAt: Date;
+
+	public corpora?: Corpus[];
 
 	public nbContributors?: number;
 	public nbDocuments?: number;
 	public nbTexts?: number;
 
 	// constructor
-	constructor(
-        title: string = '', 
-        url: string = '', 
-        corpora: Corpus[] = [],
-        contributors: number = 0, 
-        documents: number = 0, 
-        texts: number = 0, 
-        createdAt: Date = null, 
-        updatedAt: Date = null
-    ) {
+	constructor(title: string = '', url: string = '', corpora: Corpus[] = [], contributors: number = 0, documents: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
 		this.title = title;
-        this.url = url;
-        this.corpora = corpora;
+		this.url = url;
+		this.corpora = corpora;
 		this.nbContributors = contributors;
 		this.nbDocuments = documents;
 		this.nbTexts = texts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
-    }
+	}
 }

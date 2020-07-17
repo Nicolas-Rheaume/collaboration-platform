@@ -21,12 +21,10 @@ import { User } from 'app/models/user/user.entity';
 export class CorpusController {
 	// // Variables
 	// private logger: Logger = new Logger('Corpus Controller');
-
 	// // Contructor
 	// constructor(private readonly cs: ConnectionService, private readonly corpusModel: CorpusModel, private readonly documentModel: DocumentModel) {
 	// 	this.logger.log('Initialized!');
 	// }
-
 	// // Information
 	// public async information(socket: Socket, title: string): Promise<Corpus> {
 	// 	return new Promise<any>(async (resolve, reject) => {
@@ -34,22 +32,17 @@ export class CorpusController {
 	// 			const corpusEntity = await this.corpusModel.findOneByTitle(title).catch(err => {
 	// 				throw err;
 	// 			});
-
 	// 			const contributorCount = this.documentModel.countContributors(corpusEntity.id).catch(err => {
 	// 				throw err;
 	// 			});
-
 	// 			const documentCount = this.documentModel.countDocuments(corpusEntity.id).catch(err => {
 	// 				throw err;
 	// 			});
-
 	// 			const textCount = 0;
-
 	// 			Promise.all([contributorCount, documentCount, textCount]).then(async values => {
 	// 				let corpus = await corpusEntity.getCorpus().catch(err => {
 	// 					throw err;
 	// 				});
-
 	// 				corpus.contributors = values[0];
 	// 				corpus.documents = values[1];
 	// 				corpus.texts = values[2];
@@ -60,7 +53,6 @@ export class CorpusController {
 	// 		}
 	// 	});
 	// }
-
 	// // Documents
 	// public async documents(socket: Socket, title: string): Promise<Document[]> {
 	// 	return new Promise<any>(async (resolve, reject) => {
@@ -68,11 +60,9 @@ export class CorpusController {
 	// 			const corpusEntity = await this.corpusModel.findOneByTitle(title).catch(err => {
 	// 				throw err;
 	// 			});
-
 	// 			const documentEntities = await this.documentModel.findDocumentsByCorpusID(corpusEntity.id).catch(err => {
 	// 				throw err;
 	// 			});
-
 	// 			let documents: Document[] = new Array(documentEntities.length);
 	// 			for(let i = 0; i < documentEntities.length; i++) {
 	// 				documents[i] = new Document(

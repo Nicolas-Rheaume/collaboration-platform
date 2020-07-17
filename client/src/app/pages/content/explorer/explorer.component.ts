@@ -5,33 +5,25 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'content-explorer',
-  templateUrl: './explorer.component.html',
-  styleUrls: ['./explorer.component.scss']
+	selector: 'app-content-explorer',
+	templateUrl: './explorer.component.html',
+	styleUrls: ['./explorer.component.scss'],
 })
-export class ContentExplorer implements OnInit, OnDestroy {
+export class ContentExplorerComponent implements OnInit, OnDestroy {
+	private sub: Subscription;
+	private contentTitle: string = '';
 
-  private sub: Subscription;
-  private contentTitle: string = '';
+	constructor(private socket: SocketService, private activeRouter: ActivatedRoute, private cs: ContentService) {}
 
-  constructor(
-    private socket: SocketService, 
-    private activeRouter: ActivatedRoute,
-    private cs: ContentService
-  ) { 
-    
-  }
+	ngOnInit() {
+		console.log('Explorer Created');
+		this.sub = this.activeRouter.params.subscribe(params => {
+			this.contentTitle = params.title;
+			this.cs.initializeExplorer(params.title);
+		});
+	}
 
-  ngOnInit() {
-    console.log("Explorer Created");
-    this.sub = this.activeRouter.params.subscribe(params => {
-      this.contentTitle = params.title;
-      this.cs.initializeExplorer(params.title);
-    });
-  }
-
-  ngOnDestroy() {
-    console.log("Explorer Destroyed");
-  }
-
+	ngOnDestroy() {
+		console.log('Explorer Destroyed');
+	}
 }

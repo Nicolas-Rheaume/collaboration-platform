@@ -27,7 +27,7 @@ export class ConceptModel {
 		private textModel: TextModel,
 		private userModel: UserModel,
 	) {
-		this.search("", ConceptSort.A_Z, 1, 10, CorpusSort.NEWEST, 2);
+		this.search('', ConceptSort.A_Z, 1, 10, CorpusSort.NEWEST, 2);
 	}
 
 	/*****************************************************************************
@@ -87,11 +87,9 @@ export class ConceptModel {
 	public async findOneByURL(url: string): Promise<ConceptEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const conceptEntity = await this.conceptRepository
-					.findOne({ url: url })
-					.catch(err => {
-						throw 'Error finding the concept';
-					});
+				const conceptEntity = await this.conceptRepository.findOne({ url: url }).catch(err => {
+					throw 'Error finding the concept';
+				});
 				resolve(conceptEntity);
 			} catch (err) {
 				reject(err);
@@ -157,14 +155,16 @@ export class ConceptModel {
 	public async search(search: string, conceptSort: ConceptSort, pageNumber: number, amountOfConcept: number, corpusSort: CorpusSort, amountOfCorpus: number): Promise<ConceptEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				let conceptEntities: ConceptEntity[] = await this.conceptRepository.find({
-					where: { title: Like('%' + search + '%') },
-					order:   ConceptSortMap.get(conceptSort),
-					skip: (pageNumber - 1)*amountOfConcept,
-					take: amountOfConcept
-				}).catch(err => {
-					throw 'Error searching for the concepts';
-				});
+				let conceptEntities: ConceptEntity[] = await this.conceptRepository
+					.find({
+						where: { title: Like('%' + search + '%') },
+						order: ConceptSortMap.get(conceptSort),
+						skip: (pageNumber - 1) * amountOfConcept,
+						take: amountOfConcept,
+					})
+					.catch(err => {
+						throw 'Error searching for the concepts';
+					});
 
 				let promises = new Array(conceptEntities.length);
 				conceptEntities.forEach(async (entity, i) => {
@@ -172,14 +172,16 @@ export class ConceptModel {
 						throw err;
 					});
 				});
-				Promise.all(promises).then((values: any) => {
-					conceptEntities.forEach((entity, i) => {
-						conceptEntities[i].corpora = values[i]
+				Promise.all(promises)
+					.then((values: any) => {
+						conceptEntities.forEach((entity, i) => {
+							conceptEntities[i].corpora = values[i];
+						});
+						resolve(conceptEntities);
+					})
+					.catch(err => {
+						throw err;
 					});
-					resolve(conceptEntities);
-				}).catch(err => {
-					throw err;
-				}); 
 			} catch (err) {
 				reject(err);
 			}

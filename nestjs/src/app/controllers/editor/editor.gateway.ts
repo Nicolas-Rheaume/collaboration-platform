@@ -45,11 +45,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateCorpusDescription')
 	public async updateCorpusDescription(client: Socket, description: string): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateCorpusDescription(client, description)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateCorpusDescription(client, description).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -59,11 +57,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateDocumentTitle')
 	public async updateDocumentTitle(client: Socket, [index, title]: [number, string]): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateDocumentTitle(client, index, title)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateDocumentTitle(client, index, title).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -73,11 +69,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateDocumentDescription')
 	public async updateDocumentDescription(client: Socket, [index, description]: [number, string]): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateDocumentDescription(client, index, description)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateDocumentDescription(client, index, description).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -87,11 +81,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/createDocument')
 	public async createDocument(client: Socket): Promise<WsResponse<Corpus>> {
 		try {
-			const editorCorpus: Corpus = await this.editorController
-				.createDocument(client)
-				.catch(err => {
-					throw err;
-				});
+			const editorCorpus: Corpus = await this.editorController.createDocument(client).catch(err => {
+				throw err;
+			});
 			return { event: 'editor/corpus', data: editorCorpus };
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -101,11 +93,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/getDocument')
 	public async getDocument(client: Socket, index: number): Promise<WsResponse<[number, Document]>> {
 		try {
-			const editorDocument: Document = await this.editorController
-				.getDocument(client, index)
-				.catch(err => {
-					throw err;
-				});
+			const editorDocument: Document = await this.editorController.getDocument(client, index).catch(err => {
+				throw err;
+			});
 			return { event: 'editor/document', data: [index, editorDocument] };
 		} catch (err) {
 			return { event: 'editor/error', data: err };

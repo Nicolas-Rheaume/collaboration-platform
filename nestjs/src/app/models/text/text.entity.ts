@@ -13,13 +13,7 @@ export class Text {
 
 	// constructor
 
-	constructor(
-		text: string = '', 
-		tag: string = '', 
-		html: string = '', 
-		createdAt: Date = new Date(), 
-		updatedAt: Date = new Date()
-	) {
+	constructor(text: string = '', tag: string = '', html: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.text = text;
 		this.tag = tag;
 		this.html = html;
@@ -30,21 +24,7 @@ export class Text {
 	public async getEntity(): Promise<TextEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(
-					new TextEntity(
-						0, 
-						this.text, 
-						this.text,
-						this.tag, 
-						this.html, 
-						null, 
-						null, 
-						0, 
-						0, 
-						0, 
-						this.createdAt,
-						this.updatedAt
-						));
+				resolve(new TextEntity(0, this.text, this.text, this.tag, this.html, null, null, 0, 0, 0, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -208,13 +188,7 @@ export class TextEntity {
 	public async getText(): Promise<Text> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(
-					new Text(
-						this.text, 
-						this.tag,
-						this.html,
-						this.createdAt, 
-						this.updatedAt));
+				resolve(new Text(this.text, this.tag, this.html, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}

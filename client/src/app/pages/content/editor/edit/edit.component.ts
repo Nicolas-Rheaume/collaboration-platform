@@ -8,8 +8,8 @@ import { take } from 'rxjs/operators';
 
 import { ChangeEvent, BlurEvent, FocusEvent } from '@ckeditor/ckeditor5-angular/ckeditor.component';
 
-import { ContentService } from '../../../services/content.service';
-import { Text } from '../../../models/text.model';
+import { ContentService } from 'src/app/services/content.service';
+import { Text } from 'src/app/models/text.model';
 
 //import { MultirootEditor, MultirootEditorUI, MultirootEditorUIView} from '../../ckeditor/multi-root-editor';
 import { EditableComponent } from './editable/editable.component';
@@ -26,11 +26,11 @@ import { style } from '@angular/animations';
 //import { MultiRootEditor } from '../../../tools/ckeditor/multirooteditor';
 
 @Component({
-	selector: 'app-edit',
+	selector: 'app-content-editor-edit',
 	templateUrl: './edit.component.html',
 	styleUrls: ['./edit.component.scss'],
 })
-export class EditComponent implements OnInit, OnDestroy {
+export class ContentEditorEditComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
@@ -42,27 +42,16 @@ export class EditComponent implements OnInit, OnDestroy {
 
 	activeText: number = 0;
 
-
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
 
 	// Constructor
-	constructor(
-		public socket: SocketService, 
-		public activeRouter: ActivatedRoute, 
-		public router: Router, 
-		public _ngZone: NgZone, 
-		public cs: ContentService, 
-		public elementRef: ElementRef
-	) {
-	}
+	constructor(public socket: SocketService, public activeRouter: ActivatedRoute, public router: Router, public _ngZone: NgZone, public cs: ContentService, public elementRef: ElementRef) {}
 
-	ngOnInit() {
-	}
+	ngOnInit() {}
 
-	ngOnDestroy() {
-	}
+	ngOnDestroy() {}
 
 	/*****************************************************************************
 	 *  SOCKET
@@ -143,8 +132,8 @@ export class EditComponent implements OnInit, OnDestroy {
 	onMouseOver(index: number, value: boolean) {}
 
 	drop(event: CdkDragDrop<string[]>) {
-		console.log("editor");
-    	console.log(event);
+		console.log('editor');
+		console.log(event);
 		if (event.previousContainer === event.container) {
 			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 			this.activeText = event.currentIndex;

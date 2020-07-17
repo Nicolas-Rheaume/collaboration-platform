@@ -8,7 +8,7 @@ import { Corpus, CorpusEntity, CorpusSort, CorpusSortMap } from 'app/models/corp
 import { ConceptEntity } from 'app/models/concept/concept.entity';
 import { UserEntity } from 'app/models/user/user.entity';
 import { DocumentEntity } from 'app/models/document/document.entity';
-import { DocumentModel } from 'app/models/document/document.model'
+import { DocumentModel } from 'app/models/document/document.model';
 import { ConceptModel } from '../concept/concept.model';
 import { UserModel } from '../user/user.model';
 import { TextModel } from '../text/text.model';
@@ -78,10 +78,10 @@ export class CorpusModel {
 	public async UpsertByAuthorAndConcept(author: UserEntity, concept: ConceptEntity): Promise<CorpusEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const corpusEntity = await this.corpusRepository.findOne({author: author, concept: concept}).catch(err => {
+				const corpusEntity = await this.corpusRepository.findOne({ author: author, concept: concept }).catch(err => {
 					throw 'Error finding the corpus';
 				});
-				if(corpusEntity != undefined) resolve(corpusEntity);
+				if (corpusEntity != undefined) resolve(corpusEntity);
 				else {
 					const data = await this.corpusRepository
 						.insert({
@@ -120,13 +120,15 @@ export class CorpusModel {
 						throw 'Error finding the corpus';
 					});
 
-				const data = await this.corpusRepository.insert({
-					description: oldCorpus.description,
-					author: oldCorpus.author,
-					concept: oldCorpus.concept
-				}).catch(err => {
+				const data = await this.corpusRepository
+					.insert({
+						description: oldCorpus.description,
+						author: oldCorpus.author,
+						concept: oldCorpus.concept,
+					})
+					.catch(err => {
 						throw 'error creating the corpus';
-				});
+					});
 
 				let newCorpus = await this.corpusRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
@@ -172,13 +174,11 @@ export class CorpusModel {
 						throw 'Error finding the corpus';
 					});
 
-				if(corpusEntity === undefined) resolve(undefined);
+				if (corpusEntity === undefined) resolve(undefined);
 				else {
-					const documentEntities = await this.documentModel
-						.findDocumentsByCorpusID(corpusEntity.id)
-						.catch(err => {
-							throw "Error finding the corpus' documents";
-						});
+					const documentEntities = await this.documentModel.findDocumentsByCorpusID(corpusEntity.id).catch(err => {
+						throw "Error finding the corpus' documents";
+					});
 					corpusEntity.documents = documentEntities;
 					resolve(corpusEntity);
 				}
@@ -222,7 +222,7 @@ export class CorpusModel {
 						throw 'Error finding the corpus';
 					});
 
-				if(corpusEntities === undefined) resolve([]);
+				if (corpusEntities === undefined) resolve([]);
 				else resolve(corpusEntities);
 			} catch (err) {
 				reject(err);
@@ -243,7 +243,7 @@ export class CorpusModel {
 						throw 'Error finding the corpus';
 					});
 
-				if(corpusEntities === undefined) resolve([]);
+				if (corpusEntities === undefined) resolve([]);
 				else resolve(corpusEntities);
 			} catch (err) {
 				reject(err);
@@ -257,14 +257,16 @@ export class CorpusModel {
 	public async search(conceptID: number, corpusSort: CorpusSort, amountOfCorpus: number): Promise<CorpusEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const corpusEntities: CorpusEntity[] = await this.corpusRepository.find({
-					where: { concept: conceptID },
-					order:   CorpusSortMap.get(corpusSort),
-					take: amountOfCorpus
-				}).catch(err => {
-					throw 'Error searching for the concepts';
-				});
-				if(corpusEntities === undefined) resolve([]);
+				const corpusEntities: CorpusEntity[] = await this.corpusRepository
+					.find({
+						where: { concept: conceptID },
+						order: CorpusSortMap.get(corpusSort),
+						take: amountOfCorpus,
+					})
+					.catch(err => {
+						throw 'Error searching for the concepts';
+					});
+				if (corpusEntities === undefined) resolve([]);
 				else resolve(corpusEntities);
 			} catch (err) {
 				reject(err);
@@ -275,13 +277,10 @@ export class CorpusModel {
 	/*****************************************************************************
 	 *  UPDATE
 	 *****************************************************************************/
-	 public async updateDescriptionByID(corpusID: number, description: string): Promise<void> {
+	public async updateDescriptionByID(corpusID: number, description: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				await this.corpusRepository.update(
-					{ id: corpusID }, 
-					{ description: description }
-				).catch(err => {
+				await this.corpusRepository.update({ id: corpusID }, { description: description }).catch(err => {
 					throw 'Error updating the user';
 				});
 				resolve();
@@ -298,10 +297,10 @@ export class CorpusModel {
 		return new Promise(async (resolve, reject) => {
 			try {
 				await this.corpusRepository
-					.createQueryBuilder("corpus")
+					.createQueryBuilder('corpus')
 					.where(`corpus.author = ${authorID}`)
 					.andWhere(`corpus.concept = ${conceptID}`)
-					.delete()
+					.delete();
 				resolve();
 			} catch (err) {
 				reject(err);

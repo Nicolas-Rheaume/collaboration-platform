@@ -23,9 +23,7 @@ export class DocumentModel {
 		private paragraphModel: ParagraphModel,
 		private textModel: TextModel,
 		private userModel: UserModel,
-	) {
-
-	}
+	) {}
 
 	/*****************************************************************************
 	 *  CREATE
@@ -33,14 +31,16 @@ export class DocumentModel {
 	public async createByCorpusandOrder(corpus: CorpusEntity, order: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.documentRepository.insert({
-					title: '',
-					description: '',
-					corpus: corpus,
-					order: order
-				}).catch(err => {
+				const data = await this.documentRepository
+					.insert({
+						title: '',
+						description: '',
+						corpus: corpus,
+						order: order,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
@@ -59,14 +59,16 @@ export class DocumentModel {
 	public async copyOneToCorpus(document: DocumentEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.documentRepository.insert({
-					title: document.title,
-					description: document.description,
-					corpus: corpus,
-					order: document.order
-				}).catch(err => {
+				const data = await this.documentRepository
+					.insert({
+						title: document.title,
+						description: document.description,
+						corpus: corpus,
+						order: document.order,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -83,14 +85,16 @@ export class DocumentModel {
 	public async copyOneToCorpusAtIndex(document: DocumentEntity, corpus: CorpusEntity, index: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.documentRepository.insert({
-					title: document.title,
-					description: document.description,
-					corpus: corpus,
-					order: index
-				}).catch(err => {
+				const data = await this.documentRepository
+					.insert({
+						title: document.title,
+						description: document.description,
+						corpus: corpus,
+						order: index,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -115,14 +119,16 @@ export class DocumentModel {
 						throw 'Error finding the document';
 					});
 
-				const data = await this.documentRepository.insert({
-					title: document.title,
-					description: document.description,
-					corpus: corpus,
-					order: document.order
-				}).catch(err => {
+				const data = await this.documentRepository
+					.insert({
+						title: document.title,
+						description: document.description,
+						corpus: corpus,
+						order: document.order,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -148,14 +154,16 @@ export class DocumentModel {
 						throw 'Error finding the document';
 					});
 
-				const data = await this.documentRepository.insert({
-					title: document.title,
-					description: document.description,
-					corpus: corpus,
-					order: index
-				}).catch(err => {
+				const data = await this.documentRepository
+					.insert({
+						title: document.title,
+						description: document.description,
+						corpus: corpus,
+						order: index,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -177,17 +185,18 @@ export class DocumentModel {
 						throw err;
 					});
 				});
-				Promise.all(promises).then((documentEntities: DocumentEntity[]) => {
-					resolve(documentEntities);
-				}).catch(err => {
-					throw err;
-				}); 
+				Promise.all(promises)
+					.then((documentEntities: DocumentEntity[]) => {
+						resolve(documentEntities);
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}
 		});
 	}
-
 
 	// public async UpsertByAuthorAndCorpus(author: UserEntity, corpus: CorpusEntity): Promise<DocumentEntity> {
 	// 	return new Promise(async (resolve, reject) => {
@@ -288,7 +297,6 @@ export class DocumentModel {
 			}
 		});
 	}
-
 
 	public async findOneByDocumentWithTexts(document: DocumentEntity): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
@@ -469,10 +477,7 @@ export class DocumentModel {
 	public async updateTitleByID(documentID: number, title: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				await this.documentRepository.update(
-					{ id: documentID }, 
-					{ title: title }
-				).catch(err => {
+				await this.documentRepository.update({ id: documentID }, { title: title }).catch(err => {
 					throw 'Error updating the title of the document';
 				});
 				resolve();
@@ -481,14 +486,11 @@ export class DocumentModel {
 			}
 		});
 	}
-	
-	 public async updateDescriptionByID(documentID: number, description: string): Promise<void> {
+
+	public async updateDescriptionByID(documentID: number, description: string): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				await this.documentRepository.update(
-					{ id: documentID }, 
-					{ description: description }
-				).catch(err => {
+				await this.documentRepository.update({ id: documentID }, { description: description }).catch(err => {
 					throw 'Error updating the description of the document';
 				});
 				resolve();
@@ -503,18 +505,17 @@ export class DocumentModel {
 			try {
 				let promises = new Array(documents.length);
 				documents.forEach(async (document, i) => {
-					promises[i] = await this.documentRepository.update(
-						{id: document.id},
-						{order: i}
-					).catch(err => {
+					promises[i] = await this.documentRepository.update({ id: document.id }, { order: i }).catch(err => {
 						throw 'Error updating the order of the document';
 					});
 				});
-				Promise.all(promises).then(() => {
-					resolve();
-				}).catch(err => {
-					throw err;
-				}); 
+				Promise.all(promises)
+					.then(() => {
+						resolve();
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}
@@ -526,18 +527,17 @@ export class DocumentModel {
 			try {
 				let promises = new Array(documents.length);
 				documents.forEach(async (document, i) => {
-					promises[i] = await this.documentRepository.update(
-						{id: document.id},
-						{order: index + i}
-					).catch(err => {
+					promises[i] = await this.documentRepository.update({ id: document.id }, { order: index + i }).catch(err => {
 						throw 'Error updating the order of the document';
 					});
 				});
-				Promise.all(promises).then(() => {
-					resolve();
-				}).catch(err => {
-					throw err;
-				}); 
+				Promise.all(promises)
+					.then(() => {
+						resolve();
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}

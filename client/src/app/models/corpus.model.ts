@@ -1,5 +1,5 @@
 import { User } from './user.model';
-import { Document } from './document.model'
+import { Document } from './document.model';
 
 export enum CorpusSort {
 	A_Z = 'A - Z',
@@ -24,15 +24,7 @@ export class Corpus {
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
-	constructor(
-		author: User = new User(), 
-		description: string = '', 
-		documents: Document[] = [], 
-		contributors: number = 0,
-		texts: number = 0,
-		createdAt: Date = null, 
-		updatedAt: Date = null
-	) {
+	constructor(author: User = new User(), description: string = '', documents: Document[] = [], contributors: number = 0, texts: number = 0, createdAt: Date = null, updatedAt: Date = null) {
 		this.author = author;
 		this.description = description;
 		this.documents = documents;
