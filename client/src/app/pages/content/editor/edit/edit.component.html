@@ -1,3 +1,41 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-top">
+    <div class="navbar-brand">
+        <span *ngIf="cs.editorCorpus != null" class="breadcrumb-item breadcrumb-link" (click)="cs.changeEditor(0, 0)">{{cs.editorCorpus.author.username}}</span>
+        <span *ngIf="cs.editorCorpus != null" class="breadcrumb-item active">{{cs.editorCorpus.documents[cs.editingDocumentIndex].title}}</span>
+    </div>
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor02">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active">Data</li>
+        </ol>
+         <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+            </li>
+        </ul> 
+    </div> -->
+    <div class="navbar-nav mr-auto">
+    </div>
+    <div class="navbar-nav">
+        
+    </div>
+</nav>
 
 <!-- NEW VERSION -->
 <div id="toolbar"></div>
@@ -6,49 +44,63 @@
 <!--<ckeditor [editor]="Editor" data="<p>Hello, world!</p>"></ckeditor>-->
 
 <!-- DECOUPLED EDITOR -->
-<div
-    class="list-group editor-list"
-    cdkDropList
-    [cdkDropListData]="cs.editorCorpus.documents[cs.editingDocumentIndex].texts"
-    (cdkDropListDropped)="drop($event)"
-    (cdkDropListEntered)="entered($event)" 
-    (cdkDropListExited)="exited($event)"
-    (cdkDropListDragged)="started($event)"
->
-    <div 
-        class="list-group-item justify-content-between align-items-center editor-textbox"
-        *ngFor="let text of cs.editorCorpus.documents[cs.editingDocumentIndex].texts; let i = index; trackBy: trackText"
-        (mouseenter)="onMouseOver(i, true)"
-        (mouseleave)="onMouseOver(i, false)"
-        [cdkDragData]="text"
-        (cdkDragStarted)="started($event)"
-        (cdkDragEnded)="ended($event)"
-        cdkDrag
-    >
-        <div>
-            <div *ngIf="i === activeText" class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
-            <div *ngIf="i === activeText">
-                <editable
-                    #editable
-                    [index]="i"
-                    [(text)]="text.text"
-                    (update)="onUpdate($event)"
-                    (split)="onSplit($event)"
-                    (merge)="onMerge($event)"
-                ></editable>
-            </div>
-            <div *ngIf="i != activeText" (click)="onActivateText(i)">
-                <p class="editableBlock" [innerHTML]="text.text"></p>
+<!-- Content -->
+<div class="container-fluid content-window">
+    <div class="mb-3"></div>
+    <div class="row ">
+        <div class="col-sm-12" *ngIf="cs.editorCorpus == null">
+
+        </div>
+        <div class="col-sm-12" *ngIf="cs.editorCorpus != null">
+            <div
+                class="list-group editor-list"
+                cdkDropList
+                #editorText="cdkDropList"
+                [cdkDropListConnectedTo]="[explorerText]"
+                [cdkDropListData]="cs.editorCorpus.documents[cs.editingDocumentIndex].texts"
+                (cdkDropListDropped)="cs.editorTextDrop($event)"
+                (cdkDropListDropped)="drop($event)"
+                (cdkDropListEntered)="entered($event)" 
+                (cdkDropListExited)="exited($event)"
+                (cdkDropListDragged)="started($event)"
+            >
+                <div 
+                    class="list-group-item justify-content-between align-items-center editor-textbox"
+                    *ngFor="let text of cs.editorCorpus.documents[cs.editingDocumentIndex].texts; let i = index; trackBy: trackText"
+                    (mouseenter)="onMouseOver(i, true)"
+                    (mouseleave)="onMouseOver(i, false)"
+                    [cdkDragData]="text"
+                    (cdkDragStarted)="started($event)"
+                    (cdkDragEnded)="ended($event)"
+                    cdkDrag
+                >
+                    <div>
+                        <div *ngIf="i === activeText" class="editor-handle" cdkDragHandle><mat-icon>control_camera</mat-icon></div>
+                        <div *ngIf="i === activeText">
+                            <editable
+                                #editable
+                                [index]="i"
+                                [(text)]="text.text"
+                                (update)="onUpdate($event)"
+                                (split)="onSplit($event)"
+                                (merge)="onMerge($event)"
+                            ></editable>
+                        </div>
+                        <div *ngIf="i != activeText" (click)="onActivateText(i)">
+                            <p class="editableBlock" [innerHTML]="text.text"></p>
+                        </div>
+                    </div>
+                </div>
+                <div 
+                    cdkDrag 
+                    [cdkDragDisabled]="true"
+                    style="height: 300px;"
+                >
+                    <p>This document was last edited on {{cs.editorCorpus.updatedAt | date: 'medium'}}</p>
+                    <p>By : {{cs.editorCorpus.author.username}}</p>
+                </div>
             </div>
         </div>
-    </div>
-    <div 
-        cdkDrag 
-        [cdkDragDisabled]="true"
-        style="height: 300px;"
-    >
-        <p>This document was last edited on {{cs.editorCorpus.updatedAt | date: 'medium'}}</p>
-        <p>By : {{cs.editorCorpus.author.username}}</p>
     </div>
 </div>
 <!-- OLD VERSION -->

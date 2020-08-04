@@ -48,4 +48,23 @@ export class Document {
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
+
+	public static map(data): Document {
+		let document: Document = new Document();
+		if (data.hasOwnProperty('title')) document.title = data.title;
+		if (data.hasOwnProperty('description')) document.description = data.description;
+		if (data.hasOwnProperty('tableOfContent')) document.tableOfContent = data.tableOfContent;
+		if (data.hasOwnProperty('texts')) document.texts = Text.maps(data.texts);
+		if (data.hasOwnProperty('createdAt')) document.createdAt = data.createdAt;
+		if (data.hasOwnProperty('updatedAt')) document.updatedAt = data.updatedAt;
+		return document;
+	}
+
+	public static maps(data): Document[] {
+		let documents: Document[] = new Array<Document>(data.length);
+		for(let i = 0; i < data.length; i++) {
+			documents[i] = this.map(data[i]);
+		}
+		return documents;
+	}
 }

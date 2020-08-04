@@ -10,22 +10,32 @@
               mat-align-tabs="center"
               >
       
-              <!-- Overview -->
+              <!-- All corpus -->
               <mat-tab>
                 <ng-template class="navbar-label" mat-tab-label>
-                    <span matBadgeOverlap="false">Overview</span>
+                    <span matBadgeOverlap="false">Corpora</span>
                 </ng-template>
                 <ng-template matTabContent>
                   <app-content-explorer-overview></app-content-explorer-overview>
-                  <!-- <app-explorer-overview></app-explorer-overview> -->
                 </ng-template>
               </mat-tab>
 
-              <!-- Edit -->
+              <!-- User's corpus -->
               <mat-tab>
                 <ng-template mat-tab-label>
                   <mat-icon>edit</mat-icon>&nbsp;&nbsp;
-                    <span>Edit</span>
+                    <span>Corpus</span>
+                </ng-template>
+                <ng-template matTabContent>
+                  <app-content-explorer-corpus></app-content-explorer-corpus>
+                 </ng-template>
+              </mat-tab>
+
+              <!-- User's document -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+                    <span>Document</span>
                 </ng-template>
                 <ng-template matTabContent>
                   <app-content-explorer-read></app-content-explorer-read>

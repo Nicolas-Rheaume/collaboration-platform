@@ -1,14 +1,36 @@
 export class Text {
 	// Variables
+	public family?: number;
 	public text?: string;
+	public diffText?: string;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
-	constructor(text: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(text: string = '', family: number = 0, diffText: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.text = text;
+		this.family = family;
+		this.diffText = diffText;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	public static map(data): Text {
+		let text: Text = new Text();
+		if (data.hasOwnProperty('text')) text.text = data.text;
+		if (data.hasOwnProperty('family')) text.family = data.family;
+		if (data.hasOwnProperty('diffText')) text.diffText = data.diffText;
+		if (data.hasOwnProperty('createdAt')) text.createdAt = data.createdAt;
+		if (data.hasOwnProperty('updatedAt')) text.updatedAt = data.updatedAt;
+		return text;
+	}
+
+	public static maps(data): Text[] {
+		let texts: Text[] = new Array<Text>(data.length);
+		for(let i = 0; i < data.length; i++) {
+			texts[i] = this.map(data[i]);
+		}
+		return texts;
 	}
 }
 

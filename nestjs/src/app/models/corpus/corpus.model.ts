@@ -212,7 +212,7 @@ export class CorpusModel {
 	public async findManyByConceptIDWithoutAuthorID(conceptID: number, authorID: number): Promise<CorpusEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const corpusEntities = await this.corpusRepository
+				let corpusEntities = await this.corpusRepository
 					.createQueryBuilder('corpus')
 					.innerJoinAndSelect('corpus.author', 'author')
 					.where('corpus.concept = ' + conceptID)
@@ -221,9 +221,25 @@ export class CorpusModel {
 					.catch(err => {
 						throw 'Error finding the corpus';
 					});
-
 				if (corpusEntities === undefined) resolve([]);
-				else resolve(corpusEntities);
+				else {
+					let promises = new Array(corpusEntities.length);
+					for(let i = 0; i < promises.length; i++) {
+						promises[i] = this.documentModel.findDocumentsByCorpusID(
+							corpusEntities[i].id,
+						).catch(err => {
+							throw err;
+						});
+					}
+					Promise.all(promises).then((data) => {
+						corpusEntities.forEach((corpus, i) => {
+							corpus.documents = data[i];
+						});
+						resolve(corpusEntities);
+					}).catch(err => {
+						throw err;
+					});
+				}
 			} catch (err) {
 				reject(err);
 			}

@@ -22,13 +22,10 @@ export class ContentExplorerReadComponent implements OnInit {
 	 *  DRAGGABLE
 	 ****************************************************************************/
 	drop(event: CdkDragDrop<string[]>) {
-		console.log('explorer');
-		console.log(event);
 		if (event.previousContainer === event.container) {
 			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 			this.socket.request('explorer/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
 		} else {
-			console.log('transfering items');
 			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
 		}
 	}

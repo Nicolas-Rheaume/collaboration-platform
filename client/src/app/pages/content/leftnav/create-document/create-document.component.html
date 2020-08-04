@@ -1,0 +1,27 @@
+<div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title">Create a new document</h5>
+    </div>
+    <div class="modal-body">
+        <input 
+            class="form-control slate-search-name" 
+            [ngClass]="invalid ? 'is-invalid' : ''" 
+            placeholder="Enter the document title..." 
+            type="text" 
+            [(ngModel)]="title"
+        >
+        <textarea 
+                id="descriptionTextarea"
+                class="form-control description" 
+                rows="10"
+                [(ngModel)]="description"
+                >
+            </textarea>
+        <div class="invalid-feedback">{{error}}</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" *ngIf="index === -1" class="btn btn-outline-success btn-outline-success-border" (click)="createNewDocument()">Create</button>
+      <button type="button" *ngIf="index >= 0" class="btn btn-outline-warning btn-outline-warning-border" (click)="editDocument()">Edit</button>
+      <button type="button" class="btn btn-outline-danger btn-outline-danger-border" mat-dialog-close>Close</button>
+    </div>
+  </div>

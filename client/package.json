@@ -62,6 +62,7 @@
     "angular-split": "^3.0.3",
     "array-move": "^2.2.1",
     "bootstrap": "^4.4.1",
+    "diff": "^4.0.2",
     "dotenv": "^8.2.0",
     "fs": "0.0.1-security",
     "hammerjs": "^2.0.8",

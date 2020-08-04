@@ -9,6 +9,181 @@
     </li>
 </ul>
 
-<div class="rightnav">
-    <p>rightnav works!</p>
+<div class="mb-3">
+    <div class="card-body">
+        <h5 class="card-title">Explorer Mode:</h5>
+        <mat-radio-group
+            [(ngModel)]="cs.selectedExplorerMode.value"
+            >
+            <div *ngFor="let mode of cs.explorerMode">
+                <mat-radio-button 
+                    [value]="mode.value"
+                    (change)="cs.setExplorerMode(mode)">
+                    {{mode.name}}
+                </mat-radio-button>
+            </div>
+        </mat-radio-group>
+        <mat-slide-toggle
+        class="example-margin"
+        [(ngModel)]="cs.showTextDiff"
+        (click)="cs.clickTextDiff()"
+    >
+    {{cs.showTextDiffLabel}}
+    </mat-slide-toggle>
+    </div>
 </div>
+
+<mat-tab-group 
+    class="invisible-tabs"
+    [(selectedIndex)]="cs.selectedExplorerMode.value"
+    (selectedIndexChange)="cs.selectedExplorerMode.setValue($event)"
+    animationDuration="0ms" 
+    mat-align-tabs="center"
+    >
+
+    <!-- None -->
+    <mat-tab>
+        <ng-template class="navbar-label" mat-tab-label>
+            <span matBadgeOverlap="false">Corpora</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <mat-tab-group 
+                class="invisible-tabs"
+                [(selectedIndex)]="cs.selectedExplorerState.value"
+                (selectedIndexChange)="cs.selectedExplorerState.setValue($event)"
+                animationDuration="0ms" 
+                mat-align-tabs="center"
+                >
+
+                <!-- Nothing -->
+                <mat-tab>
+                    <ng-template class="navbar-label" mat-tab-label>
+                        <span matBadgeOverlap="false">Corpora</span>
+                    </ng-template>
+                    <ng-template matTabContent>
+                        
+                    </ng-template>
+                </mat-tab>
+
+                <!-- Corpora -->
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+                        <span>Corpus</span>
+                    </ng-template>
+                    <ng-template matTabContent>
+                        <div class="mb-3"></div>
+                        <h5 class="card-title" style="padding-left: 20px;">Collaborators:</h5>
+                        <ul class="list-group">
+                            <li
+                                class="list-group-item d-flex justify-content-between align-items-center list-group-item-click"
+                                *ngFor="let corpus of cs.explorerConcept.corpora; index as i; trackBy: trackByFn"
+                                [ngClass]="{'active': cs.exploringCorpusIndex === i}"
+                                (click)="cs.changeExplorer(1, i)"
+                            >
+                                {{ corpus.author.username }}
+                            </li>
+                        </ul>
+                    </ng-template>
+                </mat-tab>
+
+                <!-- User's document -->
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+                        <span>Document</span>
+                    </ng-template>
+                    <ng-template matTabContent>
+                        <div class="mb-3"></div>
+                        <h5 class="card-title" style="padding-left: 20px;">Table of Content:</h5>
+                        <ul class="list-group">
+                            <li
+                                class="list-group-item d-flex justify-content-between align-items-center list-group-item-click"
+                                *ngFor="let document of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents; index as i; trackBy: trackByFn"
+                                [ngClass]="{'active': cs.exploringDocumentIndex === i}"
+                                (click)="cs.changeExplorer(2, i)"
+                            >
+                                {{i + 1}} - {{ document.title }}
+                        </ul>
+                    </ng-template>
+                </mat-tab>
+
+                <!-- History -->
+                <mat-tab>
+                <ng-template mat-tab-label>
+                    <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;
+                    <span>History</span>
+                </ng-template>
+                <ng-template matTabContent>
+                    <h1>History</h1>
+                </ng-template>
+                </mat-tab>
+            </mat-tab-group>
+            
+        </ng-template>
+    </mat-tab>
+
+    <!-- Single User -->
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+            <span>Corpus</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <mat-form-field  class="list-group-item list-group-item-action">
+                <mat-label>Compare User:</mat-label>
+                <mat-select [(ngModel)]="cs.compareModeUserID" (ngModelChange)="cs.selectCompareUser()">
+                    <mat-option *ngFor="let corpus of cs.explorerConcept.corpora; index as i;" [value]="i">
+                        {{corpus.author.username}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <!-- <h5 class="card-title" style="padding-left: 20px;">Collaborators:</h5>
+            <ul class="list-group">
+                <li
+                    class="list-group-item d-flex justify-content-between align-items-center list-group-item-click"
+                    *ngFor="let corpus of cs.explorerConcept.corpora; index as i; trackBy: trackByFn"
+                    [ngClass]="{'active': cs.exploringCorpusIndex === i}"
+                    (click)="cs.changeExplorer(1, i)"
+                >
+                    {{ corpus.author.username }}
+                </li>
+            </ul> -->
+        </ng-template>
+    </mat-tab>
+
+    <!-- User's document -->
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <mat-icon>edit</mat-icon>&nbsp;&nbsp;
+            <span>Document</span>
+        </ng-template>
+        <ng-template matTabContent>
+            <div class="mb-3"></div>
+            <!-- <h5 class="card-title" style="padding-left: 20px;">Table of Content:</h5>
+            <ul class="list-group">
+                <li
+                    class="list-group-item d-flex justify-content-between align-items-center list-group-item-click"
+                    *ngFor="let document of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents; index as i; trackBy: trackByFn"
+                    [ngClass]="{'active': cs.exploringDocumentIndex === i}"
+                    (click)="cs.changeExplorer(2, i)"
+                >
+                    {{i + 1}} - {{ document.title }}
+            </ul> -->
+        </ng-template>
+    </mat-tab>
+
+    <!-- History -->
+    <mat-tab>
+    <ng-template mat-tab-label>
+        <mat-icon>menu_book</mat-icon>&nbsp;&nbsp;
+        <span>History</span>
+    </ng-template>
+    <ng-template matTabContent>
+        <h1>History</h1>
+    </ng-template>
+    </mat-tab>
+</mat-tab-group>
+
+

@@ -51,7 +51,8 @@ export class ContentEditorEditComponent implements OnInit, OnDestroy {
 
 	ngOnInit() {}
 
-	ngOnDestroy() {}
+	ngOnDestroy() {
+	}
 
 	/*****************************************************************************
 	 *  SOCKET
@@ -132,15 +133,13 @@ export class ContentEditorEditComponent implements OnInit, OnDestroy {
 	onMouseOver(index: number, value: boolean) {}
 
 	drop(event: CdkDragDrop<string[]>) {
-		console.log('editor');
-		console.log(event);
 		if (event.previousContainer === event.container) {
-			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+			// moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 			this.activeText = event.currentIndex;
-			this.socket.request('editor/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
+			// this.socket.request('editor/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
 		} else {
-			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
-			this.socket.request('editor/adoptTextAtIndex', [event.previousIndex, event.currentIndex]);
+			// transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+			// this.socket.request('editor/adoptTextAtIndex', [event.previousIndex, event.currentIndex]);
 		}
 	}
 

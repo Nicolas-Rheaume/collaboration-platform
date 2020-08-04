@@ -34,14 +34,52 @@ export class TextModel {
 						depth: 0,
 						pointer: 0,
 						branches: 0,
+						family: 0
+					})
+					.catch(err => {
+						throw 'Error creating the text';
+					});
+				
+				await this.textRepository.update(
+					{ id: data.raw.insertId }, { family: data.raw.insertId }
+				).catch(err => {
+						throw 'Error creating the text';
+				});
+
+				let textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				textEntity.newText = textEntity.text;
+				resolve(textEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async createFollowingText(text: TextEntity, author: UserEntity): Promise<TextEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.textRepository
+					.insert({
+						text: text.newText,
+						tag: text.tag,
+						html: text.html,
+						author: author,
+						previousText: text,
+						depth: text.depth + 1,
+						pointer: 0,
+						branches: 0,
+						family: text.family
 					})
 					.catch(err => {
 						throw 'Error creating the text';
 					});
 
-				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
+				let textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
+				textEntity.newText = textEntity.text;
 				resolve(textEntity);
 			} catch (err) {
 				reject(err);
@@ -62,14 +100,16 @@ export class TextModel {
 						tag: '',
 						html: '',
 						previousText: null,
+						family: entity.family
 					})
 					.catch(err => {
 						throw 'Error creating the text';
 					});
 
-				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
+				let textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
+				textEntity.newText = textEntity.text;
 				resolve(textEntity);
 			} catch (err) {
 				reject(err);
@@ -90,14 +130,21 @@ export class TextModel {
 						depth: 0,
 						pointer: 0,
 						branches: 0,
+						family: 0
 					})
 					.catch(err => {
 						throw 'Error creating the text';
 					});
 
-				const textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
+				await this.textRepository.update(
+					{ id: data.raw.insertId }, { family: data.raw.insertId }
+				).catch(err => {
+						throw 'Error creating the text';
+				});
+				let textEntity = await this.textRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
+				textEntity.newText = textEntity.text;
 				resolve(textEntity);
 			} catch (err) {
 				reject(err);

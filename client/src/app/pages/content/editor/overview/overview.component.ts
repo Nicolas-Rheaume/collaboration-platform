@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ContentService } from 'src/app/services/content.service';
 import { SocketService } from 'src/app/services/socket.service';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
 	selector: 'app-content-editor-overview',
@@ -36,5 +37,13 @@ export class ContentEditorOverviewComponent implements OnInit {
 		this.cs.editingDocumentIndex = index;
 		this.cs.selectedEditorState.setValue(1);
 		this.socket.request('editor/getDocument', index);
+	}
+
+	drop(event: CdkDragDrop<string[]>) {
+		if (event.previousContainer === event.container) {
+			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+		} else {
+			transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+		}
 	}
 }

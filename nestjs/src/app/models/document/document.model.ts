@@ -52,6 +52,30 @@ export class DocumentModel {
 		});
 	}
 
+	public async createByTitleDescriptionCorpusandOrder(title: string, description: string, corpus: CorpusEntity, order: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const data = await this.documentRepository
+					.insert({
+						title: title,
+						description: description,
+						corpus: corpus,
+						order: order,
+					})
+					.catch(err => {
+						throw 'error creating the document';
+					});
+
+				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
+					throw err;
+				});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	/*****************************************************************************
 	 *  COPY
 	 *****************************************************************************/
@@ -98,9 +122,10 @@ export class DocumentModel {
 				const documentEntity = await this.documentRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
-				this.paragraphModel.copyManyToDocument(document.paragraphs, documentEntity).catch(err => {
+				await this.paragraphModel.copyManyFromDocumentToDocument(document, documentEntity).catch(err => {
 					throw err;
 				});
+				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
 			}
@@ -257,10 +282,23 @@ export class DocumentModel {
 	 *  FIND
 	 *****************************************************************************/
 
+	public async findOneByID(id: number): Promise<DocumentEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const documentEntity = await this.documentRepository.findOne({ id: id }).catch(err => {
+					throw 'Error finding the corpus';
+				});
+				resolve(documentEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	public async findOneByIDWithTexts(id: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const documentEntity = await this.documentRepository
+				let documentEntity = await this.documentRepository
 					.createQueryBuilder('document')
 					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
 					.innerJoinAndSelect('paragraphs.text', 'text')
@@ -270,6 +308,10 @@ export class DocumentModel {
 					.catch(err => {
 						throw 'Error finding the document';
 					});
+
+				documentEntity.paragraphs.forEach((paragraph, i) => {
+					paragraph.text.newText = paragraph.text.text;
+				});
 				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
@@ -280,7 +322,7 @@ export class DocumentModel {
 	public async findOneByCorpusIDAndOrderWithTexts(corpusID: number, order: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const documentEntity = await this.documentRepository
+				let documentEntity = await this.documentRepository
 					.createQueryBuilder('document')
 					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
 					.innerJoinAndSelect('paragraphs.text', 'text')
@@ -291,6 +333,10 @@ export class DocumentModel {
 					.catch(err => {
 						throw 'Error finding the document';
 					});
+
+				documentEntity.paragraphs.forEach((paragraph, i) => {
+					paragraph.text.newText = paragraph.text.text;
+				});
 				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
@@ -301,7 +347,7 @@ export class DocumentModel {
 	public async findOneByDocumentWithTexts(document: DocumentEntity): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const documentEntity = await this.documentRepository
+				let documentEntity = await this.documentRepository
 					.createQueryBuilder('document')
 					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
 					.innerJoinAndSelect('paragraphs.text', 'text')
@@ -311,6 +357,10 @@ export class DocumentModel {
 					.catch(err => {
 						throw 'Error finding the document';
 					});
+				
+				documentEntity.paragraphs.forEach((paragraph, i) => {
+					paragraph.text.newText = paragraph.text.text;
+				});
 				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
@@ -321,7 +371,7 @@ export class DocumentModel {
 	public async findOneByCorpusAndAuthorWithTexts(corpusID: number, authorID: number): Promise<DocumentEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const documentEntity = await this.documentRepository
+				let documentEntity = await this.documentRepository
 					.createQueryBuilder('document')
 					.innerJoinAndSelect('document.paragraphs', 'paragraphs')
 					.innerJoinAndSelect('paragraphs.text', 'text')
@@ -332,6 +382,10 @@ export class DocumentModel {
 					.catch(err => {
 						throw 'Error finding the document';
 					});
+				
+				documentEntity.paragraphs.forEach((paragraph, i) => {
+					paragraph.text.newText = paragraph.text.text;
+				});
 				resolve(documentEntity);
 			} catch (err) {
 				reject(err);
@@ -500,6 +554,19 @@ export class DocumentModel {
 		});
 	}
 
+	public async updateTitleandDescriptionByID(documentID: number, title: string, description: string): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.documentRepository.update({ id: documentID }, { title: title, description: description }).catch(err => {
+					throw 'Error updating the title and description of the document';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
 	public async updateOrders(documents: DocumentEntity[]): Promise<void> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -569,6 +636,20 @@ export class DocumentModel {
 	/*****************************************************************************
 	 *  DELETE
 	 *****************************************************************************/
+	public async deleteByID(id: number): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.documentRepository.delete({ id: id }).catch(err => {
+					throw 'Error deleting the document';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+
 
 	/*****************************************************************************
 	 *  COUNT

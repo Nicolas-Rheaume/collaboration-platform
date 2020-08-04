@@ -4,11 +4,11 @@ import { ContentService } from 'src/app/services/content.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
-	selector: 'app-content-explorer-overview',
-	templateUrl: './overview.component.html',
-	styleUrls: ['./overview.component.scss'],
+	selector: 'app-content-explorer-corpus',
+	templateUrl: './corpus.component.html',
+	styleUrls: ['./corpus.component.scss'],
 })
-export class ContentExplorerOverviewComponent implements OnInit {
+export class ContentExplorerCorpusComponent implements OnInit {
 	constructor(private socket: SocketService, private cs: ContentService) {}
 
 	ngOnInit() {}

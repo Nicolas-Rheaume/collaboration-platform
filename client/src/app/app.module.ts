@@ -86,6 +86,8 @@ import { EditorOverviewComponent } from './components/editor/editor-overview/edi
 import { ExplorerOverviewComponent } from './components/explorer/explorer-overview/explorer-overview.component';
 import { EditorNavbarComponent } from './components/editor/editor-navbar/editor-navbar.component';
 import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/explorer-navbar.component';
+import { ContentExplorerCorpusComponent } from './pages/content/explorer/corpus/corpus.component';
+import { ContentCreateDocumentComponent } from './pages/content/leftnav/create-document/create-document.component';
 
 @NgModule({
 	declarations: [
@@ -130,6 +132,8 @@ import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/e
 		ContentEditorOverviewComponent,
 		ContentLeftnavTableofcontentComponent,
 		ContentExplorerOverviewComponent,
+		ContentExplorerCorpusComponent,
+		ContentCreateDocumentComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -149,7 +153,7 @@ import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/e
 		InViewportModule,
 		ScrollSpyModule.forRoot(),
 	],
-	entryComponents: [CreateConceptComponent],
+	entryComponents: [CreateConceptComponent, ContentCreateDocumentComponent],
 	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
 	bootstrap: [AppComponent],
 })

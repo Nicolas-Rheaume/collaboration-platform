@@ -40,16 +40,6 @@ export class ExplorerController {
 				this.cs.getConnection(client).explorerConcept = conceptEntity;
 				const concept = await conceptEntity.getConcept();
 				resolve(concept);
-
-				// const corpus: CorpusEntity = await this.corpusModel.findOneByTitle(url).catch(err => {
-				// 	throw err;
-				// });
-				// const explorerTextEntities: TextEntity[] = await this.documentModel.findTextsByCorpusWithoutAuthor(corpus, author).catch(err => {
-				// 	throw err;
-				// });
-				// this.cs.getConnection(client).explorerTexts = explorerTextEntities;
-				// const explorerTexts = Text.parseEntities(explorerTextEntities);
-				// resolve(explorerTexts);
 			} catch (err) {
 				reject(err);
 			}

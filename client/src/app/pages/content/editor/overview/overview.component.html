@@ -1,6 +1,8 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark navbar-top">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <div *ngIf="cs.editorCorpus != null" class="navbar-brand nav-item active">
+        {{cs.editorCorpus.author.username}}
+    </div>
     <!-- <a class="navbar-brand" href="#">Navbar</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -27,69 +29,105 @@
             </li>
         </ul> 
     </div> -->
-    <div class="navbar-nav mr-auto">
+    <!-- <div class="navbar-nav mr-auto">
     </div>
     <div class="navbar-nav">
         <button type="button" class="btn btn-outline-primary"><mat-icon>arrow_back_ios</mat-icon></button>
-    </div>
+    </div> -->
 </nav>
 
 
 <!-- Content -->
 <div class="container-fluid content-window">
     <div class="mb-3"></div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div *ngIf="cs.editorCorpus == null">
-                <button type="button" class="btn btn-primary" (click)="createCorpus()">Create your own corpus</button>
-            </div>
-            <div *ngIf="cs.editorCorpus != null">
-
-                <label for="descriptionTextarea">Corpus Description:</label>
-                <textarea 
-                    id="descriptionTextarea"
-                    class="form-control description" 
-                    rows="3"
-                    [(ngModel)]="cs.editorCorpus.description"
-                    (input)="corpusDescriptionChange()"
-                    >
-                </textarea>
-
-                <br><br>
-
-                <button 
-                    type="button" 
-                    class="btn btn-primary"
-                    (click)="createDocument()"
-                    >Create a New Document</button>
-
-                <mat-accordion>
-                    <mat-expansion-panel
-                        *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn"
-                    >
-                    <mat-expansion-panel-header>
-                        <mat-panel-title>
-                            <span>{{i}}:</span>
-                            <input type="text" class="form-control-plaintext" 
-                            [(ngModel)]="document.title"
-                            (input)="documentTitleChange(i)"
-                        >
-                        </mat-panel-title>
-                        <mat-panel-description>
-                            <button type="button" class="btn btn-outline-warning" (click)="editDocument(i)">Edit</button>
-                            <button type="button" class="btn btn-outline-danger">Delete</button>
-                        </mat-panel-description>
-                    </mat-expansion-panel-header>
-                    <textarea 
-                        class="form-control description" 
-                        rows="3"
-                        [(ngModel)]="document.description"
-                        (input)="documentDescriptionChange(i)"
-                        ></textarea>
-                    </mat-expansion-panel>
-                </mat-accordion>
-
-            </div>
+    <div class="row ">
+        <div class="col-sm-12" *ngIf="cs.editorCorpus == null">
+            <button type="button" class="btn btn-primary" (click)="createCorpus()">Create your own corpus</button>
         </div>
+
+        <div class="col-sm-12" *ngIf="cs.editorCorpus != null">
+            <label for="descriptionTextarea"><h4>Description:</h4></label>
+            <textarea 
+                id="descriptionTextarea"
+                class="form-control description" 
+                rows="10"
+                [(ngModel)]="cs.editorCorpus.description"
+                (input)="corpusDescriptionChange()"
+                >
+            </textarea>
+        </div>
+        <!-- <div class="col-sm-12" *ngIf="cs.editorCorpus != null">
+            <button 
+                type="button" 
+                class="btn btn-primary"
+                (click)="createDocument()"
+                >Create a New Document</button>
+        </div> -->
+
+        <div class="col-sm-12" *ngIf="cs.editorCorpus != null"><h4>Documents:</h4></div>
+
+        <mat-accordion 
+            class="col-sm-12 prevent-click" 
+            *ngIf="cs.editorCorpus != null" 
+            cdkDropList 
+            #editorDocument="cdkDropList"
+            [cdkDropListConnectedTo]="[explorerDocument]"
+            [cdkDropListData]="cs.editorCorpus.documents"
+            (cdkDropListDropped)="cs.editorDocumentDrop($event)"
+        >
+            <mat-expansion-panel
+                class="card bg-primary"
+                cdkDrag
+                hideToggle
+   
+                *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn"
+                (opened)="cs.editorPanelOpenStates[i] = true"
+                (closed)="cs.editorPanelOpenStates[i] = false"
+            >
+            <mat-expansion-panel-header>
+                <mat-panel-title class="panel-title" (click)="cs.changeEditor(1, i)">
+                    <div class="document-title">{{i + 1}}: {{document.title}}</div>
+                    <!-- <input type="text" class="form-control-plaintext" 
+                    [(ngModel)]="document.title"
+                    (input)="documentTitleChange(i)"
+                > -->
+                </mat-panel-title>
+                <mat-panel-description class="d-flex justify-content-end">
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-success btn-sm" (click)="cs.editCreateDocumentDialog(i)"><mat-icon>edit</mat-icon></button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" *ngIf="cs.editorPanelOpenStates[i] === false" (click)="cs.editorPanelOpenStates[i] = true"><mat-icon>keyboard_arrow_down</mat-icon></button>
+                        <button type="button" class="btn btn-outline-warning btn-sm" *ngIf="cs.editorPanelOpenStates[i] === true" (click)="cs.editorPanelOpenStates[i] = false"><mat-icon>keyboard_arrow_up</mat-icon></button>
+                        <button type="button" class="btn btn-outline-info btn-sm" cdkDragHandle><mat-icon>control_camera</mat-icon></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" (click)="cs.deleteDocumentAtIndex(i)"><mat-icon>delete</mat-icon></button>
+                    </div>
+                </mat-panel-description>
+            </mat-expansion-panel-header>
+            <p [innerHTML]="document.description"></p>
+            </mat-expansion-panel>
+        </mat-accordion>
+
+
+
+        <!-- <div cdkDropList class="col-sm-12" (cdkDropListDropped)="drop($event)">
+            <div 
+            class="card bg-primary card-spacer"
+            *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn" cdkDrag
+        >
+                <div class="card-body">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h4 class="card-title">{{document.title}}</h4>
+                    <small>Updated: {{document.updatedAt | timeAgo}}</small>
+                    </div>
+                    <p class="card-text">{{document.description.slice(0,20)}}</p>
+                    <div class="d-flex w-100 justify-content-end">
+                        <button type="button" class="btn btn-outline-success btn-sm"><mat-icon>edit</mat-icon></button>
+                        <button type="button" class="btn btn-outline-info btn-sm"><mat-icon>control_camera</mat-icon></button>
+                        <button type="button" class="btn btn-outline-warning btn-sm"><mat-icon>insert_drive_file</mat-icon></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm"><mat-icon>delete</mat-icon></button>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
     </div>
 </div>

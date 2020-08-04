@@ -100,16 +100,18 @@ export class ConceptModel {
 	public async findOneByURLWithCorpusWithoutUser(url: string, author: UserEntity): Promise<ConceptEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const conceptEntity = await this.conceptRepository
-					.createQueryBuilder('concept')
-					.innerJoinAndSelect('concept.corpora', 'corpora')
-					.innerJoinAndSelect('corpora.author', 'author')
-					.innerJoinAndSelect('corpora.documents', 'documents')
-					//.where('corpora.author != ' + author.id)
-					.getOne()
-					.catch(err => {
+				let conceptEntity = await this.conceptRepository.findOne({ url: url }).catch(err => {
+					throw 'Error finding the concept';
+				});
+
+				if(conceptEntity != undefined) {
+					conceptEntity.corpora = await this.corpusModel.findManyByConceptIDWithoutAuthorID(
+						conceptEntity.id,
+						author.id
+					).catch(err => {
 						throw 'Error finding the concept';
 					});
+				}
 				resolve(conceptEntity);
 			} catch (err) {
 				reject(err);

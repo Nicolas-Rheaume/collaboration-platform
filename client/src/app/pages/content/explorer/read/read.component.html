@@ -1,10 +1,52 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-top">
+    <div class="navbar-brand">
+        <span class="breadcrumb-item breadcrumb-link" (click)="cs.changeExplorer(0, 0)">Concept</span>
+        <span class="breadcrumb-item breadcrumb-link" (click)="cs.changeExplorer(1, cs.exploringCorpusIndex)">{{cs.explorerConcept.corpora[cs.exploringCorpusIndex].author.username}}</span>
+        <span class="breadcrumb-item active">{{cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].title}}</span>
+    </div>
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor02">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active">Data</li>
+        </ol>
+         <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+            </li>
+        </ul> 
+    </div>
+    <div class="navbar-nav mr-auto">
+    </div>
+    <div class="navbar-nav">
+        <button type="button" class="btn btn-outline-primary"><mat-icon>arrow_back_ios</mat-icon></button>
+    </div> -->
+</nav>
+
 <div class="container-fluid">
     <div
         class="explorer-list"
         cdkDropList
+        #explorerText="cdkDropList"
+        [cdkDropListConnectedTo]="[editorText]"
         [cdkDropListEnterPredicate]="noReturnPredicate"
         [cdkDropListData]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents[cs.exploringDocumentIndex].texts"
-        (cdkDropListDropped)="drop($event)"
+        (cdkDropListDropped)="cs.explorerTextDrop($event)"
     >
         <div
             class="explorer-text"
@@ -16,7 +58,8 @@
                 class="explorer-handle" 
                 cdkDragHandle
             ><mat-icon>control_camera</mat-icon></div>
-            <div [innerHTML]="text.text"></div>
+            <div *ngIf="cs.showTextDiff === true && cs.selectedEditorState.value === 1" [innerHTML]="text.diffText"></div>
+            <div *ngIf="cs.showTextDiff === false || cs.selectedEditorState.value != 1" [innerHTML]="text.text"></div>
         </div>
         <!-- <div
             class="list-group-item justify-content-between align-items-center editor-textbox"

@@ -15,6 +15,11 @@ import * as arrayMove from 'array-move';
 import { FormControl } from '@angular/forms';
 import { Document } from '../models/document.model';
 import { Concept } from '../models/concept.model';
+import { CdkDragDrop, moveItemInArray, transferArrayItem, CdkDrag } from '@angular/cdk/drag-drop';
+import { ContentCreateDocumentComponent } from '../pages/content/leftnav/create-document/create-document.component';
+import { MatDialog } from '@angular/material';
+
+import * as jsdiff from 'diff';
 
 @Injectable({
 	providedIn: 'root',
@@ -30,10 +35,12 @@ export class ContentService {
 	public conceptTitle: string = '';
 	public editingDocumentIndex: number = 0;
 	public editorCorpus: Corpus = null;
+	public editorPanelOpenStates: boolean[] = [];
 
 	public exploringCorpusIndex: number = 0;
 	public exploringDocumentIndex: number = 0;
 	public explorerConcept: Concept = null;
+	public explorerCorporaPanelOpenStates: boolean[] = [];
 
 	public editorTexts: Text[] = [];
 
@@ -52,28 +59,30 @@ export class ContentService {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(private socket: SocketService, private us: UserService) {
+	constructor(private socket: SocketService, private us: UserService, private dialog: MatDialog) {
 		// Editor Error Message
 		this.sub = this.socket.response('editor/error').subscribe(response => {
 			if (response.success === false) console.log(response.message);
 		});
 
 		// Editor Corpus
-		this.sub = this.socket.response('editor/corpus').subscribe(editorCorpus => {
-			console.log(editorCorpus);
-			this.editorCorpus = editorCorpus;
+		this.sub = this.socket.response('editor/corpus').subscribe(async (editorCorpus: Corpus) => {
+			this.editorCorpus = Corpus.map(editorCorpus);
+			this.editorPanelOpenStates = new Array<boolean>(this.editorCorpus.documents.length).fill(false);
 			console.log(this.editorCorpus);
 		});
 
 		// Editor Document
 		this.sub = this.socket.response('editor/document').subscribe(([index, document]) => {
-			this.editorCorpus.documents[index] = document;
+			console.log(document);
+			this.editorCorpus.documents[index] = Document.map(document);
+			console.log(this.editorCorpus.documents[index]);
 		});
 
 		// Explorer Concept
 		this.sub = this.socket.response('explorer/concept').subscribe(explorerConcept => {
-			console.log(explorerConcept);
-			this.explorerConcept = explorerConcept;
+			this.explorerConcept = Concept.map(explorerConcept);
+			this.explorerCorporaPanelOpenStates = new Array<boolean>(this.explorerConcept.corpora.length).fill(false);
 			console.log(this.explorerConcept);
 		});
 
@@ -84,13 +93,8 @@ export class ContentService {
 
 		// Explorer Document
 		this.sub = this.socket.response('explorer/document').subscribe(([corpusIndex, documentIndex, document]) => {
-			console.log(corpusIndex);
-			console.log(documentIndex);
 			console.log(document);
-			this.explorerConcept.corpora[corpusIndex].documents[documentIndex] = document;
-			// console.log(explorerConcept);
-			// this.explorerConcept = explorerConcept;
-			// console.log(this.explorerConcept)
+			this.explorerConcept.corpora[corpusIndex].documents[documentIndex] = Document.map(document);
 		});
 
 		// if (this.useMockData) {
@@ -183,6 +187,48 @@ export class ContentService {
 	}
 
 	/*****************************************************************************
+	 *  DOCUMENT METHODS
+	 ****************************************************************************/
+	// Variables
+
+	openCreateDocumentDialog() {
+		this.dialog.open(ContentCreateDocumentComponent, {
+			data: {
+				index: -1,
+				title: '',
+				description: '',
+			},
+			width: '40%'
+		});
+	}
+
+	editCreateDocumentDialog(index: number) {
+		this.editorPanelOpenStates[index] = false;
+		console.log(this.editorPanelOpenStates);
+		this.dialog.open(ContentCreateDocumentComponent, {
+			data: {
+				index: index,
+				title: this.editorCorpus.documents[index].title,
+				description: this.editorCorpus.documents[index].description,
+			},
+			width: '40%'
+		});
+	}
+
+	createNewDocument() {
+
+	}
+	
+	public createCorpus() {
+		this.socket.request('editor/createCorpus', null);
+	}
+
+	// to do
+	public adoptCorpus() {
+		this.socket.request('editor/createCorpus', null);
+	}
+
+	/*****************************************************************************
 	 *  EDITOR SETTINGS
 	 ****************************************************************************/
 	// Variables
@@ -197,11 +243,34 @@ export class ContentService {
 		this.selectedEditorState.setValue(state.value);
 	}
 
+	public changeEditor(state: number, index: number) {
+		if(this.selectedEditorState.value === 1) {
+			this.socket.request('editor/saveDocumentAtIndex', [this.editingDocumentIndex]);
+		}
+		this.selectedEditorState.setValue(state);
+		this.editingDocumentIndex = index;
+		if(state == 1) {
+			this.socket.request('editor/getDocument', index);
+		}
+
+		if(this.selectedExplorerMode.value == 1) {
+			this.selectCompareUser();
+		}
+
+		if(this.selectedEditorState.value == 1 && this.selectedExplorerState.value == 2) {
+			this.calculateTextDiff();
+		}
+	}
+
 	public initializeEditor(title: string): void {
 		if (title != this.corpusTitle) {
 			this.corpusTitle = title;
 			this.socket.request('editor/initialize', title);
 		}
+	}
+
+	public deleteDocumentAtIndex(index: number): void {
+		this.socket.request('editor/deleteDocumentAtIndex', index);
 	}
 
 	/*****************************************************************************
@@ -211,8 +280,8 @@ export class ContentService {
 	public selectedExplorerState: FormControl = new FormControl(0);
 	public explorerState = [
 		{ value: 0, name: 'Overview', icon: 'home' },
-		{ value: 1, name: 'Edit', icon: 'edit' },
-		{ value: 2, name: 'History', icon: 'menu_book' },
+		{ value: 1, name: 'Corpus', icon: 'home' },
+		{ value: 2, name: 'Edit', icon: 'edit' },
 	];
 
 	public setExplorerState(state) {
@@ -227,6 +296,164 @@ export class ContentService {
 		// 	this.socket.request('explorer/initialize', title);
 		// }
 	}
+
+	public changeExplorer(state: number, index: number) {
+		this.selectedExplorerState.setValue(state);
+		if (state === 1) {
+			this.exploringCorpusIndex = index;
+		} else if(state === 2) {
+			this.exploringDocumentIndex = index;
+			this.socket.request('explorer/getDocument', [this.exploringCorpusIndex, this.exploringDocumentIndex]);
+		}
+
+		if(this.selectedEditorState.value == 1 && this.selectedExplorerState.value == 2) {
+			this.calculateTextDiff();
+		}
+	}
+
+	/*****************************************************************************
+	 *  EXPLORER MODE
+	 ****************************************************************************/
+	// Variables
+	public selectedExplorerMode: FormControl = new FormControl(0);
+	public explorerMode = [
+		{ value: 0, name: 'None', icon: 'home' },
+		{ value: 1, name: 'Compare User', icon: 'home' },
+		{ value: 2, name: 'Recommended', icon: 'edit' },
+	];
+
+	public setExplorerMode(mode) {
+		this.selectedExplorerMode.setValue(mode.value);
+	}
+
+	/*****************************************************************************
+	 *  EXPLORER MODE - Compare User
+	 ****************************************************************************/
+	public compareModeUserID: number = -1;
+
+	public onClickCompareUser(userID: number) {
+		this.compareModeUserID = userID;
+		this.selectedExplorerMode.setValue(1);
+		this.selectCompareUser();
+	}
+
+	public selectCompareUser() {
+		if(this.selectedEditorState.value == 0)
+			this.changeExplorer(1, this.compareModeUserID);
+		else if(this.selectedEditorState.value == 1) {
+			this.exploringCorpusIndex = this.compareModeUserID;
+			for(let i = 0; i < this.explorerConcept.corpora[this.compareModeUserID].documents.length; i++) {
+				if(this.explorerConcept.corpora[this.compareModeUserID].documents[i].title === this.editorCorpus.documents[this.editingDocumentIndex].title) {
+					this.changeExplorer(2, i);
+					break;
+				}
+			}
+		}
+	}
+
+	/*****************************************************************************
+	 *  DRAG AND DROP
+	 ****************************************************************************/
+
+	public editorDocumentDrop(event: CdkDragDrop<any>) {
+		if(event.container.data[0] instanceof Document && event.previousContainer.data[0] instanceof Document) {
+			if (event.previousContainer === event.container) {
+				moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+				this.socket.request('editor/moveDocumentAtIndex', [ event.previousIndex, event.currentIndex ]);
+			} else {
+				this.editorCorpus.documents.splice(event.currentIndex, 0, this.explorerConcept.corpora[this.exploringCorpusIndex].documents[event.previousIndex]);
+				this.editorPanelOpenStates.splice(event.currentIndex, 0, false);
+				this.socket.request('editor/adoptDocumentAtIndex', [ event.previousIndex, event.currentIndex, this.exploringCorpusIndex ]);
+				//transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+			}
+		}
+	}
+
+	public editorTextDrop(event: CdkDragDrop<string[]>) {
+		if (event.previousContainer === event.container) {
+			moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+			this.socket.request('editor/moveTextAtIndex', [event.previousIndex, event.currentIndex]);
+		} else {
+			this.editorCorpus.documents[this.editingDocumentIndex].texts.splice(
+				event.currentIndex, 
+				0, 
+				this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[event.previousIndex]
+			);
+			//transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+			this.socket.request('editor/adoptTextAtIndex', [event.previousIndex, event.currentIndex]);
+		}
+
+
+
+		// if (event.previousContainer === event.container) {
+		// 	moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+		// } else {
+		// 	transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
+		// }
+	}
+
+	public explorerDocumentDrop(event: CdkDragDrop<string[]>) {
+	}
+
+	public explorerTextDrop(event: CdkDragDrop<string[]>) {
+	}
+
+	/*****************************************************************************
+	 *  TEXT DIFF
+	 ****************************************************************************/
+	public showTextDiff: boolean = false;
+	public showTextDiffLabel: string = 'Show Text Difference'
+
+	public clickTextDiff() {
+		if(this.showTextDiff) this.showTextDiffLabel = 'Show Text Difference'
+		else this.showTextDiffLabel = 'Hide Text Difference'
+
+		console.log(this.selectedEditorState.value);
+		console.log(this.selectedExplorerState.value);
+		console.log(this.showTextDiff);
+		if(this.selectedEditorState.value == 1 && this.selectedExplorerState.value == 2) {
+			this.calculateTextDiff();
+		}
+	}
+
+	public calculateTextDiff() {
+
+		let editorTexts = this.editorCorpus.documents[this.editingDocumentIndex].texts.slice();
+		for(let i = 0; i < this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts.length; i++) {
+			let j = 0;
+			while(editorTexts.length <= j) {
+				if(editorTexts.length === 0 || editorTexts.length == j) {
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText = 
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text;
+					break;
+				} else if(editorTexts[j].family === this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].family) {
+
+					// Using the diff library to compare the two texts
+					let diff = jsdiff.diffWords(
+						editorTexts[j].text,
+						this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text
+					);
+
+					// Color code the diff text
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText = '';
+					for(let k = 0; k < diff.length; k++) {
+						if (diff[k].added === true) 
+							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span class='text-success'>" + diff[k].value + "</span>";
+						else if (diff[k].removed === true) 
+							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span class='text-danger'>" + diff[k].value + "</span>";
+						else 
+							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span>" + diff[k].value + "</span>";
+					}
+					editorTexts.splice(j, 1);
+					break;
+				}
+				j++;
+			}
+		}
+		console.log(this.editorCorpus.documents[this.editingDocumentIndex]);
+		console.log(this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts);
+	 }
+	
 
 	/*****************************************************************************
 	 *  WEB SOCKETS REQUEST

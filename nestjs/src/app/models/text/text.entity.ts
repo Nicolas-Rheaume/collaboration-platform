@@ -5,6 +5,7 @@
 export class Text {
 	// Variables
 	public text?: string;
+	public family?: number;
 	public tag?: string;
 	public html?: string;
 
@@ -13,8 +14,9 @@ export class Text {
 
 	// constructor
 
-	constructor(text: string = '', tag: string = '', html: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(text: string = '', family: number = 0, tag: string = '', html: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.text = text;
+		this.family = family;
 		this.tag = tag;
 		this.html = html;
 		this.createdAt = createdAt;
@@ -24,7 +26,7 @@ export class Text {
 	public async getEntity(): Promise<TextEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new TextEntity(0, this.text, this.text, this.tag, this.html, null, null, 0, 0, 0, this.createdAt, this.updatedAt));
+				resolve(new TextEntity(0, this.text, this.text, this.tag, this.html, null, null, 0, 0, 0, this.family, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -140,6 +142,9 @@ export class TextEntity {
 	public paragraphs: ParagraphEntity[];
 
 	@Column({ type: 'int' })
+	public family: number;
+
+	@Column({ type: 'int' })
 	public depth: number;
 
 	@Column({ type: 'int' })
@@ -158,13 +163,14 @@ export class TextEntity {
 
 	// Constructor
 	constructor(
-		id: number = 0,
+		id: number = -1,
 		text: string = '',
 		newText: string = '',
 		tag: string = '',
 		html: string = '',
 		author: UserEntity = null,
 		previousText: TextEntity = null,
+		family: number = -1,
 		depth: number = 0,
 		pointer: number = 0,
 		branches: number = 0,
@@ -178,6 +184,7 @@ export class TextEntity {
 		this.html = html;
 		this.author = author;
 		this.previousText = previousText;
+		this.family = family;
 		this.depth = depth;
 		this.pointer = pointer;
 		this.branches = branches;
@@ -188,7 +195,7 @@ export class TextEntity {
 	public async getText(): Promise<Text> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new Text(this.text, this.tag, this.html, this.createdAt, this.updatedAt));
+				resolve(new Text(this.text, this.family, this.tag, this.html, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -200,6 +207,7 @@ export class TextEntity {
 			try {
 				this.id = 0;
 				this.text = text.text;
+				this.family = text.family;
 				this.tag = text.tag;
 				this.html = text.html;
 				this.createdAt = text.createdAt;
@@ -220,6 +228,7 @@ export class TextEntity {
 					tag: this.tag,
 					html: this.html,
 					author: this.author.getJSON(),
+					family: this.family,
 					depth: this.depth,
 					pointer: this.pointer,
 					branches: this.branches,
@@ -242,6 +251,7 @@ export class TextEntity {
 				if (json.hasOwnProperty('author')) this.author = json.author;
 				if (json.hasOwnProperty('depth')) this.depth = json.depth;
 				if (json.hasOwnProperty('pointer')) this.pointer = json.pointer;
+				if (json.hasOwnProperty('family')) this.family = json.family;
 				if (json.hasOwnProperty('branches')) this.branches = json.branches;
 				if (json.hasOwnProperty('createdAt')) this.createdAt = json.createdAt;
 				if (json.hasOwnProperty('updatedAt')) this.updatedAt = json.updatedAt;
@@ -265,6 +275,7 @@ export class TextEntity {
 					if (json[i].hasOwnProperty('author')) entities[i].author = json[i].author;
 					if (json[i].hasOwnProperty('depth')) entities[i].depth = json[i].depth;
 					if (json[i].hasOwnProperty('pointer')) entities[i].pointer = json[i].pointer;
+					if (json[i].hasOwnProperty('family')) entities[i].family = json[i].family;
 					if (json[i].hasOwnProperty('branches')) entities[i].branches = json[i].branches;
 					if (json[i].hasOwnProperty('createdAt')) entities[i].createdAt = json[i].createdAt;
 					if (json[i].hasOwnProperty('updatedAt')) entities[i].updatedAt = json[i].updatedAt;
