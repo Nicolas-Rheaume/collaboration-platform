@@ -493,28 +493,21 @@ export class EditorController {
 	public async adoptTextAtIndex(client: Socket, from: number, to: number): Promise<void> {
 		return new Promise<any>(async (resolve, reject) => {
 			try {
-				const author: UserEntity = this.cs.getUserEntity(client);
-				const connection: Connection = this.cs.getConnection(client);
-				const explorerDocument: DocumentEntity = await this.documentModel.findOneByIDWithTexts(this.cs.getExplorerDocument(client).id).catch(err => {
+				const paragraph: ParagraphEntity = await this.paragraphModel.create(
+					this.cs.getEditorDocument(client), 
+					this.cs.getExplorerDocument(client).paragraphs[from].text, 
+					to
+				).catch(err => {
 					throw err;
 				});
-				const text: TextEntity = await this.textModel.createByEntity(explorerDocument.paragraphs[from].text).catch(err => {
-					throw err;
-				});
-				let paragraph: ParagraphEntity = await this.paragraphModel.create(this.cs.getEditorDocument(client), text, to).catch(err => {
-					throw err;
-				});
-				paragraph.text = text;
 
 				this.cs.getEditorDocument(client).paragraphs.splice(to, 0, paragraph);
 
 				for (let i = to + 1; i < this.cs.getEditorDocument(client).paragraphs.length; i++) {
 					await this.paragraphModel.updateOrderByID(this.cs.getEditorDocument(client).paragraphs[i].id, i);
 				}
-
 				resolve();
 			} catch (err) {
-				console.log(err);
 				reject(err);
 			}
 		});

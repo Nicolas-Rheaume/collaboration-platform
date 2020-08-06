@@ -43,6 +43,23 @@ export class ExplorerGateway {
 		}
 	}
 
+	@SubscribeMessage('explorer/getDocumentDiff')
+	public async getDocumentDiff(client: Socket, [editorDocumentIndex, explorerCorpusIndex, explorerDocumentIndex] : [number, number, number]): Promise<WsResponse<any>> {
+		try {
+			console.log("");
+			console.log(editorDocumentIndex);
+			console.log(explorerCorpusIndex);
+			console.log(explorerDocumentIndex);
+
+			const explorerDocument: Document = await this.explorerController.getDocumentDiff(client, editorDocumentIndex, explorerCorpusIndex, explorerDocumentIndex).catch(err => {
+				throw err;
+			});
+			return { event: 'explorer/document', data: [explorerCorpusIndex, explorerDocumentIndex, explorerDocument] };
+		} catch (err) {
+			return { event: 'explorer/error', data: err };
+		}
+	}
+
 	@SubscribeMessage('explorer/moveTextAtIndex')
 	public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
 		try {
@@ -50,7 +67,7 @@ export class ExplorerGateway {
 				throw err;
 			});
 			return {
-				event: 'editor/error',
+				event: 'explorer/error',
 				data: {
 					success: true,
 					message: '',
@@ -58,7 +75,7 @@ export class ExplorerGateway {
 			};
 		} catch (err) {
 			return {
-				event: 'editor/error',
+				event: 'explorer/error',
 				data: {
 					success: false,
 					message: err,
@@ -66,4 +83,86 @@ export class ExplorerGateway {
 			};
 		}
 	}
+
+	@SubscribeMessage('explorer/addDiffText')
+	public async addDiffText(client: Socket, [from, to] : [number, number]): Promise<WsResponse<any>> {
+		try {
+			const [editorDocument, editorDocumentIndex, explorerDocument, explorerCorpusIndex, explorerDocumentIndex]: [Document, number, Document, number, number] = await this.explorerController.addDiffText(client, from, to).catch(err => {
+				throw err;
+			});
+
+			client.emit('editor/document', [editorDocumentIndex, editorDocument]);
+			client.emit('explorer/document', [explorerCorpusIndex, explorerDocumentIndex, explorerDocument]);
+			return {
+				event: 'explorer/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'explorer/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
+	@SubscribeMessage('explorer/removeDiffText')
+	public async removeDiffText(client: Socket, [from, to] : [number, number]): Promise<WsResponse<any>> {
+		try {
+			const [editorDocument, editorDocumentIndex, explorerDocument, explorerCorpusIndex, explorerDocumentIndex]: [Document, number, Document, number, number] = await this.explorerController.removeDiffText(client, from, to).catch(err => {
+				throw err;
+			});
+
+			client.emit('editor/document', [editorDocumentIndex, editorDocument]);
+			client.emit('explorer/document', [explorerCorpusIndex, explorerDocumentIndex, explorerDocument]);
+			return {
+				event: 'explorer/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'explorer/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
+	@SubscribeMessage('explorer/updateDiffText')
+	public async updateDiffText(client: Socket, [from, to] : [number, number]): Promise<WsResponse<any>> {
+		try {
+			const [editorDocument, editorDocumentIndex, explorerDocument, explorerCorpusIndex, explorerDocumentIndex]: [Document, number, Document, number, number] = await this.explorerController.updateDiffText(client, from, to).catch(err => {
+				throw err;
+			});
+			client.emit('editor/document', [editorDocumentIndex, editorDocument]);
+			client.emit('explorer/document', [explorerCorpusIndex, explorerDocumentIndex, explorerDocument]);
+			return {
+				event: 'explorer/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'explorer/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
+	
 }

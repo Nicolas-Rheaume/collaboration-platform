@@ -77,6 +77,7 @@ export class ContentService {
 			console.log(document);
 			this.editorCorpus.documents[index] = Document.map(document);
 			console.log(this.editorCorpus.documents[index]);
+			this.selectedEditorState.setValue(1);
 		});
 
 		// Explorer Concept
@@ -282,6 +283,7 @@ export class ContentService {
 		{ value: 0, name: 'Overview', icon: 'home' },
 		{ value: 1, name: 'Corpus', icon: 'home' },
 		{ value: 2, name: 'Edit', icon: 'edit' },
+		{ value: 3, name: 'Recommended', icon: 'home' },
 	];
 
 	public setExplorerState(state) {
@@ -318,7 +320,7 @@ export class ContentService {
 	public selectedExplorerMode: FormControl = new FormControl(0);
 	public explorerMode = [
 		{ value: 0, name: 'None', icon: 'home' },
-		{ value: 1, name: 'Compare User', icon: 'home' },
+		{ value: 1, name: 'Side by Side', icon: 'home' },
 		{ value: 2, name: 'Recommended', icon: 'edit' },
 	];
 
@@ -377,7 +379,7 @@ export class ContentService {
 			this.editorCorpus.documents[this.editingDocumentIndex].texts.splice(
 				event.currentIndex, 
 				0, 
-				this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[event.previousIndex]
+				this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[event.previousIndex].getCopy()
 			);
 			//transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
 			this.socket.request('editor/adoptTextAtIndex', [event.previousIndex, event.currentIndex]);
@@ -405,54 +407,59 @@ export class ContentService {
 	public showTextDiffLabel: string = 'Show Text Difference'
 
 	public clickTextDiff() {
-		if(this.showTextDiff) this.showTextDiffLabel = 'Show Text Difference'
-		else this.showTextDiffLabel = 'Hide Text Difference'
-
-		console.log(this.selectedEditorState.value);
-		console.log(this.selectedExplorerState.value);
-		console.log(this.showTextDiff);
-		if(this.selectedEditorState.value == 1 && this.selectedExplorerState.value == 2) {
-			this.calculateTextDiff();
+		if(!this.showTextDiff) {
+			this.socket.request('explorer/getDocumentDiff', [this.editingDocumentIndex, this.exploringCorpusIndex, this.exploringDocumentIndex]);
+		} else {
+			this.socket.request('explorer/getDocument', [this.exploringCorpusIndex, this.exploringDocumentIndex]);
 		}
 	}
 
+	public clickAddText(from: number) {
+		this.selectedEditorState.setValue(0);
+		const to = this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[from].refIndex;
+		this.socket.request('explorer/addDiffText', [from, to]);
+	}	
+
+	public clickRemoveText(from: number) {
+		this.selectedEditorState.setValue(0);
+		const to = this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[from].refIndex;
+		this.socket.request('explorer/removeDiffText', [from, to]);
+	}
+
+	public clickUpdateText(from: number) {
+		this.selectedEditorState.setValue(0);
+		const to = this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[from].refIndex;
+		this.socket.request('explorer/updateDiffText', [from, to]);
+	}
+
 	public calculateTextDiff() {
-
-		let editorTexts = this.editorCorpus.documents[this.editingDocumentIndex].texts.slice();
 		for(let i = 0; i < this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts.length; i++) {
-			let j = 0;
-			while(editorTexts.length <= j) {
-				if(editorTexts.length === 0 || editorTexts.length == j) {
-					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText = 
-					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text;
-					break;
-				} else if(editorTexts[j].family === this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].family) {
 
-					// Using the diff library to compare the two texts
-					let diff = jsdiff.diffWords(
-						editorTexts[j].text,
-						this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text
-					);
+			// Using the diff library to compare the two texts
+			let diff = jsdiff.diffWords(
+				this.editorCorpus.documents[this.editingDocumentIndex].texts[i].text,
+				this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text
+			);
 
-					// Color code the diff text
-					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText = '';
-					for(let k = 0; k < diff.length; k++) {
-						if (diff[k].added === true) 
-							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span class='text-success'>" + diff[k].value + "</span>";
-						else if (diff[k].removed === true) 
-							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span class='text-danger'>" + diff[k].value + "</span>";
-						else 
-							this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].diffText += "<span>" + diff[k].value + "</span>";
-					}
-					editorTexts.splice(j, 1);
-					break;
-				}
-				j++;
+			// Color code the diff text
+			this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text = '';
+			for(let k = 0; k < diff.length; k++) {
+				if (diff[k].added === true) 
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text += "<span class='text-success'>" + diff[k].value + "</span>";
+				else if (diff[k].removed === true) 
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text += "<span class='text-danger'>" + diff[k].value + "</span>";
+				else 
+					this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts[i].text += "<span>" + diff[k].value + "</span>";
 			}
+
+
 		}
-		console.log(this.editorCorpus.documents[this.editingDocumentIndex]);
-		console.log(this.explorerConcept.corpora[this.exploringCorpusIndex].documents[this.exploringDocumentIndex].texts);
 	 }
+
+	/*****************************************************************************
+	 *  RECOMMENDED
+	 ****************************************************************************/
+
 	
 
 	/*****************************************************************************

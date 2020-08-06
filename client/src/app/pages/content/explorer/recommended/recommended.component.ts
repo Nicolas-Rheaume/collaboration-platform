@@ -2,15 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { SocketService } from 'src/app/services/socket.service';
 import { ContentService } from 'src/app/services/content.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Text, TextType } from 'src/app/models/text.model'
 
 @Component({
-	selector: 'app-content-explorer-read',
-	templateUrl: './read.component.html',
-	styleUrls: ['./read.component.scss'],
+  selector: 'app-content-explorer-recommended',
+  templateUrl: './recommended.component.html',
+  styleUrls: ['./recommended.component.scss']
 })
-export class ContentExplorerReadComponent implements OnInit {
-	showHandles: boolean[] = [];
+export class ContentExplorerRecommendedComponent implements OnInit {
+
+  showHandles: boolean[] = [];
 
 	constructor(private socket: SocketService, private cs: ContentService) {
 		this.showHandles = new Array<boolean>(this.cs.explorerConcept.corpora[this.cs.exploringCorpusIndex].documents[this.cs.exploringDocumentIndex].texts.length);

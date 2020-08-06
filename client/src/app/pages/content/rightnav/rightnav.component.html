@@ -131,7 +131,7 @@
         </ng-template>
         <ng-template matTabContent>
             <mat-form-field  class="list-group-item list-group-item-action">
-                <mat-label>Compare User:</mat-label>
+                <mat-label>Side by Side:</mat-label>
                 <mat-select [(ngModel)]="cs.compareModeUserID" (ngModelChange)="cs.selectCompareUser()">
                     <mat-option *ngFor="let corpus of cs.explorerConcept.corpora; index as i;" [value]="i">
                         {{corpus.author.username}}

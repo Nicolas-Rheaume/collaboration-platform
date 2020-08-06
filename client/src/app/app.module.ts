@@ -88,6 +88,7 @@ import { EditorNavbarComponent } from './components/editor/editor-navbar/editor-
 import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/explorer-navbar.component';
 import { ContentExplorerCorpusComponent } from './pages/content/explorer/corpus/corpus.component';
 import { ContentCreateDocumentComponent } from './pages/content/leftnav/create-document/create-document.component';
+import { ContentExplorerRecommendedComponent } from './pages/content/explorer/recommended/recommended.component';
 
 @NgModule({
 	declarations: [
@@ -134,6 +135,7 @@ import { ContentCreateDocumentComponent } from './pages/content/leftnav/create-d
 		ContentExplorerOverviewComponent,
 		ContentExplorerCorpusComponent,
 		ContentCreateDocumentComponent,
+		ContentExplorerRecommendedComponent,
 	],
 	imports: [
 		BrowserModule,

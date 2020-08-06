@@ -158,6 +158,8 @@ export class DocumentEntity {
 	@UpdateDateColumn()
 	public updatedAt: Date;
 
+	public diffTexts: TextEntity[];
+
 	// Constructor
 	constructor(
 		id: number = 0,
@@ -166,6 +168,7 @@ export class DocumentEntity {
 		order: number = 0,
 		corpus: CorpusEntity = null,
 		paragraphs: ParagraphEntity[] = null,
+		diffTexts: TextEntity[] = [],
 		createdAt: Date = new Date(),
 		updatedAt: Date = new Date(),
 	) {
@@ -175,6 +178,7 @@ export class DocumentEntity {
 		this.order = order;
 		this.corpus = corpus;
 		this.paragraphs = paragraphs;
+		this.diffTexts = diffTexts;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -207,6 +211,40 @@ export class DocumentEntity {
 				Promise.all(documents).then(values => {
 					resolve(values);
 				});
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async getTextEntities(): Promise<TextEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				if (this.paragraphs == null || this.paragraphs == undefined) {
+					resolve([]);
+				} else {
+					let texts = new Array<TextEntity>(this.paragraphs.length);
+					for (let i = 0; i < texts.length; i++) {
+						texts[i] = new TextEntity(
+							this.paragraphs[i].text.id,
+							this.paragraphs[i].text.text,
+							this.paragraphs[i].text.newText,
+							this.paragraphs[i].text.type,
+							this.paragraphs[i].text.refIndex,
+							this.paragraphs[i].text.tag,
+							this.paragraphs[i].text.html,
+							this.paragraphs[i].text.author,
+							this.paragraphs[i].text.previousText,
+							this.paragraphs[i].text.family,
+							this.paragraphs[i].text.depth,
+							this.paragraphs[i].text.pointer,
+							this.paragraphs[i].text.branches,
+							this.paragraphs[i].text.createdAt,
+							this.paragraphs[i].text.updatedAt,
+						);
+					}
+					resolve(texts);
+				}
 			} catch (err) {
 				reject(err);
 			}

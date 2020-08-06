@@ -1,24 +1,38 @@
 /*****************************************************************************
+ *  TEXT Type
+ *****************************************************************************/
+export enum TextType {
+	DIFF = 'diff',
+	ADDED = 'Added',
+	REMOVED = 'Removed',
+	NONE = 'None',
+}
+
+
+/*****************************************************************************
  *  TEXT TYPE FOR THE CLIENT SIDE
  *****************************************************************************/
-
 export class Text {
 	// Variables
 	public text?: string;
 	public family?: number;
 	public tag?: string;
 	public html?: string;
+	public type?: TextType;
+	public refIndex?: number;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
 	// constructor
 
-	constructor(text: string = '', family: number = 0, tag: string = '', html: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(text: string = '', family: number = 0, tag: string = '', html: string = '', type: TextType = TextType.NONE, refIndex:number = 0, createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.text = text;
 		this.family = family;
 		this.tag = tag;
 		this.html = html;
+		this.type = type;
+		this.refIndex = refIndex;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -26,7 +40,7 @@ export class Text {
 	public async getEntity(): Promise<TextEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new TextEntity(0, this.text, this.text, this.tag, this.html, null, null, 0, 0, 0, this.family, this.createdAt, this.updatedAt));
+				resolve(new TextEntity(0, this.text, this.text, this.type, this.refIndex, this.tag, this.html, null, null, 0, 0, 0, this.family, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -160,12 +174,16 @@ export class TextEntity {
 	public updatedAt: Date;
 
 	public newText: string;
+	public type: TextType;
+	public refIndex: number;
 
 	// Constructor
 	constructor(
 		id: number = -1,
 		text: string = '',
 		newText: string = '',
+		type: TextType = TextType.NONE,
+		refIndex: number = -1,
 		tag: string = '',
 		html: string = '',
 		author: UserEntity = null,
@@ -180,6 +198,8 @@ export class TextEntity {
 		this.id = id;
 		this.text = text;
 		this.newText = newText;
+		this.type = type;
+		this.refIndex = refIndex;
 		this.tag = tag;
 		this.html = html;
 		this.author = author;
@@ -195,7 +215,7 @@ export class TextEntity {
 	public async getText(): Promise<Text> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				resolve(new Text(this.text, this.family, this.tag, this.html, this.createdAt, this.updatedAt));
+				resolve(new Text(this.text, this.family, this.tag, this.html, this.type, this.refIndex, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}

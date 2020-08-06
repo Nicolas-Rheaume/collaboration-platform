@@ -155,6 +155,42 @@ export class TextModel {
 	/*****************************************************************************
 	 *  FIND
 	 *****************************************************************************/
+
+	public async findOneByID(id: number): Promise<TextEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const textEntity = await this.textRepository.findOne({ id: id }).catch(err => {
+					throw 'Error finding the text';
+				});
+				resolve(textEntity);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async findOneByIDWithPrevious(id: number): Promise<TextEntity> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				if(id === null || id === undefined) { resolve(null)}
+				else {
+					let textEntity = await this.textRepository
+						.createQueryBuilder('text')
+						.leftJoinAndSelect('text.previousText', 'previousText')
+						.where('text.id = ' + id)
+						.getOne()
+						.catch(err => {
+							throw 'Error finding the text';
+						});
+					resolve(textEntity);
+				}
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+
 	// public async findByDocumentWithoutIDs(document: DocumentEntity, ids: number[]): Promise<TextEntity[]> {
 	// 	return new Promise(async (resolve, reject) => {
 	// 		try {
