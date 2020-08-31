@@ -6,7 +6,6 @@ import { Concept } from 'app/models/concept/concept.entity';
 
 @WebSocketGateway()
 export class DashboardGateway implements OnGatewayInit {
-
 	/*****************************************************************************
 	 *  VARIABLES
 	 *****************************************************************************/
@@ -33,10 +32,10 @@ export class DashboardGateway implements OnGatewayInit {
 				throw err;
 			});
 			client.emit('dashboard/concepts', concepts);
-			return { event: 'dashboard/create-response', data: { success: true, message: '', } };
+			return { event: 'dashboard/create-response', data: { success: true, message: '' } };
 		} catch (err) {
 			console.log(err);
-			return { event: 'dashboard/create-response', data: { success: false, message: err, } };
+			return { event: 'dashboard/create-response', data: { success: false, message: err } };
 		}
 	}
 

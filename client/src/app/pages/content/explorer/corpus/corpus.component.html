@@ -1,0 +1,129 @@
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-top">
+    <div class="navbar-brand">
+        <span class="breadcrumb-item breadcrumb-link" (click)="cs.changeExplorer(0, 0)">Concept</span>
+        <span class="breadcrumb-item active">{{cs.explorerConcept.corpora[cs.exploringCorpusIndex].author.username}}</span>
+    </div>
+    <!-- <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarColor02">
+         <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Library</a></li>
+            <li class="breadcrumb-item active">Data</li>
+        </ol>
+         <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#">About</a>
+            </li>
+        </ul> 
+    </div>
+    <div class="navbar-nav mr-auto">
+    </div>
+    <div class="navbar-nav">
+        <button type="button" class="btn btn-outline-primary"><mat-icon>arrow_back_ios</mat-icon></button>
+    </div> -->
+</nav>
+
+
+<!-- Content -->
+<div class="container-fluid content-window">
+    <div class="mb-3"></div>
+    <div class="row ">
+        <div class="col-sm-12" *ngIf="cs.explorerConcept == null">
+            
+        </div>
+
+        <div class="col-sm-12" *ngIf="cs.explorerConcept != null">
+            <label for="descriptionTextarea"><h4>Description:</h4></label>
+            <p [innerHTML]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].description"></p>
+        </div>
+        <!-- <div class="col-sm-12" *ngIf="cs.editorCorpus != null">
+            <button 
+                type="button" 
+                class="btn btn-primary"
+                (click)="createDocument()"
+                >Create a New Document</button>
+        </div> -->
+
+        <div class="col-sm-12" *ngIf="cs.explorerConcept != null"><h4>Documents:</h4></div>
+
+        <div class="col-sm-12" *ngIf="cs.explorerConcept != null">
+            <mat-accordion 
+                class="col-sm-12 prevent-click" 
+                cdkDropList 
+                #explorerDocument="cdkDropList"
+                [cdkDropListConnectedTo]="[editorDocument]"
+                [cdkDropListData]="cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents"
+                (cdkDropListDropped)="cs.explorerDocumentDrop($event)"
+            >
+                <mat-expansion-panel
+                    class="card bg-primary"
+                    cdkDrag
+                    hideToggle
+    
+                    *ngFor="let document of cs.explorerConcept.corpora[cs.exploringCorpusIndex].documents; index as i; trackBy: trackByFn"
+                    (opened)="cs.editorPanelOpenStates[i] = true"
+                    (closed)="cs.editorPanelOpenStates[i] = false"
+                >
+                <mat-expansion-panel-header>
+                    <mat-panel-title class="panel-title" (click)="cs.changeExplorer(2, i)">
+                        <div class="document-title">{{i + 1}}: {{document.title}}</div>
+                        <!-- <input type="text" class="form-control-plaintext" 
+                        [(ngModel)]="document.title"
+                        (input)="documentTitleChange(i)"
+                    > -->
+                    </mat-panel-title>
+                    <mat-panel-description class="d-flex justify-content-end">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-info btn-sm" cdkDragHandle><mat-icon>control_camera</mat-icon></button>
+                        </div>
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+                <textarea 
+                    class="form-control description" 
+                    rows="3"
+                    [(ngModel)]="document.description"
+                    (input)="documentDescriptionChange(i)"
+                    ></textarea>
+                </mat-expansion-panel>
+            </mat-accordion>
+        </div>
+
+
+
+        <!-- <div cdkDropList class="col-sm-12" (cdkDropListDropped)="drop($event)">
+            <div 
+            class="card bg-primary card-spacer"
+            *ngFor="let document of cs.editorCorpus.documents; index as i; trackBy: trackByFn" cdkDrag
+        >
+                <div class="card-body">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h4 class="card-title">{{document.title}}</h4>
+                    <small>Updated: {{document.updatedAt | timeAgo}}</small>
+                    </div>
+                    <p class="card-text">{{document.description.slice(0,20)}}</p>
+                    <div class="d-flex w-100 justify-content-end">
+                        <button type="button" class="btn btn-outline-success btn-sm"><mat-icon>edit</mat-icon></button>
+                        <button type="button" class="btn btn-outline-info btn-sm"><mat-icon>control_camera</mat-icon></button>
+                        <button type="button" class="btn btn-outline-warning btn-sm"><mat-icon>insert_drive_file</mat-icon></button>
+                        <button type="button" class="btn btn-outline-danger btn-sm"><mat-icon>delete</mat-icon></button>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+    </div>
+</div>

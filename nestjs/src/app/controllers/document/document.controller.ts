@@ -24,12 +24,7 @@ export class DocumentController {
 	private logger: Logger = new Logger('Document Controller');
 
 	// Contructor
-	constructor(
-		private readonly cs: ConnectionService, 
-		private readonly corpusModel: CorpusModel, 
-		private readonly documentModel: DocumentModel,
-		private readonly userModel: UserModel
-	) {
+	constructor(private readonly cs: ConnectionService, private readonly corpusModel: CorpusModel, private readonly documentModel: DocumentModel, private readonly userModel: UserModel) {
 		this.logger.log('Initialized!');
 	}
 

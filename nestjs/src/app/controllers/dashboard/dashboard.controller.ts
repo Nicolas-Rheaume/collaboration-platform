@@ -12,12 +12,7 @@ import { Concept, ConceptSort, ConceptEntity } from 'app/models/concept/concept.
 
 @Controller('dashboard')
 export class DashboardController {
-	
-	constructor(
-		private readonly cs: ConnectionService, 
-		private readonly corpusModel: CorpusModel,
-		private readonly conceptModel: ConceptModel 
-	) {}
+	constructor(private readonly cs: ConnectionService, private readonly corpusModel: CorpusModel, private readonly conceptModel: ConceptModel) {}
 
 	// Create a new Concept
 	public async createConcept(client: Socket, title: string): Promise<Concept[]> {

@@ -47,12 +47,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(
-		private router: Router, 
-		private us: UserService, 
-		private socket: SocketService,
-		private dialog: MatDialog
-	) {
+	constructor(private router: Router, private us: UserService, private socket: SocketService, private dialog: MatDialog) {
 		// Get Pages
 
 		// Get the Concepts
@@ -77,7 +72,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
 		// Concept Error Message
 		this.sub = this.socket.response('dashboard/error').subscribe(error => {
-			console.log(error)
+			console.log(error);
 		});
 
 		// Send Search Options
@@ -99,10 +94,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
 	 *  CREATE DIALOG
 	 ****************************************************************************/
 
-	 openDialog() {
-		 this.dialog.open(CreateConceptComponent);
-	 }
-
+	openDialog() {
+		this.dialog.open(CreateConceptComponent);
+	}
 
 	// openModal() {
 	// 	$('#createConcept').modal('show');

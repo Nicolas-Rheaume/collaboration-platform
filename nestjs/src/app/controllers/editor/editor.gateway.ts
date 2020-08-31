@@ -45,11 +45,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateCorpusDescription')
 	public async updateCorpusDescription(client: Socket, description: string): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateCorpusDescription(client, description)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateCorpusDescription(client, description).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -59,11 +57,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateDocumentTitle')
 	public async updateDocumentTitle(client: Socket, [index, title]: [number, string]): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateDocumentTitle(client, index, title)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateDocumentTitle(client, index, title).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -73,25 +69,71 @@ export class EditorGateway {
 	@SubscribeMessage('editor/updateDocumentDescription')
 	public async updateDocumentDescription(client: Socket, [index, description]: [number, string]): Promise<WsResponse<Corpus>> {
 		try {
-			await this.editorController
-				.updateDocumentDescription(client, index, description)
-				.catch(err => {
-					throw err;
-				});
+			await this.editorController.updateDocumentDescription(client, index, description).catch(err => {
+				throw err;
+			});
 			return null;
 		} catch (err) {
 			return { event: 'editor/error', data: err };
 		}
 	}
 
-	@SubscribeMessage('editor/createDocument')
-	public async createDocument(client: Socket): Promise<WsResponse<Corpus>> {
+	@SubscribeMessage('editor/createEmptyDocument')
+	public async createEmptyDocument(client: Socket): Promise<WsResponse<Corpus>> {
 		try {
-			const editorCorpus: Corpus = await this.editorController
-				.createDocument(client)
-				.catch(err => {
-					throw err;
-				});
+			const editorCorpus: Corpus = await this.editorController.createEmptyDocument(client).catch(err => {
+				throw err;
+			});
+			return { event: 'editor/corpus', data: editorCorpus };
+		} catch (err) {
+			return { event: 'editor/error', data: err };
+		}
+	}
+
+	@SubscribeMessage('editor/createDocument')
+	public async createDocument(client: Socket, [title, description]: [string, string]): Promise<WsResponse<any>> {
+		try {
+			const editorCorpus: Corpus = await this.editorController.createDocument(client, title, description).catch(err => {
+				throw err;
+			});
+			client.emit('editor/createDocumentError', {
+				success: true,
+				message: ''
+			});
+			return { event: 'editor/corpus', data: editorCorpus };
+		} catch (err) {
+			return { event: 'editor/createDocumentError', data: {
+				success: false,
+				message: err
+			} };
+		}
+	}
+
+	@SubscribeMessage('editor/editDocumentAtIndex')
+	public async editDocumentAtIndex(client: Socket, [index, title, description]: [number, string, string]): Promise<WsResponse<any>> {
+		try {
+			const editorCorpus: Corpus = await this.editorController.editDocumentAtIndex(client, index, title, description).catch(err => {
+				throw err;
+			});
+			client.emit('editor/createDocumentError', {
+				success: true,
+				message: ''
+			});
+			return { event: 'editor/corpus', data: editorCorpus };
+		} catch (err) {
+			return { event: 'editor/createDocumentError', data: {
+				success: false,
+				message: err
+			} };
+		}
+	}
+
+	@SubscribeMessage('editor/deleteDocumentAtIndex')
+	public async deleteDocumentAtIndex(client: Socket, index: number): Promise<WsResponse<any>> {
+		try {
+			const editorCorpus: Corpus = await this.editorController.deleteDocumentAtIndex(client, index).catch(err => {
+				throw err;
+			});
 			return { event: 'editor/corpus', data: editorCorpus };
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -101,11 +143,9 @@ export class EditorGateway {
 	@SubscribeMessage('editor/getDocument')
 	public async getDocument(client: Socket, index: number): Promise<WsResponse<[number, Document]>> {
 		try {
-			const editorDocument: Document = await this.editorController
-				.getDocument(client, index)
-				.catch(err => {
-					throw err;
-				});
+			const editorDocument: Document = await this.editorController.getDocument(client, index).catch(err => {
+				throw err;
+			});
 			return { event: 'editor/document', data: [index, editorDocument] };
 		} catch (err) {
 			return { event: 'editor/error', data: err };
@@ -116,6 +156,30 @@ export class EditorGateway {
 	public async updateTextAtIndex(client: Socket, [documentIndex, textIndex, text]: [number, number, string]): Promise<WsResponse<{ success: boolean; message: string }>> {
 		try {
 			await this.editorController.updateTextAtIndex(client, documentIndex, textIndex, text).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
+	@SubscribeMessage('editor/saveDocumentAtIndex')
+	public async saveDocumentAtIndex(client: Socket, [index]: [number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			await this.editorController.saveDocumentAtIndex(client, index).catch(err => {
 				throw err;
 			});
 			return {
@@ -184,10 +248,58 @@ export class EditorGateway {
 		}
 	}
 
+	@SubscribeMessage('editor/moveDocumentAtIndex')
+	public async moveDocumentAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			const document: Document = await this.editorController.moveDocumentAtIndex(client, from, to).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
 	@SubscribeMessage('editor/moveTextAtIndex')
 	public async moveTextAtIndex(client: Socket, [from, to]: [number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
 		try {
 			const document: Document = await this.editorController.moveTextAtIndex(client, from, to).catch(err => {
+				throw err;
+			});
+			return {
+				event: 'editor/error',
+				data: {
+					success: true,
+					message: '',
+				},
+			};
+		} catch (err) {
+			return {
+				event: 'editor/error',
+				data: {
+					success: false,
+					message: err,
+				},
+			};
+		}
+	}
+
+	@SubscribeMessage('editor/adoptDocumentAtIndex')
+	public async adoptDocumentAtIndex(client: Socket, [from, to, corpusID]: [number, number, number]): Promise<WsResponse<{ success: boolean; message: string }>> {
+		try {
+			await this.editorController.adoptDocumentAtIndex(client, from, to, corpusID).catch(err => {
 				throw err;
 			});
 			return {

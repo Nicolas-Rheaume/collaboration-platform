@@ -14,7 +14,7 @@ export class ParagraphModel {
 	constructor(
 		@InjectRepository(ParagraphEntity)
 		private paragraphRepository: Repository<ParagraphEntity>,
-		private textModel: TextModel
+		private textModel: TextModel,
 	) {}
 
 	/*****************************************************************************
@@ -50,13 +50,15 @@ export class ParagraphModel {
 	public async copyOneToDocument(paragraph: ParagraphEntity, document: DocumentEntity): Promise<ParagraphEntity> {
 		return new Promise(async (resolve, reject) => {
 			try {
-				const data = await this.paragraphRepository.insert({
-					document: document,
-					text: paragraph.text,
-					order: paragraph.order
-				}).catch(err => {
+				const data = await this.paragraphRepository
+					.insert({
+						document: document,
+						text: paragraph.text,
+						order: paragraph.order,
+					})
+					.catch(err => {
 						throw 'error creating the document';
-				});
+					});
 				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -80,13 +82,15 @@ export class ParagraphModel {
 						throw 'Error finding the paragraph';
 					});
 
-				const data = await this.paragraphRepository.insert({
-					document: document,
-					text: paragraph.text,
-					order: paragraph.order
-				}).catch(err => {
+				const data = await this.paragraphRepository
+					.insert({
+						document: document,
+						text: paragraph.text,
+						order: paragraph.order,
+					})
+					.catch(err => {
 						throw 'error creating the paragraph';
-				});
+					});
 				const paragraphEntity = await this.paragraphRepository.findOne(data.raw.insertId).catch(err => {
 					throw err;
 				});
@@ -97,7 +101,6 @@ export class ParagraphModel {
 		});
 	}
 
-
 	public async copyManyToDocument(paragraphs: ParagraphEntity[], document: DocumentEntity): Promise<ParagraphEntity[]> {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -107,11 +110,49 @@ export class ParagraphModel {
 						throw err;
 					});
 				});
-				Promise.all(promises).then((paragraphEntities: ParagraphEntity[]) => {
-					resolve(paragraphEntities);
-				}).catch(err => {
-					throw err;
-				}); 
+				Promise.all(promises)
+					.then((paragraphEntities: ParagraphEntity[]) => {
+						resolve(paragraphEntities);
+					})
+					.catch(err => {
+						throw err;
+					});
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async copyManyFromDocumentToDocument(fromDocument: DocumentEntity, toDocument: DocumentEntity): Promise<ParagraphEntity[]> {
+		return new Promise(async (resolve, reject) => {
+			try {
+
+				// Get all paragraphs
+				const paragraphs = await this.paragraphRepository
+					.createQueryBuilder('paragraph')
+					.innerJoinAndSelect('paragraph.document', 'document')
+					.innerJoinAndSelect('paragraph.text', 'text')
+					.where('document = ' + fromDocument.id)
+					.getMany()
+					.catch(err => {
+						throw 'Error finding the paragraph';
+					});
+
+				// Create the paragraphs
+				let promises = new Array(paragraphs.length);
+				paragraphs.forEach(async (paragraph, i) => {
+					promises[i] = this.create(toDocument, paragraph.text, paragraph.order).catch(err => {
+						throw err;
+					});
+				});
+				Promise.all(promises)
+					.then((paragraphEntities: ParagraphEntity[]) => {
+						console.log(paragraphEntities);
+						resolve(paragraphEntities);
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}
@@ -190,9 +231,44 @@ export class ParagraphModel {
 		return new Promise(async (resolve, reject) => {
 			try {
 				await this.paragraphRepository.update({ id: id }, { order: order }).catch(err => {
-					throw 'Error updating the user';
+					throw 'Error updating the paragraph';
 				});
 				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async updateText(id: number, text: TextEntity): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.paragraphRepository.update({ id: id }, { text: text }).catch(err => {
+					throw 'Error updating the paragraph';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async updateOrdersAtIndex(paragraphs: ParagraphEntity[], index: number): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				let promises = new Array(paragraphs.length);
+				paragraphs.forEach(async (paragraph, i) => {
+					promises[i] = await this.paragraphRepository.update({ id: paragraph.id }, { order: index + i }).catch(err => {
+						throw 'Error updating the order of the paragraph';
+					});
+				});
+				Promise.all(promises)
+					.then(() => {
+						resolve();
+					})
+					.catch(err => {
+						throw err;
+					});
 			} catch (err) {
 				reject(err);
 			}
@@ -207,7 +283,20 @@ export class ParagraphModel {
 		return new Promise(async (resolve, reject) => {
 			try {
 				await this.paragraphRepository.delete({ id: id }).catch(err => {
-					throw 'Error deleting the user';
+					throw 'Error deleting the paragraph';
+				});
+				resolve();
+			} catch (err) {
+				reject(err);
+			}
+		});
+	}
+
+	public async deleteAllByDocument(documentEntity: DocumentEntity): Promise<void> {
+		return new Promise(async (resolve, reject) => {
+			try {
+				await this.paragraphRepository.delete({ document: documentEntity }).catch(err => {
+					throw 'Error deleting the paragraphs';
 				});
 				resolve();
 			} catch (err) {

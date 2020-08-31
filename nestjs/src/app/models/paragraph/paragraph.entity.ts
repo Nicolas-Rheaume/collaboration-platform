@@ -37,14 +37,7 @@ export class ParagraphEntity {
 	public updatedAt: Date;
 
 	// Constructor
-	constructor(
-		id: number = 0, 
-		document: DocumentEntity = null, 
-		text: TextEntity = null, 
-		order: number = 0, 
-		createdAt: Date = new Date(), 
-		updatedAt: Date = new Date()
-	) {
+	constructor(id: number = 0, document: DocumentEntity = null, text: TextEntity = null, order: number = 0, createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.id = id;
 		this.document = document;
 		this.text = text;
@@ -113,5 +106,5 @@ export class ParagraphEntity {
 	// 			reject(err);
 	// 		}
 	// 	});
-    // }
+	// }
 }

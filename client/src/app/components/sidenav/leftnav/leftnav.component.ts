@@ -9,7 +9,6 @@ import { SideNavService, SideNavComponent } from 'src/app/services/sidenav.servi
 	styleUrls: ['./leftnav.component.scss'],
 })
 export class LeftnavComponent implements OnInit {
-
 	/*****************************************************************************
 	 *  VARIABLES
 	 ****************************************************************************/
@@ -17,11 +16,7 @@ export class LeftnavComponent implements OnInit {
 	/*****************************************************************************
 	 *  MAIN
 	 ****************************************************************************/
-	constructor(
-		public router: Router, 
-		public sidenav: SideNavService
-	) {
-	}
+	constructor(public router: Router, public sidenav: SideNavService) {}
 
 	ngOnInit() {}
 

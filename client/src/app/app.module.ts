@@ -37,8 +37,21 @@ import { CorpusComponent } from './pages/corpus/corpus.component';
 import { OverviewComponent } from './pages/corpus/overview/overview.component';
 import { CorpusDocumentsComponent } from './pages/corpus/documents/documents.component';
 import { SearchComponent } from './pages/search/search.component';
-import { ContentEditor } from './pages/content/editor/editor.component';
-import { ContentExplorer } from './pages/content/explorer/explorer.component';
+
+import { ContentEditorComponent } from './pages/content/editor/editor.component';
+import { ContentEditorOverviewComponent } from './pages/content/editor/overview/overview.component';
+import { ContentEditorEditComponent } from './pages/content/editor/edit/edit.component';
+import { EditableComponent } from './pages/content/editor/edit/editable/editable.component';
+import { ContenteditableDirective } from './pages/content/editor/edit/editable/editable.directive';
+
+import { ContentExplorerComponent } from './pages/content/explorer/explorer.component';
+import { ContentExplorerOverviewComponent } from './pages/content/explorer/overview/overview.component';
+import { ContentExplorerReadComponent } from './pages/content/explorer/read/read.component';
+
+import { ContentLeftnavComponent } from './pages/content/leftnav/leftnav.component';
+import { ContentLeftnavTableofcontentComponent } from './pages/content/leftnav/tableofcontent/tableofcontent.component';
+
+import { ContentRightnavComponent } from './pages/content/rightnav/rightnav.component';
 
 // GUARDS
 import { AuthGuard } from './guards/auth.guard';
@@ -61,19 +74,21 @@ import { ContentSideNav } from './components/sidenav/content/content.component';
 import { NotfoundSideNav } from './sidenavs/notfound/notfound.component';
 import { FriendlistComponent } from './sidenavs/friendlist/friendlist.component';
 
-
-
-
 import { ContributorsComponent } from './components/contributors/contributors.component';
-import { EditComponent } from './components/editor/edit/edit.component';
+// import { EditComponent } from './components/editor/edit/edit.component';
 import { ExplorerComponent } from './components/explorer/explorer.component';
 
-import { EditableComponent } from './components/editor/edit/editable/editable.component';
-import { ContenteditableDirective } from './components/editor/edit/editable/editable.directive';
+// import { EditableComponent } from './components/editor/edit/editable/editable.component';
+// import { ContenteditableDirective } from './components/editor/edit/editable/editable.directive';
 import { CreateConceptComponent } from './pages/dashboard/create-concept/create-concept.component';
 import { EditorOverviewComponent } from './components/editor/editor-overview/editor-overview.component';
-import { ReadComponent } from './components/explorer/read/read.component';
+// import { ReadComponent } from './components/explorer/read/read.component';
 import { ExplorerOverviewComponent } from './components/explorer/explorer-overview/explorer-overview.component';
+import { EditorNavbarComponent } from './components/editor/editor-navbar/editor-navbar.component';
+import { ExplorerNavbarComponent } from './components/explorer/explorer-navbar/explorer-navbar.component';
+import { ContentExplorerCorpusComponent } from './pages/content/explorer/corpus/corpus.component';
+import { ContentCreateDocumentComponent } from './pages/content/leftnav/create-document/create-document.component';
+import { ContentExplorerRecommendedComponent } from './pages/content/explorer/recommended/recommended.component';
 
 @NgModule({
 	declarations: [
@@ -85,7 +100,7 @@ import { ExplorerOverviewComponent } from './components/explorer/explorer-overvi
 		HomeComponent,
 		ContentComponent,
 		ContributorsComponent,
-		EditComponent,
+		ContentEditorEditComponent,
 		ExplorerComponent,
 		TimeAgoPipe,
 		AdministrationComponent,
@@ -104,13 +119,23 @@ import { ExplorerOverviewComponent } from './components/explorer/explorer-overvi
 		TableofcontentComponent,
 		FriendlistComponent,
 		SearchComponent,
-		ContentEditor,
-		ContentExplorer,
 		ContentSideNav,
 		CreateConceptComponent,
 		EditorOverviewComponent,
-		ReadComponent,
-		ExplorerOverviewComponent
+		ContentExplorerReadComponent,
+		ExplorerOverviewComponent,
+		EditorNavbarComponent,
+		ExplorerNavbarComponent,
+		ContentEditorComponent,
+		ContentExplorerComponent,
+		ContentLeftnavComponent,
+		ContentRightnavComponent,
+		ContentEditorOverviewComponent,
+		ContentLeftnavTableofcontentComponent,
+		ContentExplorerOverviewComponent,
+		ContentExplorerCorpusComponent,
+		ContentCreateDocumentComponent,
+		ContentExplorerRecommendedComponent,
 	],
 	imports: [
 		BrowserModule,
@@ -130,9 +155,7 @@ import { ExplorerOverviewComponent } from './components/explorer/explorer-overvi
 		InViewportModule,
 		ScrollSpyModule.forRoot(),
 	],
-	entryComponents: [
-		CreateConceptComponent
-	],
+	entryComponents: [CreateConceptComponent, ContentCreateDocumentComponent],
 	providers: [SocketService, UserService, ContentService, AuthGuard, AdminGuard],
 	bootstrap: [AppComponent],
 })

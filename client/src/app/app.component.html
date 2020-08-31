@@ -1,8 +1,14 @@
 <app-header class="navbar"></app-header>
 
-<mat-sidenav-container class="header-spacer" data-spy="scroll" data-target=".leftnav">
+<div class="header-spacer" >
+    <router-outlet></router-outlet>
+</div>
 
-    <!--Left side Navbar-->
+
+
+<!-- <mat-sidenav-container class="header-spacer" data-spy="scroll" data-target=".leftnav">
+
+
     <mat-sidenav 
         class="collab-navbar leftnav" 
         [(opened)]="sidenav.leftOpened" 
@@ -13,7 +19,7 @@
         <leftnav-router></leftnav-router>
     </mat-sidenav>
 
-    <!--Right side Navbar-->
+
     <mat-sidenav 
         class="collab-navbar" 
         [(opened)]="sidenav.rightOpened" 
@@ -24,14 +30,14 @@
     ><app-rightnav></app-rightnav>
     </mat-sidenav>
     
-    <!--Main Content-->
+
     <mat-sidenav-content
         class="main-content"
         [@onMainContentOpen]="sidenav.getSideNavState()"
     >
         <router-outlet></router-outlet>
     </mat-sidenav-content>
-</mat-sidenav-container>
+</mat-sidenav-container> -->
 
 
 <!-- <mat-sidenav #appDrawer mode="rail" opened="true">

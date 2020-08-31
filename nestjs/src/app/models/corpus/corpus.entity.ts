@@ -12,10 +12,7 @@ export enum CorpusSort {
 	LEAST_TEXTS = 'Least Texts',
 }
 
-export const CorpusSortMap = new Map()
-	.set(CorpusSort.OLDEST, 			{ createdAt: "ASC"})
-	.set(CorpusSort.NEWEST, 			{ createdAt: "DESC"})
-
+export const CorpusSortMap = new Map().set(CorpusSort.OLDEST, { createdAt: 'ASC' }).set(CorpusSort.NEWEST, { createdAt: 'DESC' });
 
 // export const SORTMAP = new Map([
 // 	[
@@ -88,13 +85,7 @@ export class Corpus {
 	public updatedAt?: Date;
 
 	// constructor
-	constructor(
-		author: User = null,
-		description: string = '',
-		documents: Document[] = [],
-		createdAt: Date = null, 
-		updatedAt: Date = null
-	) {
+	constructor(author: User = null, description: string = '', documents: Document[] = [], createdAt: Date = null, updatedAt: Date = null) {
 		this.author = author;
 		this.description = description;
 		this.documents = documents;
@@ -131,7 +122,7 @@ export class CorpusEntity {
 	@JoinColumn({ name: 'concept' })
 	public concept: ConceptEntity;
 
-	@Column({ type: 'text', default: null})
+	@Column({ type: 'text', default: null })
 	public description: string;
 
 	@OneToMany(
@@ -170,21 +161,13 @@ export class CorpusEntity {
 			try {
 				let documents = [];
 
-				if(this.documents != undefined && this.documents != null) {
+				if (this.documents != undefined && this.documents != null) {
 					documents = await DocumentEntity.getDocuments(this.documents).catch(err => {
 						throw err;
 					});
 				}
-				
-				resolve(
-					new Corpus(
-						await this.author.getUser(), 
-						this.description,
-						documents, 
-						this.createdAt, 
-						this.updatedAt
-					)
-				);
+
+				resolve(new Corpus(await this.author.getUser(), this.description, documents, this.createdAt, this.updatedAt));
 			} catch (err) {
 				reject(err);
 			}
@@ -195,12 +178,12 @@ export class CorpusEntity {
 		return new Promise(async (resolve, reject) => {
 			try {
 				let corpora = new Array(entities.length);
-				for(let i = 0; i < entities.length; i++) {
+				for (let i = 0; i < entities.length; i++) {
 					corpora[i] = entities[i].getCorpus();
 				}
 				Promise.all(corpora).then(values => {
 					resolve(values);
-				})
+				});
 			} catch (err) {
 				reject(err);
 			}

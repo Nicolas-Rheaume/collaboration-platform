@@ -90,14 +90,7 @@ if (process.env.NODE_ENV == 'development') {
 			username: username,
 			password: password,
 			database: name,
-			entities: [
-				UserEntity, 
-				CorpusEntity, 
-				DocumentEntity, 
-				ParagraphEntity, 
-				TextEntity,
-				ConceptEntity
-			],
+			entities: [UserEntity, CorpusEntity, DocumentEntity, ParagraphEntity, TextEntity, ConceptEntity],
 			synchronize: true,
 			logging: false,
 		}),

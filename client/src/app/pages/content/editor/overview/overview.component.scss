@@ -1,0 +1,67 @@
+.navbar-dark {
+    background-color: rgb(50, 56, 62);
+}
+
+.navbar-top {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+    
+}
+
+.dark-color {
+    background-color: #1C1E22;
+}
+
+.description {
+    color: #fff;
+	border-collapse: collapse;
+	background-color: #3A3F44;
+    border-color: rgba(0, 0, 0, 0.6);
+    box-shadow: none;
+}
+
+.description:focus {
+    color: #fff;
+	border-collapse: collapse;
+	background-color: #3A3F44;
+    border-color: rgba(0, 0, 0, 0.6);
+    box-shadow: none;
+}
+
+.content-window{
+    height: calc(100% - 75px);
+}
+
+.col-sm-12 {
+    margin-top: 5px;
+}
+
+.card-spacer {
+    margin-top: 5px;
+}
+
+.document-title {
+    color: rgb(170, 170, 170);
+    font-weight: 500;
+    text-shadow:rgba(0, 0, 0, 0.3) -1px -1px 0px;
+    pointer-events: auto;
+}
+
+.panel-title:hover>.document-title {
+    color: white;
+}
+
+.panel-title:hover {
+    cursor: pointer;
+}
+
+.prevent-click {
+    pointer-events: none;
+}
+
+.btn {
+    pointer-events: auto;
+}

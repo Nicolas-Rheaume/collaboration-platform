@@ -1,14 +1,67 @@
+export enum TextType {
+	DIFF = 'diff',
+	ADDED = 'Added',
+	REMOVED = 'Removed',
+	NONE = 'None',
+}
+
 export class Text {
 	// Variables
+	public family?: number;
 	public text?: string;
+	public diffText?: string;
+	public type?: TextType;
+	public refIndex?: number;
 
 	public createdAt?: Date;
 	public updatedAt?: Date;
 
-	constructor(text: string = '', createdAt: Date = new Date(), updatedAt: Date = new Date()) {
+	constructor(text: string = '', family: number = 0, diffText: string = '', type: TextType = TextType.NONE, refIndex: number = -1, createdAt: Date = new Date(), updatedAt: Date = new Date()) {
 		this.text = text;
+		this.family = family;
+		this.diffText = diffText;
+		this.type = type;
+		this.refIndex = refIndex;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
+	}
+
+	public static map(data): Text {
+		let text: Text = new Text();
+		if (data.hasOwnProperty('text')) text.text = data.text;
+		if (data.hasOwnProperty('family')) text.family = data.family;
+		if (data.hasOwnProperty('diffText')) text.diffText = data.diffText;
+		if (data.hasOwnProperty('type')) text.type = data.type;
+		if (data.hasOwnProperty('type')) {
+			if(data.type == 'diff') text.type = TextType.DIFF;
+			else if(data.type == 'Added') text.type = TextType.ADDED;
+			else if(data.type == 'Removed') text.type = TextType.REMOVED;
+			else if(data.type == 'None') text.type = TextType.NONE;
+		}
+		if (data.hasOwnProperty('refIndex')) text.refIndex = data.refIndex;
+		if (data.hasOwnProperty('createdAt')) text.createdAt = data.createdAt;
+		if (data.hasOwnProperty('updatedAt')) text.updatedAt = data.updatedAt;
+		return text;
+	}
+
+	public static maps(data): Text[] {
+		let texts: Text[] = new Array<Text>(data.length);
+		for(let i = 0; i < data.length; i++) {
+			texts[i] = this.map(data[i]);
+		}
+		return texts;
+	}
+
+	public getCopy(): Text {
+		return new Text(
+			this.text,
+			this.family,
+			this.diffText,
+			this.type,
+			this.refIndex,
+			this.createdAt,
+			this.updatedAt
+		);
 	}
 }
 

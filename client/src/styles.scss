@@ -1,8 +1,32 @@
 
+
+.breadcrumb-link:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .invisible-tabs {
   > .mat-tab-header {
     display: none;
   }
+}
+
+.navbar-dark {
+  background-color: rgb(50, 56, 62);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+/* Animate items as they're being sorted. */
+.cdk-drop-list-dragging .cdk-drag {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Animate an item that has been dropped. */
+.cdk-drag-animating {
+  transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 /* width */
@@ -110,6 +134,22 @@
   from { opacity: 0; transform: translateY(-200px);}
   to   { opacity: 1; }
 }
+
+.bg-third {
+  background-color: #1C1E22;
+}
+
+.content-window{
+  // height: calc(100% - 56px);
+  height: 100%;
+}
+
+.content-main{
+  height: 100%;
+  width: 100%;
+  //flex: 1 1 calc(100% - 500px);
+}
+
 
 /*!
  * Bootswatch v4.4.1

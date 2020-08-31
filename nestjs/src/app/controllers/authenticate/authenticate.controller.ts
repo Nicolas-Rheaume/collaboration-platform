@@ -33,7 +33,7 @@ export class AuthenticateController {
 				const userEntity = await this.userModel.findOneByUsername(loginUsername).catch(err => {
 					throw err;
 				});
-				if(userEntity == undefined) throw "User does not exists";
+				if (userEntity == undefined) throw 'User does not exists';
 				else {
 					bcrypt.compare(loginPassword, userEntity.password, async (err: any, isMatch: boolean) => {
 						if (err) reject('Passwords do not match');
