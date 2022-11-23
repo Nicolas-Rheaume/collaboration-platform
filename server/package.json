@@ -29,7 +29,7 @@
     "prettier": "^1.19.1",
     "prettier-eslint": "^9.0.1",
     "sequelize": "^5.21.4",
-    "socket.io": "^2.3.0"
+    "socket.io": "^2.5.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.10"
